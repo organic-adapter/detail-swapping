@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Engines\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\WarGames.Contracts\WarGames.Contracts.csproj" />
+    <ProjectReference Include="..\WarGames.Resources\WarGames.Resources.csproj" />
+  </ItemGroup>
+
+</Project>
