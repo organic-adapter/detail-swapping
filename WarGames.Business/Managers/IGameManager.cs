@@ -3,8 +3,12 @@ using WarGames.Contracts.Game;
 
 namespace WarGames.Business.Managers
 {
-	public interface IWarManager
+	public interface IGameManager
 	{
+		public Task AssignCountriesAsync(CountryAssignment assignmentType);
+
+		public Task LoadWorldAsync();
+
 		public Task LoadPlayerAsync(IPlayer player, ICompetitor competitor);
 
 		public Task<ICompetitor> WhatIsPlayerAsync(IPlayer player);

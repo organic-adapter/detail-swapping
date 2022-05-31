@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using WarGames.Business.Competitors;
+using WarGames.Business.NUnit.Mockers;
 using WarGames.Contracts.Competitors;
+using WarGames.Contracts.Game;
 
 namespace WarGames.Business.NUnit
 {
@@ -20,8 +22,11 @@ namespace WarGames.Business.NUnit
 				Capitalism,
 				Communism
 			};
+
+			World = TestWorldFactory.Make();
 		}
 
 		public IEnumerable<ICompetitor> Competitors { get; set; }
+		public World World { get; set; }
 	}
 }

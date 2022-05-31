@@ -4,6 +4,7 @@ namespace WarGames.Resources
 {
 	public interface IRepository<T, TId>
 		where T : IUnique<TId>
+		where TId : notnull
 	{
 		public void Delete(TId id);
 

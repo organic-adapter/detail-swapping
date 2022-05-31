@@ -10,8 +10,4 @@
     <ProjectReference Include="..\WarGames.Contracts\WarGames.Contracts.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="War\" />
-  </ItemGroup>
-
 </Project>
