@@ -1,6 +1,22 @@
-﻿namespace WarGames.Business.Arsenal.Missiles
+﻿using Map.Engine;
+using WarGames.Contracts.Arsenal;
+
+namespace WarGames.Business.Arsenal.Missiles
 {
-	public class MRM
+	public class MRM : IMissile
 	{
+		public float DamageRadiusKm => 3.6f;
+
+		public Coord? LaunchSource { get; set; }
+		public float? LaunchTimeIndex { get; set; }
+		public IMissile? MIRV => null;
+
+		public byte MIRVCount => 0;
+
+		public float RangeKm => 3000f;
+
+		public float SpeedKps => 3.205f;
+		public Coord? TargetDestination { get; set; }
+		public float? TimeIndexToImpact { get; set; }
 	}
 }

@@ -5,6 +5,13 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 {
 	public class TransportErectorLauncher : IMissileDeliverySystem
 	{
+		public TransportErectorLauncher(float movementSpeed, short payloadCount, IMissile payloadType)
+		{
+			MovementSpeed = movementSpeed;
+			PayloadCount = payloadCount;
+			PayloadType = payloadType;
+		}
+
 		public TerrainType MovementConstraint => TerrainType.Land;
 
 		public float MovementSpeed { get; set; }

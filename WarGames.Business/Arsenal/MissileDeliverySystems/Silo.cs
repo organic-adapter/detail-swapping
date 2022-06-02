@@ -5,6 +5,13 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 {
 	public class Silo : IMissileDeliverySystem
 	{
+		public Silo(float movementSpeed, short payloadCount, IMissile payloadType)
+		{
+			MovementSpeed = movementSpeed;
+			PayloadCount = payloadCount;
+			PayloadType = payloadType;
+		}
+
 		public TerrainType MovementConstraint => TerrainType.None;
 
 		public float MovementSpeed { get; set; }
