@@ -3,7 +3,7 @@ using WarGames.Contracts.Game;
 
 namespace WarGames.Business.Arsenal.MissileDeliverySystems
 {
-	public class Bomber : IMissileDeliverySystem
+	public class Bomber : BaseMissileDeliverySystem
 	{
 		public Bomber(float movementSpeed, short payloadCount, IMissile payloadType)
 		{
@@ -12,12 +12,6 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 			PayloadType = payloadType;
 		}
 
-		public TerrainType MovementConstraint => TerrainType.Land | TerrainType.Ocean;
-
-		public float MovementSpeed { get; set; }
-
-		public short PayloadCount { get; set; }
-
-		public IMissile PayloadType { get; set; }
+		public override TerrainType MovementConstraint => TerrainType.Land | TerrainType.Ocean;
 	}
 }
