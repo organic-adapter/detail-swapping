@@ -1,4 +1,5 @@
 ﻿using WarGames.Business.Exceptions;
+using WarGames.Business.Game;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 using WarGames.Resources;
@@ -8,29 +9,30 @@ namespace WarGames.Business.Managers
 	public class GameManager : IGameManager
 	{
 		private const byte MAX_PLAYERS = 2;
-		private readonly Dictionary<CountryAssignment, Action> assignmentDelegates;
+		private readonly ICountryAssignmentEngine countryAssignmentEngine;
 		private readonly Dictionary<IPlayer, ICompetitor> loadedPlayers;
 		private readonly IRepository<World, Guid> worldRepository;
 		private World world;
 		//I am a fan at defining delegate maps versus switches
 
-		public GameManager(IRepository<World, Guid> worldRepository)
+		public GameManager
+				(
+					IRepository<World, Guid> worldRepository,
+					ICountryAssignmentEngine countryAssignmentEngine
+				)
 		{
-			loadedPlayers = new Dictionary<IPlayer, ICompetitor>();
+			this.countryAssignmentEngine = countryAssignmentEngine;
 			this.worldRepository = worldRepository;
-			assignmentDelegates = new Dictionary<CountryAssignment, Action>()
-			{
-				{ CountryAssignment.Random, CountryAssignmentRandom },
-				{ CountryAssignment.ByName, CountryAssignmentByName }
 
-			};
+			loadedPlayers = new Dictionary<IPlayer, ICompetitor>();
 		}
 
 		public async Task AssignCountriesAsync(CountryAssignment assignmentType)
 		{
 			if (loadedPlayers.Count < 2)
 				throw new PlayersNotReady();
-			await Task.Run(() => assignmentDelegates[assignmentType]());
+
+			await countryAssignmentEngine.AssignCountriesAsync(world, loadedPlayers.Values, assignmentType);
 		}
 
 		public async Task LoadPlayerAsync(IPlayer player, ICompetitor competitor)
@@ -66,54 +68,6 @@ namespace WarGames.Business.Managers
 		public async Task<IEnumerable<IPlayer>> WhoIsPlayingAsync()
 		{
 			return await Task.Run(() => loadedPlayers.Select(lp => lp.Key));
-		}
-
-		private void AssignCountry(ICompetitor competitor, Country country)
-		{
-			competitor.Countries.Add(country);
-			country.Owner = competitor;
-		}
-		private void CountryAssignmentByName()
-		{
-			var assignmentQueue = new Queue<Country>();
-
-			foreach(var competitor in loadedPlayers.Values)			
-				foreach(var country in world.Countries
-											.Where(country => 
-														country.Name.Contains(competitor.Name) 
-														|| country.Name.Contains(competitor.Id, StringComparison.OrdinalIgnoreCase))
-												  )
-					AssignCountry(competitor, country);
-		}
-		private void CountryAssignmentRandom()
-		{
-			var assignmentQueue = new Queue<Country>();
-			var competitorToggles = MakeCompetitorToggles();
-
-			foreach (var country in world.Countries.OrderBy(w => Guid.NewGuid()))
-				assignmentQueue.Enqueue(country);
-
-			byte nextToggle = (byte)(assignmentQueue.Count % competitorToggles.Count);
-			while (assignmentQueue.Any())
-			{
-				var nextCompetitor = competitorToggles[nextToggle];
-				var nextCountry = assignmentQueue.Dequeue();
-
-				AssignCountry(nextCompetitor, nextCountry);
-				nextToggle = (byte)(assignmentQueue.Count % competitorToggles.Count);
-			}
-		}
-
-		private Dictionary<byte, ICompetitor> MakeCompetitorToggles()
-		{
-			var returnMe = new Dictionary<byte, ICompetitor>();
-			byte nextIndex = 0;
-			foreach (var competitor in loadedPlayers.Values)
-			{
-				returnMe.Add(nextIndex, competitor);
-				nextIndex++;
-			}
-			return returnMe;
 		}
 	}
 }

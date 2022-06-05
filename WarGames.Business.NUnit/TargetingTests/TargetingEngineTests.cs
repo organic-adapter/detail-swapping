@@ -18,6 +18,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 	public class TargetingEngineTests
 	{
 		private IRepository<ICompetitor, string> competitorRepository;
+		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
 		private TestData testData;
@@ -42,6 +43,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		public void OneTimeSetUp()
 		{
 			testData = new TestData();
+			countryAssignmentEngine = new CountryAssignmentEngine();
 		}
 
 		[SetUp]
@@ -49,7 +51,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
 			competitorRepository = new InMemoryCompetitorRepository();
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World));
+			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
 			targetResource = new TargetResource();
 
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());

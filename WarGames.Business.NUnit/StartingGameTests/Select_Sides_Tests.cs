@@ -14,8 +14,9 @@ namespace WarGames.Business.NUnit.StartingGameTests
 	public class Select_Sides_Tests
 	{
 		private ICompetitorManager competitorManager;
-		private TestData testData;
+		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
+		private TestData testData;
 
 		[Test]
 		public async Task Can_Select_Capitalism()
@@ -54,6 +55,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void OneTimeSetUp()
 		{
 			testData = new TestData();
+			countryAssignmentEngine = new CountryAssignmentEngine();
 		}
 
 		[Test]
@@ -80,7 +82,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World));
+			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
