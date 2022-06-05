@@ -2,6 +2,8 @@
 {
 	public struct Coord
 	{
+		public static readonly Coord NoAssignment = new Coord(double.MaxValue, double.MaxValue);
+
 		public const double MAX_LAT_DEG = 90f;
 		public const double MAX_LONG_DEG = 180f;
 

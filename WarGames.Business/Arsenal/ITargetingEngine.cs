@@ -6,7 +6,8 @@ namespace WarGames.Business.Arsenal
 {
 	public interface ITargetingEngine
 	{
-		public Task<IEnumerable<Settlement>> GetSettlementsAsync(ICompetitor opposingSide);
 		public Task<IEnumerable<Target>> CalculateTargetsInRangeAsync(IPlayer activePlayer);
+
+		public Task<IEnumerable<Settlement>> GetSettlementsAsync(ICompetitor opposingSide);
 	}
 }
