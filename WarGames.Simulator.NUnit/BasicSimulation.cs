@@ -18,6 +18,7 @@ namespace WarGames.Simulator.NUnit
 		private ITargetResource targetResource;
 		private IRepository<World, Guid> worldRepository;
 
+		#region Set Ups
 		[OneTimeSetUp]
 		public void OneTimeSetUp()
 		{
@@ -30,5 +31,7 @@ namespace WarGames.Simulator.NUnit
 
 			gameManager.LoadWorldAsync();
 		}
+		#endregion Set Ups
+
 	}
 }

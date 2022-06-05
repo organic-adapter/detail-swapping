@@ -16,6 +16,24 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		private IGameManager gameManager;
 		private TestData testData;
 
+		#region Set Ups
+
+		[OneTimeSetUp]
+		public void OneTimeSetUp()
+		{
+			testData = new TestData();
+			countryAssignmentEngine = new CountryAssignmentEngine();
+		}
+
+		[SetUp]
+		public void SetUp()
+		{
+			//We can use the InMemoryRepositories directly rather than Mock these.
+			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
+		}
+
+		#endregion Set Ups
+
 		[Test]
 		public async Task Game_Can_Randomize_Assignment_Evenly()
 		{
@@ -38,20 +56,6 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void Game_Cannot_Assign_Countries_Until_Players_Are_Ready()
 		{
 			Assert.ThrowsAsync<PlayersNotReady>(() => gameManager.AssignCountriesAsync(CountryAssignment.Random));
-		}
-
-		[OneTimeSetUp]
-		public void OneTimeSetUp()
-		{
-			testData = new TestData();
-			countryAssignmentEngine = new CountryAssignmentEngine();
-		}
-
-		[SetUp]
-		public void SetUp()
-		{
-			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
 		}
 	}
 }

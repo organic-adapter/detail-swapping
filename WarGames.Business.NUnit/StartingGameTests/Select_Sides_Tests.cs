@@ -18,6 +18,25 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		private IGameManager gameManager;
 		private TestData testData;
 
+		#region Set Ups
+
+		[OneTimeSetUp]
+		public void OneTimeSetUp()
+		{
+			testData = new TestData();
+			countryAssignmentEngine = new CountryAssignmentEngine();
+		}
+
+		[SetUp]
+		public void SetUp()
+		{
+			//We can use the InMemoryRepositories directly rather than Mock these.
+			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
+			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
+		}
+
+		#endregion Set Ups
+
 		[Test]
 		public async Task Can_Select_Capitalism()
 		{
@@ -51,13 +70,6 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			Assert.That(await gameManager.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Capitalism));
 		}
 
-		[OneTimeSetUp]
-		public void OneTimeSetUp()
-		{
-			testData = new TestData();
-			countryAssignmentEngine = new CountryAssignmentEngine();
-		}
-
 		[Test]
 		public async Task Select_Capitalism()
 		{
@@ -76,14 +88,6 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			await gameManager.LoadPlayerAsync(player1, testData.Communism);
 
 			Assert.That(await gameManager.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Communism));
-		}
-
-		[SetUp]
-		public void SetUp()
-		{
-			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
-			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
 		/// <summary>
