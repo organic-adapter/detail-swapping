@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 using WarGames.Resources.Game;
 
@@ -16,6 +17,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		private ICompetitorManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
+		private ITargetResource targetResource;
 		private TestData testData;
 
 		#region Set Ups
@@ -25,13 +27,14 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		{
 			testData = new TestData();
 			countryAssignmentEngine = new CountryAssignmentEngine();
+			targetResource = new TargetResource();
 		}
 
 		[SetUp]
 		public void SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine);
+			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 

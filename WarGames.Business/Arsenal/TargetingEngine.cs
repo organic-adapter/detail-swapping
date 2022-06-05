@@ -1,25 +1,36 @@
-﻿using WarGames.Contracts.Arsenal;
+﻿using System.Collections.Concurrent;
+using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 
 namespace WarGames.Business.Arsenal
 {
 	public class TargetingEngine : ITargetingEngine
 	{
-		private readonly IRepository<ICompetitor, string> competitorRepository;
 		private readonly ITargetResource targetResource;
 
-		public TargetingEngine(ITargetResource targetResource, IRepository<ICompetitor, string> competitorRepository)
+		public TargetingEngine(ITargetResource targetResource)
 		{
-			this.competitorRepository = competitorRepository;
 			this.targetResource = targetResource;
 		}
 
-		public async Task<IEnumerable<Target>> CalculateTargetsInRangeAsync(IPlayer activePlayer)
+		public async Task<IEnumerable<Target>> CalculateTargetsInRangeAsync(ICompetitor currentCompetitor, ICompetitor opposingCompetitor)
 		{
-			var returnMe = new List<Target>();
+			var returnMe = new ConcurrentBag<Target>();
+			var options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+			var targets = await targetResource.GetAsync(opposingCompetitor);
+			await Parallel.ForEachAsync(
+					targets,
+					options,
+					async (target, token) =>
+						{
+							await Task.Run(() =>
+							{
+								if (currentCompetitor.MissileDeliverySystems.Any(mds => mds.InAttackRange(target.Key.Location)))
+									returnMe.Add(target);
+							});
+						});
 
 			return returnMe;
 		}

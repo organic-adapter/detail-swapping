@@ -1,8 +1,10 @@
 ﻿using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
+using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 using WarGames.Resources;
+using WarGames.Resources.Arsenal;
 
 namespace WarGames.Business.Managers
 {
@@ -11,6 +13,7 @@ namespace WarGames.Business.Managers
 		private const byte MAX_PLAYERS = 2;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
 		private readonly Dictionary<IPlayer, ICompetitor> loadedPlayers;
+		private readonly ITargetResource targetResource;
 		private readonly IRepository<World, Guid> worldRepository;
 		private World world;
 		//I am a fan at defining delegate maps versus switches
@@ -18,18 +21,26 @@ namespace WarGames.Business.Managers
 		public GameManager
 				(
 					IRepository<World, Guid> worldRepository,
-					ICountryAssignmentEngine countryAssignmentEngine
+					ICountryAssignmentEngine countryAssignmentEngine,
+					ITargetResource targetResource
 				)
 		{
 			this.countryAssignmentEngine = countryAssignmentEngine;
+			this.targetResource = targetResource;
 			this.worldRepository = worldRepository;
 
 			loadedPlayers = new Dictionary<IPlayer, ICompetitor>();
+			world = World.Empty;
+		}
+
+		public async Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
+		{
+			await targetResource.AddTargetAsync(settlement, targetPriority);
 		}
 
 		public async Task AssignCountriesAsync(CountryAssignment assignmentType)
 		{
-			if (loadedPlayers.Count < 2)
+			if (loadedPlayers.Count < MAX_PLAYERS)
 				throw new PlayersNotReady();
 
 			await countryAssignmentEngine.AssignCountriesAsync(world, loadedPlayers.Values, assignmentType);

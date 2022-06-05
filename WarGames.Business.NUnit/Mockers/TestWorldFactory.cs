@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Map.Engine;
+using System;
 using System.Collections.Generic;
 using WarGames.Contracts.Game;
 using WarGames.Contracts.Game.TargetValues;
@@ -35,32 +36,35 @@ namespace WarGames.Business.NUnit.Mockers
 			returnMe.Add(new Country() { Name = "Communism Small Towns 3" });
 
 			foreach (var country in returnMe)
-				country.Settlements = MakeSettlements(country.Name);
-
+			{
+				var direction = country.Name.StartsWith("Communism") ? (int)CardinalLong.E : (int)CardinalLong.W;
+				country.Settlements = MakeSettlements(country, direction);
+			}
 			return returnMe;
 		}
 
-		private static Settlement MakeSettlement(string countryName, string settlementName)
+		private static Settlement MakeSettlement(Country country, string settlementName, double lon)
 		{
 			var returnMe = new Settlement()
 			{
 				Id = Guid.NewGuid()
 				,
-				Name = $"{countryName} {settlementName}"
+				Name = $"{country.Name} {settlementName}",
+				Location = new Location(country, new Coord(0, lon)),
 			};
 
 			returnMe.TargetValues.Add(MakeTargetValue<CivilianPopulation>(10000, 10000000));
 			return returnMe;
 		}
 
-		private static List<Settlement> MakeSettlements(string countryName)
+		private static List<Settlement> MakeSettlements(Country country, int direction)
 		{
 			var returnMe = new List<Settlement>
 			{
-				MakeSettlement(countryName, "Primary Target"),
-				MakeSettlement(countryName, "Secondary Target"),
-				MakeSettlement(countryName, "Tertiary Target"),
-				MakeSettlement(countryName, "Left Over Target"),
+				MakeSettlement(country, "Primary Target", direction * 4),
+				MakeSettlement(country, "Secondary Target", direction *  8),
+				MakeSettlement(country, "Tertiary Target", direction * 16),
+				MakeSettlement(country, "Left Over Target", direction * 32),
 			};
 
 			return returnMe;

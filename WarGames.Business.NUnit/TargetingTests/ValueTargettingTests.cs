@@ -1,17 +1,19 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
-using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Business.NUnit.Mockers;
+using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Game;
 
-namespace WarGames.Business.NUnit.StartingGameTests
+namespace WarGames.Business.NUnit.TargetingTests
 {
 	[TestFixture]
-	public class World_Creation_Tests
+	public class ValueTargettingTests
 	{
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
@@ -29,36 +31,35 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		}
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
 			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
-		}
 
-		#endregion Set Ups
-
-		[Test]
-		public async Task Game_Can_Randomize_Assignment_Evenly()
-		{
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
 			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
 			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-			var communism = await gameManager.WhatIsPlayerAsync(playerCommunism);
-			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
 
 			await gameManager.LoadWorldAsync();
 
-			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
-			Assert.That(communism.Countries.Count, Is.GreaterThan(0));
-			Assert.That(communism.Countries.Count, Is.EqualTo(capitalism.Countries.Count));
+			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
 		}
 
+		#endregion Set Ups
+
 		[Test]
-		public void Game_Cannot_Assign_Countries_Until_Players_Are_Ready()
+		public async Task Game_Can_Target()
 		{
-			Assert.ThrowsAsync<PlayersNotReady>(() => gameManager.AssignCountriesAsync(CountryAssignment.Random));
+			var priority = TargetPriority.Primary;
+			var capHighestValueTarget = testData.Capitalism.Countries.SelectMany(country => country.Settlements.OrderByDescending(s => s.TargetValues.Sum(tv => tv.Value))).First();
+			await gameManager.AddTargetAsync(capHighestValueTarget, priority);
+
+			var target = await targetResource.GetAsync(capHighestValueTarget);
+			Assert.That(target, Is.Not.Null);
+			Assert.That(target.Priority, Is.EqualTo(priority));
 		}
+
 	}
 }

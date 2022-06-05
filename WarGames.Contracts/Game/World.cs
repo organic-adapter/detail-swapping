@@ -3,6 +3,7 @@
 	[Serializable]
 	public class World : IUnique<Guid>
 	{
+		public static readonly World Empty = new World();
 		public World()
 		{
 			Countries = new List<Country>();

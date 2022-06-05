@@ -24,6 +24,12 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 
 		public IGeographicalArea CurrentArea { get; set; }
 
+		public bool InAttackRange(ILocation target)
+		{
+			var distanceKm = Location.Coord.DistanceKm(target.Coord);
+			return PayloadType.RangeKm >= distanceKm;
+		}
+
 		public void MoveTo(ILocation location)
 		{
 			moveToLocation = location;

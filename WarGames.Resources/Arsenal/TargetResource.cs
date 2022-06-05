@@ -26,9 +26,9 @@ namespace WarGames.Resources.Arsenal
 			});
 		}
 
-		public async Task<IEnumerable<Target>> GetAsync(Settlement settlement)
+		public async Task<Target> GetAsync(Settlement settlement)
 		{
-			return await Task.Run(() => targets.Where(t => settlement.Equals(t.Key)));
+			return await Task.Run(() => Get(settlement));
 		}
 
 		public async Task<IEnumerable<Target>> GetAsync(Country country)
@@ -40,9 +40,16 @@ namespace WarGames.Resources.Arsenal
 		{
 			return await Task.Run(() =>
 			{
-				var countries = targets.SelectMany(target => competitor.Countries);
-				return countries.SelectMany(country => Get(country));
+				return competitor
+						.Settlements
+						.Where(settlement => targets.Any(target => target.Key.Equals(settlement)))
+						.Select(settlement => Get(settlement));
 			});
+		}
+
+		private Target Get(Settlement settlement)
+		{
+			return targets.First(target => target.Key.Equals(settlement));
 		}
 
 		private IEnumerable<Target> Get(Country country)

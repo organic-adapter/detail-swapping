@@ -1,5 +1,4 @@
-﻿using Map.Engine;
-using WarGames.Contracts.Game;
+﻿using WarGames.Contracts.Game;
 
 namespace WarGames.Contracts.Arsenal
 {
@@ -15,6 +14,8 @@ namespace WarGames.Contracts.Arsenal
 		public short PayloadCount { get; }
 
 		public IMissile PayloadType { get; }
+
+		public bool InAttackRange(ILocation location);
 
 		public void MoveTo(ILocation location);
 	}

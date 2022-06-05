@@ -8,7 +8,7 @@ namespace WarGames.Resources.Arsenal
 	{
 		public Task<Target> AddTargetAsync(Settlement settlement, TargetPriority targetPriority);
 
-		public Task<IEnumerable<Target>> GetAsync(Settlement settlement);
+		public Task<Target> GetAsync(Settlement settlement);
 
 		public Task<IEnumerable<Target>> GetAsync(Country country);
 
