@@ -7,7 +7,7 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 	{
 		public Bomber(float movementSpeed, short payloadCount, IMissile payloadType)
 		{
-			MovementSpeed = movementSpeed;
+			MovementSpeedKps = movementSpeed;
 			PayloadCount = payloadCount;
 			PayloadType = payloadType;
 		}

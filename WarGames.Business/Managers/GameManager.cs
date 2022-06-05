@@ -20,7 +20,9 @@ namespace WarGames.Business.Managers
 			this.worldRepository = worldRepository;
 			assignmentDelegates = new Dictionary<CountryAssignment, Action>()
 			{
-				{ CountryAssignment.Random, CountryAssignmentRandom }
+				{ CountryAssignment.Random, CountryAssignmentRandom },
+				{ CountryAssignment.ByName, CountryAssignmentByName }
+
 			};
 		}
 
@@ -71,7 +73,18 @@ namespace WarGames.Business.Managers
 			competitor.Countries.Add(country);
 			country.Owner = competitor;
 		}
+		private void CountryAssignmentByName()
+		{
+			var assignmentQueue = new Queue<Country>();
 
+			foreach(var competitor in loadedPlayers.Values)			
+				foreach(var country in world.Countries
+											.Where(country => 
+														country.Name.Contains(competitor.Name) 
+														|| country.Name.Contains(competitor.Id, StringComparison.OrdinalIgnoreCase))
+												  )
+					AssignCountry(competitor, country);
+		}
 		private void CountryAssignmentRandom()
 		{
 			var assignmentQueue = new Queue<Country>();

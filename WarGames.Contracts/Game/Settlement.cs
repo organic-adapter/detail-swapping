@@ -12,7 +12,7 @@ namespace WarGames.Contracts.Game
 		}
 
 		public Guid Id { get; set; }
-		public Coord Location { get; set; }
+		public ILocation Location { get; set; }
 		public string Name { get; set; }
 	}
 }

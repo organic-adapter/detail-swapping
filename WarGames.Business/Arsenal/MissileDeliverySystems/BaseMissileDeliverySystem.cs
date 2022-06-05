@@ -11,20 +11,22 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 {
 	public abstract class BaseMissileDeliverySystem : IMissileDeliverySystem
 	{
-		protected Coord? moveToLocation;
-		public Coord Location { get; set; }
+		protected ILocation? moveToLocation;
+		public ILocation Location { get; set; }
 
 		public abstract TerrainType MovementConstraint { get; }
 
-		public float MovementSpeed { get; set; }
+		public float MovementSpeedKps { get; set; }
 
 		public short PayloadCount { get; set; }
 
 		public IMissile PayloadType { get; set; }
 
-		public void MoveTo(Coord coord)
+		public IGeographicalArea CurrentArea { get; set; }
+
+		public void MoveTo(ILocation location)
 		{
-			moveToLocation = coord;
+			moveToLocation = location;
 		}
 	}
 }
