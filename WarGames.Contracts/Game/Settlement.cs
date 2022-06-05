@@ -14,6 +14,6 @@
 		public Guid Id { get; set; }
 		public ILocation Location { get; set; }
 		public string Name { get; set; }
-		public IEnumerable<TargetValue> TargetValues { get; set; }
+		public List<TargetValue> TargetValues { get; set; }
 	}
 }

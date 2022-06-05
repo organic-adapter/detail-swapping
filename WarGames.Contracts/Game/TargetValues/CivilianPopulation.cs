@@ -2,7 +2,7 @@
 {
 	public class CivilianPopulation : TargetValue
 	{
-		public CivilianPopulation(string name, float value) : base(name, value)
+		public CivilianPopulation(float value) : base("Civilian Population", value)
 		{
 		}
 	}

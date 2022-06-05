@@ -2,7 +2,7 @@
 {
 	public class MilitaryPower : TargetValue
 	{
-		public MilitaryPower(string name, float value) : base(name, value)
+		public MilitaryPower(float value) : base("Military Power", value)
 		{
 		}
 	}

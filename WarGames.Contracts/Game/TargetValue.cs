@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WarGames.Contracts.Game
 {
-	public abstract class TargetValue
+	public class TargetValue
 	{
 		public TargetValue(string name, float value)
 		{

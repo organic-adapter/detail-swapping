@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.Game.TargetValues;
 
 namespace WarGames.Business.NUnit.Mockers
 {
 	public static class TestWorldFactory
 	{
+		private static readonly Random rando = new Random();
+
 		public static World Make()
 		{
 			return new World() { Countries = MakeCountries() };
@@ -37,17 +40,37 @@ namespace WarGames.Business.NUnit.Mockers
 			return returnMe;
 		}
 
+		private static Settlement MakeSettlement(string countryName, string settlementName)
+		{
+			var returnMe = new Settlement()
+			{
+				Id = Guid.NewGuid()
+				,
+				Name = $"{countryName} {settlementName}"
+			};
+
+			returnMe.TargetValues.Add(MakeTargetValue<CivilianPopulation>(10000, 10000000));
+			return returnMe;
+		}
+
 		private static List<Settlement> MakeSettlements(string countryName)
 		{
-			var returnMe = new List<Settlement>();
-
-			returnMe.Add(new Settlement() { Id = Guid.NewGuid(), Name = $"{countryName} Main Target" });
-			returnMe.Add(new Settlement() { Id = Guid.NewGuid(), Name = $"{countryName} Secondary Target" });
-			returnMe.Add(new Settlement() { Id = Guid.NewGuid(), Name = $"{countryName} Tertiary Target" });
-			returnMe.Add(new Settlement() { Id = Guid.NewGuid(), Name = $"{countryName} Left Over Target" });
-			returnMe.Add(new Settlement() { Id = Guid.NewGuid(), Name = $"{countryName} Left Over Target" });
+			var returnMe = new List<Settlement>
+			{
+				MakeSettlement(countryName, "Primary Target"),
+				MakeSettlement(countryName, "Secondary Target"),
+				MakeSettlement(countryName, "Tertiary Target"),
+				MakeSettlement(countryName, "Left Over Target"),
+			};
 
 			return returnMe;
+		}
+
+		private static T MakeTargetValue<T>(int minValue, int maxValue)
+			where T : TargetValue
+		{
+			var value = rando.Next(minValue, maxValue);
+			return Activator.CreateInstance(typeof(T), value) as T ?? (T)new TargetValue(typeof(T).Name, value);
 		}
 	}
 }

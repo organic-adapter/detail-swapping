@@ -2,7 +2,7 @@
 {
 	public class FoodOutput : TargetValue
 	{
-		public FoodOutput(string name, float value) : base(name, value)
+		public FoodOutput(float value) : base("Food Output", value)
 		{
 		}
 	}
