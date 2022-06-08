@@ -15,7 +15,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Map.Engine", "Map.Engine\Ma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Map.Engine.NUnit", "Map.Engine.NUnit\Map.Engine.NUnit.csproj", "{CF29BFE1-209F-4E24-AD18-530438B64734}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Simulator.NUnit", "WarGames.Simulator.NUnit\WarGames.Simulator.NUnit.csproj", "{0180718B-C791-4713-B682-FDCBF7DC6B50}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarGames.Simulator.NUnit", "WarGames.Simulator.NUnit\WarGames.Simulator.NUnit.csproj", "{0180718B-C791-4713-B682-FDCBF7DC6B50}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Business.xUnit", "WarGames.Business.xUnit\WarGames.Business.xUnit.csproj", "{B2F7BC71-F819-4783-BD34-87DF6DD3B210}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{0180718B-C791-4713-B682-FDCBF7DC6B50}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0180718B-C791-4713-B682-FDCBF7DC6B50}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0180718B-C791-4713-B682-FDCBF7DC6B50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2F7BC71-F819-4783-BD34-87DF6DD3B210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2F7BC71-F819-4783-BD34-87DF6DD3B210}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2F7BC71-F819-4783-BD34-87DF6DD3B210}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2F7BC71-F819-4783-BD34-87DF6DD3B210}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
