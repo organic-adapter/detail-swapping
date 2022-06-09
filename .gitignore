@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# Copyright files that should not be checked in
+*.copyright.*
+
 # User-specific files
 *.rsuser
 *.suo
