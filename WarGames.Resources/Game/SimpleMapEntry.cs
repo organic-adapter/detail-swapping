@@ -1,4 +1,4 @@
-﻿namespace WarGames.Resources.World
+﻿namespace WarGames.Resources.Game
 {
 	internal class SimpleMapEntry
 	{

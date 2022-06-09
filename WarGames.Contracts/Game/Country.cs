@@ -4,20 +4,22 @@ using WarGames.Contracts.Competitors;
 namespace WarGames.Contracts.Game
 {
 	[Serializable]
-	public class Country : IGeographicalArea, IUnique<Guid>
+	public class Country : IGeographicalArea, IUnique<string>
 	{
 		public Country()
 		{
 			Settlements = new List<Settlement>();
-			Id = Guid.NewGuid();
+			Id = Guid.NewGuid().ToString();
 			Name = string.Empty;
 			AdjacentCountries = new List<Country>();
 			AdjacentOceans = new List<Ocean>();
+			LoiteringPositions = new List<ILocation>();
 		}
 
 		public List<Country> AdjacentCountries { get; }
+		public IEnumerable<IGeographicalArea> AdjacentGeographicalAreas => AdjacentGeographicalAreas.Union(AdjacentCountries);
 		public List<Ocean> AdjacentOceans { get; }
-		public Guid Id { get; set; }
+		public string Id { get; set; }
 		public IEnumerable<ILocation> LoiteringPositions { get; set; }
 		public string Name { get; set; }
 		public ICompetitor? Owner { get; set; }
@@ -28,7 +30,5 @@ namespace WarGames.Contracts.Game
 
 		public IEnumerable<ILocation> TargetablePositions => Settlements.Select(s => s.Location);
 		public TerrainType TerrainType => TerrainType.Ocean;
-
-		public IEnumerable<IGeographicalArea> AdjacentGeographicalAreas => AdjacentGeographicalAreas.Union(AdjacentCountries);
 	}
 }

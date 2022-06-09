@@ -47,7 +47,7 @@ namespace WarGames.Business.NUnit.Mockers
 		{
 			var returnMe = new Settlement()
 			{
-				Id = Guid.NewGuid()
+				Id = Guid.NewGuid().ToString()
 				,
 				Name = $"{country.Name} {settlementName}",
 				Location = new Location(country, new Coord(0, lon)),
