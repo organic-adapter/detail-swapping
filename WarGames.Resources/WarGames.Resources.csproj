@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SimpleMap.Contracts\SimpleMap.Contracts.csproj" />
     <ProjectReference Include="..\WarGames.Contracts\WarGames.Contracts.csproj" />
   </ItemGroup>
 

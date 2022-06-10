@@ -34,15 +34,13 @@ namespace WarGames.Business.NUnit.TargetingTests
 		public async Task SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
 
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
 			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
 			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-
-			await gameManager.LoadWorldAsync();
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
 		}

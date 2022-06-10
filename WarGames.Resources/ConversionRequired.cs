@@ -10,6 +10,7 @@
 
 		public Type Source { get; }
 		public Type Destination { get; }
+		public static ConversionRequired Empty = new ConversionRequired(typeof(object), typeof(object));
 	}
 
 	public class ConversionRequired<TSource, TDest> : ConversionRequired

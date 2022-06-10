@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Business.xUnit", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Business.MSTest", "WarGames.Business.MSTest\WarGames.Business.MSTest.csproj", "{F3B415C7-DBE1-4231-81DC-3612D7470CE1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMap.Contracts", "SimpleMap.Contracts\SimpleMap.Contracts.csproj", "{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{F3B415C7-DBE1-4231-81DC-3612D7470CE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F3B415C7-DBE1-4231-81DC-3612D7470CE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F3B415C7-DBE1-4231-81DC-3612D7470CE1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

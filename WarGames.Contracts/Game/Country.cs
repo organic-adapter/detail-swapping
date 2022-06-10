@@ -30,5 +30,17 @@ namespace WarGames.Contracts.Game
 
 		public IEnumerable<ILocation> TargetablePositions => Settlements.Select(s => s.Location);
 		public TerrainType TerrainType => TerrainType.Ocean;
+
+		public override bool Equals(object? obj)
+		{
+			if (obj is not Country compareMe)
+				return false;
+
+			return compareMe.Id.Equals(Id, StringComparison.Ordinal);
+		}
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
 	}
 }

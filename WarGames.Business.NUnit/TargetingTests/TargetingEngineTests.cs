@@ -45,15 +45,13 @@ namespace WarGames.Business.NUnit.TargetingTests
 			competitorRepository = new InMemoryCompetitorRepository();
 
 			targetingEngine = new TargetingEngine(targetResource);
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
 
 			playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
 			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
 			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-
-			await gameManager.LoadWorldAsync();
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
 		}

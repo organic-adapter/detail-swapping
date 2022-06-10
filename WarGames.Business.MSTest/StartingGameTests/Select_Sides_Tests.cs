@@ -25,7 +25,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 			targetResource = new TargetResource();
 
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 

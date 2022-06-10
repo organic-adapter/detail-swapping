@@ -18,6 +18,8 @@ namespace WarGames.Resources
 
 		public string RootPath { get; set; }
 
-		public ConversionRequired? ConversionRequired { get; set; } 
+		public ConversionRequired? ConversionRequired { get; set; }
+
+		public bool IsConversionRequired => ConversionRequired != null; 
 	}
 }

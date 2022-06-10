@@ -34,7 +34,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 

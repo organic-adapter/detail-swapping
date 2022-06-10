@@ -32,7 +32,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(new InMemoryWorldRepository(testData.World), countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
 		}
 
 		#endregion Set Ups
@@ -47,8 +47,6 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
 			var communism = await gameManager.WhatIsPlayerAsync(playerCommunism);
 			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
-
-			await gameManager.LoadWorldAsync();
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
 			Assert.That(communism.Countries.Count, Is.GreaterThan(0));
