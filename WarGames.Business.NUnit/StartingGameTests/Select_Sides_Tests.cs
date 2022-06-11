@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,29 +16,25 @@ namespace WarGames.Business.NUnit.StartingGameTests
 	[TestFixture]
 	public class Select_Sides_Tests
 	{
-		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private ICompetitorManager competitorManager;
-		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
-		private ITargetResource targetResource;
 		private TestData testData;
 
 		#region Set Ups
 
-		[OneTimeSetUp]
-		public void OneTimeSetUp()
-		{
-			testData = new TestData();
-			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
-			countryAssignmentEngine = new CountryAssignmentEngine();
-			targetResource = new TargetResource();
-		}
-
 		[SetUp]
 		public void SetUp()
 		{
+			testData = new TestData();
+
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager
+					(
+						testData.World
+						, Mock.Of<IArsenalAssignmentEngine>()
+						, new CountryAssignmentEngine()
+						, Mock.Of<ITargetResource>()
+					); ;
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
