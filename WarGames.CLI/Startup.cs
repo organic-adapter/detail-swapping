@@ -54,6 +54,7 @@ namespace WarGames.CLI
 			services.AddSingleton<ICountryAssignmentEngine, CountryAssignmentEngine>();
 			services.AddSingleton<IGameManager, GameManager>();
 			services.AddSingleton<ITargetResource, TargetResource>();
+			services.AddSingleton<IDamageCalculator, DamageCalculator>();
 			services.AddSingleton<ITargetingEngine, TargetingEngine>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
 

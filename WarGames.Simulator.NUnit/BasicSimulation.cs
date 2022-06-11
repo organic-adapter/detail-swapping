@@ -87,6 +87,7 @@ namespace WarGames.Simulator.NUnit
 			services.AddSingleton<IArsenalAssignmentEngine, ArsenalAssignmentEngine>();
 			services.AddSingleton<ICountryAssignmentEngine, CountryAssignmentEngine>();
 			services.AddSingleton<IGameManager, GameManager>();
+			services.AddSingleton<IDamageCalculator, DamageCalculator>();
 			services.AddSingleton<ITargetResource, TargetResource>();
 			services.AddSingleton<ITargetingEngine, TargetingEngine>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();

@@ -13,6 +13,7 @@ namespace WarGames.Business.Managers
 		private const byte MAX_PLAYERS = 2;
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
+		private readonly IDamageCalculator damageCalculator;
 		private readonly Dictionary<IPlayer, ICompetitor> loadedPlayers;
 		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
 		private readonly ITargetingEngine targetingEngine;
@@ -25,12 +26,14 @@ namespace WarGames.Business.Managers
 					WorldFactory worldFactory,
 					IArsenalAssignmentEngine arsenalAssignmentEngine,
 					ICountryAssignmentEngine countryAssignmentEngine,
+					IDamageCalculator damageCalculator,
 					ITargetResource targetResource,
 					ITargetingEngine targetingEngine
 				)
 		{
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
 			this.countryAssignmentEngine = countryAssignmentEngine;
+			this.damageCalculator = damageCalculator;
 			this.targetingEngine = targetingEngine;
 			this.targetResource = targetResource;
 			this.worldFactory = worldFactory;
@@ -51,6 +54,7 @@ namespace WarGames.Business.Managers
 		{
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
 			this.countryAssignmentEngine = countryAssignmentEngine;
+			this.damageCalculator = new DamageCalculator();
 			this.targetingEngine = new TargetingEngine(targetResource);
 			this.targetResource = targetResource;
 			this.worldFactory = null;
@@ -80,13 +84,6 @@ namespace WarGames.Business.Managers
 			await countryAssignmentEngine.AssignCountriesAsync(world, loadedPlayers.Values, assignmentType);
 		}
 
-		public async Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source)
-		{
-			var side = loadedPlayers[source];
-			var opponent = opposingSides[side];
-			return await Task.Run(() => opponent.Settlements);
-		}
-
 		public async Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source)
 		{
 			var side = loadedPlayers[source];
@@ -94,6 +91,12 @@ namespace WarGames.Business.Managers
 			return await targetResource.GetAsync(opponent);
 		}
 
+		public async Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source)
+		{
+			var side = loadedPlayers[source];
+			var opponent = opposingSides[side];
+			return await Task.Run(() => opponent.Settlements);
+		}
 		public async Task LoadPlayerAsync(IPlayer player, ICompetitor competitor)
 		{
 			if (loadedPlayers.Any(lp => lp.Value == competitor && lp.Key != player))
@@ -143,6 +146,8 @@ namespace WarGames.Business.Managers
 						});
 					}
 				); ;
+
+			await damageCalculator.CalculateAfterMathAsync(world);
 		}
 
 		public void ReadyForLaunch()
