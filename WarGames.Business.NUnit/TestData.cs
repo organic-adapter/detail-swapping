@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using WarGames.Business.Competitors;
 using WarGames.Business.NUnit.Mockers;
+using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 
 namespace WarGames.Business.NUnit
 {
-	public class TestData
+	internal class TestData
 	{
 		public ICompetitor Capitalism;
 		public ICompetitor Communism;
@@ -27,6 +28,12 @@ namespace WarGames.Business.NUnit
 		}
 
 		public IEnumerable<ICompetitor> Competitors { get; set; }
+		public IMissile StandardMissile => new StandardMissile();
 		public World World { get; set; }
+
+		public IMissileDeliverySystem StandardMissileDeliverySystem(IGeographicalArea area, ILocation location)
+		{
+			return new StandardMissileDeliverySystem(area, location);
+		}
 	}
 }
