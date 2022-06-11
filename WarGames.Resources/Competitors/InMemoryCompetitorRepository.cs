@@ -3,6 +3,14 @@ using WarGames.Contracts.Competitors;
 
 namespace WarGames.Resources.Competitors
 {
+	/// <summary>
+	/// The original intent was to be able to load a competitor
+	/// that had been saved.
+	/// 
+	/// This In Memory version currently has no value since it
+	/// has to load on the fly.
+	/// </summary>
+	[Obsolete("Practically Unused. Tear out after it has been replaced with a repository that can save and load to persisted state.")]
 	public class InMemoryCompetitorRepository : InMemoryRepository<ICompetitor, string>
 	{
 
