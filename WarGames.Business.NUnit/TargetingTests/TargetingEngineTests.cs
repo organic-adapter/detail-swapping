@@ -25,7 +25,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		private IRepository<ICompetitor, string> competitorRepository;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
-		private ITargetingEngine targetingEngine;
+		private ITargetingCalculator targetingCalculator;
 		private ITargetResource targetResource;
 		private TestData testData;
 
@@ -46,7 +46,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 			targetResource = new TargetResource();
 			competitorRepository = new InMemoryCompetitorRepository();
 
-			targetingEngine = new TargetingEngine(targetResource);
+			targetingCalculator = new TargetingCalculator(targetResource);
 			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 
 			playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
@@ -77,7 +77,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 			await gameManager.AddTargetAsync(closestSettlement, priority);
 			await gameManager.AddTargetAsync(farthestSettlement, priority);
 
-			var targetsInRange = await targetingEngine.CalculateTargetsInRangeAsync(testData.Communism, testData.Capitalism);
+			var targetsInRange = await targetingCalculator.CalculateTargetsInRangeAsync(testData.Communism, testData.Capitalism);
 			Assert.That(targetsInRange, Is.Not.Null);
 			Assert.That(targetsInRange.Count, Is.EqualTo(1));
 			Assert.That(targetsInRange.Any(tir => tir.Key.Key == closestSettlement), Is.True);
@@ -87,7 +87,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		[Test]
 		public async Task Can_Get_Settlements()
 		{
-			var engine = new TargetingEngine(targetResource);
+			var engine = new TargetingCalculator(targetResource);
 
 			var comSettlements = await engine.GetSettlementsAsync(testData.Communism);
 			var capSettlements = await engine.GetSettlementsAsync(testData.Capitalism);

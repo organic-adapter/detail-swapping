@@ -4,7 +4,7 @@ using WarGames.Contracts.Game;
 
 namespace WarGames.Business.Arsenal
 {
-	public interface ITargetingEngine
+	public interface ITargetingCalculator
 	{
 		public Task<IDictionary<Target, IEnumerable<IMissileDeliverySystem>>> CalculateTargetsInRangeAsync(ICompetitor currentCompetitor, ICompetitor opposingCompetitor);
 

@@ -16,7 +16,7 @@ namespace WarGames.Business.Managers
 		private readonly IDamageCalculator damageCalculator;
 		private readonly Dictionary<IPlayer, ICompetitor> loadedPlayers;
 		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
-		private readonly ITargetingEngine targetingEngine;
+		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
 		private readonly WorldFactory? worldFactory;
 		private World world;
@@ -28,13 +28,13 @@ namespace WarGames.Business.Managers
 					ICountryAssignmentEngine countryAssignmentEngine,
 					IDamageCalculator damageCalculator,
 					ITargetResource targetResource,
-					ITargetingEngine targetingEngine
+					ITargetingCalculator targetingCalculator
 				)
 		{
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
 			this.countryAssignmentEngine = countryAssignmentEngine;
 			this.damageCalculator = damageCalculator;
-			this.targetingEngine = targetingEngine;
+			this.targetingCalculator = targetingCalculator;
 			this.targetResource = targetResource;
 			this.worldFactory = worldFactory;
 
@@ -55,7 +55,7 @@ namespace WarGames.Business.Managers
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
 			this.countryAssignmentEngine = countryAssignmentEngine;
 			this.damageCalculator = new DamageCalculator();
-			this.targetingEngine = new TargetingEngine(targetResource);
+			this.targetingCalculator = new TargetingCalculator(targetResource);
 			this.targetResource = targetResource;
 			this.worldFactory = null;
 			loadedPlayers = new Dictionary<IPlayer, ICompetitor>();
@@ -162,7 +162,7 @@ namespace WarGames.Business.Managers
 
 		public async Task SetTargetAssignmentsAsync()
 		{
-			await targetingEngine.SetTargetAssignmentsByPriorityAsync(loadedPlayers.Select(kvp => kvp.Value));
+			await targetingCalculator.SetTargetAssignmentsByPriorityAsync(loadedPlayers.Select(kvp => kvp.Value));
 		}
 
 		public async Task<ICompetitor> WhatIsPlayerAsync(IPlayer player)

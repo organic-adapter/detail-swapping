@@ -18,6 +18,10 @@ using WarGames.Resources.Game;
 
 namespace WarGames.Simulator.NUnit
 {
+	/// <summary>
+	/// Demonstrates the original claim. Isolating your business layer allows you to quickly swap out UI.
+	/// </summary>
+	[Ignore("Long running. This simulator is not intended to be a TEST.")]
 	[TestFixture]
 	public class BasicSimulation
 	{
@@ -89,7 +93,7 @@ namespace WarGames.Simulator.NUnit
 			services.AddSingleton<IGameManager, GameManager>();
 			services.AddSingleton<IDamageCalculator, DamageCalculator>();
 			services.AddSingleton<ITargetResource, TargetResource>();
-			services.AddSingleton<ITargetingEngine, TargetingEngine>();
+			services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
 
 			services.AddAutoMapper(typeof(WorldMapperProfiles));
