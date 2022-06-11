@@ -1,43 +1,40 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
-using WarGames.Business.NUnit.Mockers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
 using WarGames.Resources.Arsenal;
-using WarGames.Resources.Game;
 
-namespace WarGames.Business.NUnit.TargetingTests
+namespace WarGames.Business.NUnit.ArsenalTests
 {
 	[TestFixture]
-	public class ValueTargettingTests
+	public class ValueTargetingTests
 	{
-		private IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
 		private TestData testData;
 
 		#region Set Ups
 
-		[OneTimeSetUp]
-		public void OneTimeSetUp()
-		{
-			testData = new TestData();
-			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
-			countryAssignmentEngine = new CountryAssignmentEngine();
-			targetResource = new TargetResource();
-		}
-
 		[SetUp]
 		public async Task SetUp()
 		{
+			testData = new TestData();
+			targetResource = new TargetResource();
+
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager
+					(
+						testData.World
+						, Mock.Of<IArsenalAssignmentEngine>()
+						, new CountryAssignmentEngine()
+						, targetResource
+					); ;
 
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
@@ -53,14 +50,13 @@ namespace WarGames.Business.NUnit.TargetingTests
 		[Test]
 		public async Task Game_Can_Target()
 		{
-			var priority = TargetPriority.Primary;
-			var capHighestValueTarget = testData.Capitalism.Countries.SelectMany(country => country.Settlements.OrderByDescending(s => s.TargetValues.Sum(tv => tv.Value))).First();
-			await gameManager.AddTargetAsync(capHighestValueTarget, priority);
-
+			var capHighestValueTarget = testData.Capitalism.Settlements.OrderByDescending(s => s.TargetValues.Sum(tv => tv.Value)).First();
+			
+			await gameManager.AddTargetAsync(capHighestValueTarget, TargetPriority.Primary);
 			var target = await targetResource.GetAsync(capHighestValueTarget);
-			Assert.That(target, Is.Not.Null);
-			Assert.That(target.Priority, Is.EqualTo(priority));
-		}
 
+			Assert.That(target, Is.Not.Null);
+			Assert.That(target.Priority, Is.EqualTo(TargetPriority.Primary));
+		}
 	}
 }

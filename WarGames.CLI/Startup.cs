@@ -55,7 +55,7 @@ namespace WarGames.CLI
 			services.AddSingleton<IGameManager, GameManager>();
 			services.AddSingleton<ITargetResource, TargetResource>();
 			services.AddSingleton<IDamageCalculator, DamageCalculator>();
-			services.AddSingleton<ITargetingEngine, TargetingEngine>();
+			services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
 
 			services.AddAutoMapper(typeof(WorldMapperProfiles));

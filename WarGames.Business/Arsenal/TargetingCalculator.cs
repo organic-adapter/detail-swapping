@@ -6,11 +6,11 @@ using WarGames.Resources.Arsenal;
 
 namespace WarGames.Business.Arsenal
 {
-	public class TargetingEngine : ITargetingEngine
+	public class TargetingCalculator : ITargetingCalculator
 	{
 		private readonly ITargetResource targetResource;
 
-		public TargetingEngine(ITargetResource targetResource)
+		public TargetingCalculator(ITargetResource targetResource)
 		{
 			this.targetResource = targetResource;
 		}
