@@ -4,10 +4,9 @@ namespace WarGames.Business.NUnit.Mockers
 {
 	internal class StandardMissileDeliverySystem : TestMissileDeliverySystem
 	{
-		public StandardMissileDeliverySystem(IGeographicalArea currentArea, ILocation location)
+		public StandardMissileDeliverySystem(ILocation location)
 			: base(
-					  currentArea
-					  , location
+					  location
 					  , Defaults.MissileDeliverySystem.MOVEMENT_CONSTRAINT
 					  , Defaults.MissileDeliverySystem.MOVEMENT_KPS
 					  , Defaults.MissileDeliverySystem.PAYLOAD_COUNT

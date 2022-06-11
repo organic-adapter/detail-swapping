@@ -121,7 +121,7 @@ namespace WarGames.Simulator.NUnit
 		private void SeedArsenal(ICompetitor competitor)
 		{
 			foreach (var settlement in competitor.Settlements)
-				competitor.MissileDeliverySystems.Add(new Silo(0, 1, new SRM()) { CurrentArea = settlement.Location.Area, Location = settlement.Location });
+				competitor.MissileDeliverySystems.Add(new Silo(0, 1, new SRM()) { Location = settlement.Location });
 		}
 
 		private void SetTargets(ICompetitor competitor)

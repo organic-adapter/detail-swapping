@@ -6,9 +6,8 @@ namespace WarGames.Business.NUnit.Mockers
 {
 	internal class TestMissileDeliverySystem : IMissileDeliverySystem
 	{
-		public TestMissileDeliverySystem(IGeographicalArea currentArea, ILocation location, TerrainType movementConstraint, float movementSpeedKps, short payloadCount, IMissile payloadType)
+		public TestMissileDeliverySystem(ILocation location, TerrainType movementConstraint, float movementSpeedKps, short payloadCount, IMissile payloadType)
 		{
-			CurrentArea = currentArea;
 			Location = location;
 			MovementConstraint = movementConstraint;
 			MovementSpeedKps = movementSpeedKps;
@@ -17,7 +16,7 @@ namespace WarGames.Business.NUnit.Mockers
 			Assignment = Target.Empty;
 		}
 
-		public IGeographicalArea CurrentArea { get; }
+		public IGeographicalArea CurrentArea => Location.Area;
 
 		public ILocation Location { get; }
 

@@ -33,7 +33,7 @@ namespace WarGames.Business.NUnit
 
 		public IMissileDeliverySystem StandardMissileDeliverySystem(IGeographicalArea area, ILocation location)
 		{
-			return new StandardMissileDeliverySystem(area, location);
+			return new StandardMissileDeliverySystem(location);
 		}
 	}
 }
