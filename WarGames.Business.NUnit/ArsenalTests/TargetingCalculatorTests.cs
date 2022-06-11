@@ -14,7 +14,7 @@ using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 using WarGames.Resources.Game;
 
-namespace WarGames.Business.NUnit.TargetingTests
+namespace WarGames.Business.NUnit.ArsenalTests
 {
 	[TestFixture]
 	public class TargetingCalculatorTests
