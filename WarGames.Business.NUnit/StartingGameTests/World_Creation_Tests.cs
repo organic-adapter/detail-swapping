@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using Moq;
+using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
 using WarGames.Business.Arsenal;
@@ -14,10 +15,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 	[TestFixture]
 	public class World_Creation_Tests
 	{
-		private IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
-		private ITargetResource targetResource;
 		private TestData testData;
 
 		#region Set Ups
@@ -25,17 +23,22 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		[OneTimeSetUp]
 		public void OneTimeSetUp()
 		{
-			testData = new TestData();
-			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
-			countryAssignmentEngine = new CountryAssignmentEngine();
-			targetResource = new TargetResource();
+
 		}
 
 		[SetUp]
 		public void SetUp()
 		{
+			testData = new TestData();
+
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager
+					(
+						testData.World
+						, Mock.Of<IArsenalAssignmentEngine>()
+						, new CountryAssignmentEngine()
+						, new TargetResource()
+					);
 		}
 
 		#endregion Set Ups
@@ -52,6 +55,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
+
 			Assert.That(communism.Countries.Count, Is.GreaterThan(0));
 			Assert.That(communism.Countries.Count, Is.EqualTo(capitalism.Countries.Count));
 		}
