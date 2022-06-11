@@ -169,7 +169,8 @@ namespace WarGames.CLI.Views
 			while(!task.IsCompleted)
 			{
 				Console.SetCursorPosition(2, 10);
-				Console.Write(new string(' ', Console.WindowWidth));
+				Console.WriteLine(new string(' ', Console.WindowWidth));
+				Console.SetCursorPosition(2, 10);
 				Console.WriteLine(new string('.', tick));
 				Thread.Sleep(350);
 				tick++;
@@ -190,10 +191,6 @@ namespace WarGames.CLI.Views
 			Thread.Sleep(1000);
 			PrepareForEndOfWorld();
 		}
-		private void PacifyUser()
-		{
-
-		}
 		private void SelectTarget(Settlement selectMe, string index)
 		{
 			gameManager.AddTargetAsync(selectMe, prioritySelectionMap[totalPicks]).Wait();
@@ -203,9 +200,5 @@ namespace WarGames.CLI.Views
 			if (totalPicks == 0)
 				PrepareTargetAssignmentPhase();
 		}
-
-		//private string DisplayDamageRow(TargetValue targetValue, int start, int end)
-		//{
-		//}
 	}
 }

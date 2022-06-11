@@ -68,9 +68,9 @@ namespace WarGames.CLI.Renderers
 			Console.Write("Final Population");
 			currentLine++;
 			Console.SetCursorPosition(pos.columnStart, currentLine);
-			Console.WriteLine(startingPopulation.ToString("#.#,K", CultureInfo.InvariantCulture));
+			Console.WriteLine(startingPopulation.ToString("#.#", CultureInfo.InvariantCulture));
 			Console.SetCursorPosition(pos.columnStart + split4, currentLine);
-			Console.WriteLine(finalPopulation.ToString("#.#,K", CultureInfo.InvariantCulture));
+			Console.WriteLine(finalPopulation.ToString("#.#", CultureInfo.InvariantCulture));
 		}
 
 		private class DrawPositions
