@@ -31,7 +31,7 @@ namespace WarGames.Business.Arsenal
 				{
 					var payload = new ICBM();
 					var settlement = competitor.Countries[i].Settlements.First();
-					competitor.MissileDeliverySystems.Add(new Silo(0f, 1, payload) { Location = settlement.Location, CurrentArea = settlement.Location.Area });	
+					competitor.MissileDeliverySystems.Add(new Silo(0f, 1, payload) { Location = settlement.Location });	
 				}
 			}
 		}

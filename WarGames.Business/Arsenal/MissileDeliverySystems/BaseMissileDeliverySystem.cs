@@ -7,7 +7,7 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 	{
 		protected ILocation? moveToLocation;
 		public Target Assignment { get; set; }
-		public IGeographicalArea CurrentArea { get; set; }
+		public IGeographicalArea CurrentArea => Location.Area;
 		public bool HasTarget => Assignment != Target.Empty;
 		public ILocation Location { get; set; }
 
