@@ -17,7 +17,7 @@ using WarGames.Resources.Game;
 namespace WarGames.Business.NUnit.TargetingTests
 {
 	[TestFixture]
-	public class TargetingEngineTests
+	public class TargetingCalculatorTests
 	{
 		private IPlayer playerCommunism;
 		private IPlayer playerCapitalism;
