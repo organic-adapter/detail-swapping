@@ -14,6 +14,7 @@ namespace WarGames.Business.NUnit.Mockers
 			MovementSpeedKps = movementSpeedKps;
 			PayloadCount = payloadCount;
 			PayloadType = payloadType;
+			Assignment = Target.Empty;
 		}
 
 		public IGeographicalArea CurrentArea { get; }
@@ -27,6 +28,9 @@ namespace WarGames.Business.NUnit.Mockers
 		public short PayloadCount { get; }
 
 		public IMissile PayloadType { get; }
+		public Target Assignment { get; set; }
+
+		public bool HasTarget => Assignment != Target.Empty;
 
 		public bool InAttackRange(ILocation target)
 		{

@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Business.NUnit.Mockers;
@@ -15,6 +16,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 	[TestFixture]
 	public class ValueTargettingTests
 	{
+		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
@@ -26,6 +28,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		public void OneTimeSetUp()
 		{
 			testData = new TestData();
+			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 		}
@@ -34,7 +37,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		public async Task SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());

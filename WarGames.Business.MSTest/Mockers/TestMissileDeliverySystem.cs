@@ -1,5 +1,4 @@
-﻿using System;
-using WarGames.Contracts.Arsenal;
+﻿using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
 
 namespace WarGames.Business.MSTest.Mockers
@@ -14,10 +13,13 @@ namespace WarGames.Business.MSTest.Mockers
 			MovementSpeedKps = movementSpeedKps;
 			PayloadCount = payloadCount;
 			PayloadType = payloadType;
+			Assignment = Target.Empty;
 		}
 
+		public Target Assignment { get; set; }
 		public IGeographicalArea CurrentArea { get; }
 
+		public bool HasTarget => Assignment != Target.Empty;
 		public ILocation Location { get; }
 
 		public TerrainType MovementConstraint { get; }

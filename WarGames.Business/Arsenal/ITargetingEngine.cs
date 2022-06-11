@@ -6,8 +6,10 @@ namespace WarGames.Business.Arsenal
 {
 	public interface ITargetingEngine
 	{
-		public Task<IEnumerable<Target>> CalculateTargetsInRangeAsync(ICompetitor currentCompetitor, ICompetitor opposingCompetitor);
+		public Task<IDictionary<Target, IEnumerable<IMissileDeliverySystem>>> CalculateTargetsInRangeAsync(ICompetitor currentCompetitor, ICompetitor opposingCompetitor);
 
 		public Task<IEnumerable<Settlement>> GetSettlementsAsync(ICompetitor opposingSide);
+
+		Task SetTargetAssignmentsByPriorityAsync(IEnumerable<ICompetitor> competitors);
 	}
 }

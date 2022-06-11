@@ -17,11 +17,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Map.Engine.NUnit", "Map.Eng
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarGames.Simulator.NUnit", "WarGames.Simulator.NUnit\WarGames.Simulator.NUnit.csproj", "{0180718B-C791-4713-B682-FDCBF7DC6B50}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Business.xUnit", "WarGames.Business.xUnit\WarGames.Business.xUnit.csproj", "{B2F7BC71-F819-4783-BD34-87DF6DD3B210}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarGames.Business.xUnit", "WarGames.Business.xUnit\WarGames.Business.xUnit.csproj", "{B2F7BC71-F819-4783-BD34-87DF6DD3B210}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Business.MSTest", "WarGames.Business.MSTest\WarGames.Business.MSTest.csproj", "{F3B415C7-DBE1-4231-81DC-3612D7470CE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarGames.Business.MSTest", "WarGames.Business.MSTest\WarGames.Business.MSTest.csproj", "{F3B415C7-DBE1-4231-81DC-3612D7470CE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleMap.Contracts", "SimpleMap.Contracts\SimpleMap.Contracts.csproj", "{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMap.Contracts", "SimpleMap.Contracts\SimpleMap.Contracts.csproj", "{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.CLI", "WarGames.CLI\WarGames.CLI.csproj", "{F25EE0A0-BC02-4171-944C-BCEEEDA4FC76}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -69,6 +71,10 @@ Global
 		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B86D491-69E1-4B14-B42B-AB2EF62CE6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F25EE0A0-BC02-4171-944C-BCEEEDA4FC76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F25EE0A0-BC02-4171-944C-BCEEEDA4FC76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F25EE0A0-BC02-4171-944C-BCEEEDA4FC76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F25EE0A0-BC02-4171-944C-BCEEEDA4FC76}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

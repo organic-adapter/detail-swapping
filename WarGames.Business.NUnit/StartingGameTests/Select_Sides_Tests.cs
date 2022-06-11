@@ -2,6 +2,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
@@ -14,6 +15,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 	[TestFixture]
 	public class Select_Sides_Tests
 	{
+		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private ICompetitorManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
@@ -26,6 +28,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void OneTimeSetUp()
 		{
 			testData = new TestData();
+			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 		}
@@ -34,7 +37,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 

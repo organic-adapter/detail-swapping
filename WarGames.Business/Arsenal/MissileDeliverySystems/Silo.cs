@@ -10,6 +10,7 @@ namespace WarGames.Business.Arsenal.MissileDeliverySystems
 			MovementSpeedKps = movementSpeed;
 			PayloadCount = payloadCount;
 			PayloadType = payloadType;
+			Assignment = Target.Empty;
 		}
 
 		public override TerrainType MovementConstraint => TerrainType.None;

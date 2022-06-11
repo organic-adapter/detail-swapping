@@ -26,6 +26,11 @@ namespace WarGames.Resources.Arsenal
 			});
 		}
 
+		public async Task<IEnumerable<Target>> GetAllAsync()
+		{
+			return await Task.Run(() => targets);
+		}
+
 		public async Task<Target> GetAsync(Settlement settlement)
 		{
 			return await Task.Run(() => Get(settlement));

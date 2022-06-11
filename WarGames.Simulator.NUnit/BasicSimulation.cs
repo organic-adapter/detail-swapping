@@ -2,9 +2,13 @@
 using Microsoft.Extensions.Options;
 using Moq;
 using SimpleMap.Contracts;
+using WarGames.Business.Arsenal;
+using WarGames.Business.Arsenal.MissileDeliverySystems;
+using WarGames.Business.Arsenal.Missiles;
 using WarGames.Business.Competitors;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 using WarGames.Resources;
@@ -80,9 +84,11 @@ namespace WarGames.Simulator.NUnit
 			services.AddSingleton<IReadResource<Country, string>, ReadonlyJsonFileResource<Country, string>>();
 			services.AddSingleton<IReadResource<Settlement, string>, ReadonlyJsonFileResource<Settlement, string>>();
 			services.AddSingleton<IRepository<ICompetitor, string>, InMemoryCompetitorRepository>();
+			services.AddSingleton<IArsenalAssignmentEngine, ArsenalAssignmentEngine>();
 			services.AddSingleton<ICountryAssignmentEngine, CountryAssignmentEngine>();
 			services.AddSingleton<IGameManager, GameManager>();
 			services.AddSingleton<ITargetResource, TargetResource>();
+			services.AddSingleton<ITargetingEngine, TargetingEngine>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
 
 			services.AddAutoMapper(typeof(WorldMapperProfiles));
@@ -93,12 +99,30 @@ namespace WarGames.Simulator.NUnit
 		#endregion Set Ups
 
 		[Test]
-		public async Task Game_Manager_Can_Handle_Lots_Of_Settlements()
+		public async Task Blow_Up_The_World()
 		{
 			var cap = await gameManager.WhatIsPlayerAsync(playerCap);
 			var com = await gameManager.WhatIsPlayerAsync(playerCom);
-			Assert.That(cap.Countries.Any(), Is.True);
-			Assert.That(com.Countries.Any(), Is.True);
+
+			SeedArsenal(cap);
+			SeedArsenal(com);
+			SetTargets(cap);
+			SetTargets(com);
+
+			await gameManager.SetTargetAssignmentsAsync();
+			await gameManager.RainFireAsync();
+		}
+
+		private void SeedArsenal(ICompetitor competitor)
+		{
+			foreach (var settlement in competitor.Settlements)
+				competitor.MissileDeliverySystems.Add(new Silo(0, 1, new SRM()) { CurrentArea = settlement.Location.Area, Location = settlement.Location });
+		}
+
+		private void SetTargets(ICompetitor competitor)
+		{
+			foreach (var settlement in competitor.Settlements)
+				gameManager.AddTargetAsync(settlement, TargetPriority.Primary);
 		}
 	}
 }

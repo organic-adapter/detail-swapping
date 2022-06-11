@@ -1,4 +1,5 @@
-﻿using WarGames.Business.Exceptions;
+﻿using WarGames.Business.Arsenal;
+using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Game;
@@ -9,6 +10,7 @@ namespace WarGames.Business.xUnit.StartingGameTests
 {
 	public class World_Creation_Tests : IDisposable
 	{
+		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
@@ -18,12 +20,13 @@ namespace WarGames.Business.xUnit.StartingGameTests
 
 		public World_Creation_Tests()
 		{
+			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			testData = new TestData();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 		}
 
 		#endregion Set Ups

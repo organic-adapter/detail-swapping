@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
+using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
@@ -13,6 +14,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 	[TestFixture]
 	public class World_Creation_Tests
 	{
+		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
@@ -24,6 +26,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void OneTimeSetUp()
 		{
 			testData = new TestData();
+			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 		}
@@ -32,7 +35,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		public void SetUp()
 		{
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 		}
 
 		#endregion Set Ups

@@ -1,4 +1,5 @@
-﻿using WarGames.Business.Exceptions;
+﻿using WarGames.Business.Arsenal;
+using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Resources.Arsenal;
@@ -9,6 +10,7 @@ namespace WarGames.Business.xUnit.StartingGameTests
 {
 	public class Select_Sides_Tests
 	{
+		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private ICompetitorManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
@@ -20,11 +22,12 @@ namespace WarGames.Business.xUnit.StartingGameTests
 		public Select_Sides_Tests()
 		{
 			testData = new TestData();
+			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 

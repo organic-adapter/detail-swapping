@@ -21,6 +21,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 	{
 		private IPlayer playerCommunism;
 		private IPlayer playerCapitalism;
+		private IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private IRepository<ICompetitor, string> competitorRepository;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
@@ -34,6 +35,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 		public void OneTimeSetUp()
 		{
 			testData = new TestData();
+			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 		}
 
@@ -45,7 +47,7 @@ namespace WarGames.Business.NUnit.TargetingTests
 			competitorRepository = new InMemoryCompetitorRepository();
 
 			targetingEngine = new TargetingEngine(targetResource);
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 
 			playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
@@ -78,8 +80,8 @@ namespace WarGames.Business.NUnit.TargetingTests
 			var targetsInRange = await targetingEngine.CalculateTargetsInRangeAsync(testData.Communism, testData.Capitalism);
 			Assert.That(targetsInRange, Is.Not.Null);
 			Assert.That(targetsInRange.Count, Is.EqualTo(1));
-			Assert.That(targetsInRange.Any(tir => tir.Key == closestSettlement), Is.True);
-			Assert.That(targetsInRange.Any(tir => tir.Key == farthestSettlement), Is.False);
+			Assert.That(targetsInRange.Any(tir => tir.Key.Key == closestSettlement), Is.True);
+			Assert.That(targetsInRange.Any(tir => tir.Key.Key == farthestSettlement), Is.False);
 		}
 
 		[Test]

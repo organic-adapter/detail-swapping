@@ -4,7 +4,11 @@ namespace WarGames.Contracts.Arsenal
 {
 	public interface IMissileDeliverySystem
 	{
+		public Target Assignment { get; set; }
+
 		public IGeographicalArea CurrentArea { get; }
+
+		public bool HasTarget { get; }
 		public ILocation Location { get; }
 
 		public TerrainType MovementConstraint { get; }

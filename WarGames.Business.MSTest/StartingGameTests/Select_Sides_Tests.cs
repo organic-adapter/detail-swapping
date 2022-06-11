@@ -1,4 +1,5 @@
-﻿using WarGames.Business.Exceptions;
+﻿using WarGames.Business.Arsenal;
+using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Resources.Arsenal;
@@ -20,12 +21,13 @@ namespace WarGames.Business.MSTest.StartingGameTests
 
 		public Select_Sides_Tests()
 		{
+			var arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			testData = new TestData();
 			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
