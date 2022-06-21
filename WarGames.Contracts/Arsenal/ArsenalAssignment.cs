@@ -1,4 +1,4 @@
-﻿namespace WarGames.Business.Arsenal
+﻿namespace WarGames.Contracts.Arsenal
 {
 	public enum ArsenalAssignment
 	{

@@ -10,13 +10,18 @@ using WarGames.WebAPI.Models;
 
 namespace WarGames.WebAPI.Controllers
 {
+	/*TODO: Move this to another web-api and demonstrate how
+	 * you can have multiple APIs use the same Identity Provider
+	 * to verify authentication and authorization using the same
+	 * JWT token.
+	 */
 	[Route("api/[controller]")]
 	[ApiController]
 	[Authorize]
 	public class LogonController : ControllerBase
 	{
 		/// <summary>
-		/// We would use an identity provider to verify the behavior
+		/// We would use an identity provider to verify the behavior.
 		/// </summary>
 		private readonly IOptionsMonitor<ThisIsNotSecureExampleOnly> users;
 

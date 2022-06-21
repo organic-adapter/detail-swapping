@@ -1,4 +1,5 @@
 ﻿using WarGames.Business.Arsenal;
+using WarGames.Business.Competitors;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Contracts.Arsenal;
@@ -84,6 +85,11 @@ namespace WarGames.Business.Managers
 			await countryAssignmentEngine.AssignCountriesAsync(world, loadedPlayers.Values, assignmentType);
 		}
 
+		public async Task<IEnumerable<ICompetitor>> AvailableSidesAsync()
+		{
+			return await Task.Run(() => new List<ICompetitor> { new Capitalism(), new Communism() });
+		}
+
 		public async Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source)
 		{
 			var side = loadedPlayers[source];
@@ -97,6 +103,7 @@ namespace WarGames.Business.Managers
 			var opponent = opposingSides[side];
 			return await Task.Run(() => opponent.Settlements);
 		}
+
 		public async Task LoadPlayerAsync(IPlayer player, ICompetitor competitor)
 		{
 			if (loadedPlayers.Any(lp => lp.Value == competitor && lp.Key != player))

@@ -7,12 +7,7 @@
 	{
 		public static IEnumerable<string> List = new List<string>()
 		{
-			"Checkers",
-			"Chess",
-			"Backgammon",
-			"Bowling",
-			"Wreck It-George",
-			"Global Thermonuclear War",
+			"Global Thermonuclear War", // Where did the other games go?!?!1? Into their own microservices.
 		};
 	}
 }

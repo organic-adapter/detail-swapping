@@ -1,5 +1,6 @@
 ﻿using WarGames.Business.Arsenal.MissileDeliverySystems;
 using WarGames.Business.Arsenal.Missiles;
+using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 
@@ -25,13 +26,13 @@ namespace WarGames.Business.Arsenal
 
 		private void ArsenalAssignmentArbitrary(World world, IEnumerable<ICompetitor> competitors)
 		{
-			foreach(var competitor in competitors)
+			foreach (var competitor in competitors)
 			{
-				for(var i = 0; i < arbitraryNumber; i++)
+				for (var i = 0; i < arbitraryNumber; i++)
 				{
 					var payload = new ICBM();
 					var settlement = competitor.Countries[i].Settlements.First();
-					competitor.MissileDeliverySystems.Add(new Silo(0f, 1, payload) { Location = settlement.Location });	
+					competitor.MissileDeliverySystems.Add(new Silo(0f, 1, payload) { Location = settlement.Location });
 				}
 			}
 		}

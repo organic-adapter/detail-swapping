@@ -16,10 +16,11 @@ namespace WarGames.Business.Managers
 
 		public Task AssignCountriesAsync(CountryAssignment assignmentType);
 
-		public Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source);
+		public Task<IEnumerable<ICompetitor>> AvailableSidesAsync();
 
 		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source);
 
+		public Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source);
 		public Task LoadPlayerAsync(IPlayer player, ICompetitor competitor);
 
 		public Task LoadWorldAsync();
