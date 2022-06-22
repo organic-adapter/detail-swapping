@@ -1,5 +1,4 @@
-﻿using WarGames.Business.Arsenal;
-using WarGames.Business.Game;
+﻿using WarGames.Business.Game;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
@@ -21,6 +20,9 @@ namespace WarGames.Business.Managers
 		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source);
 
 		public Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source);
+
+		public Task InitializeDefaultsAsync();
+
 		public Task LoadPlayerAsync(IPlayer player, ICompetitor competitor);
 
 		public Task LoadWorldAsync();

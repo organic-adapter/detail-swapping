@@ -8,7 +8,9 @@ using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
+using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Competitors;
 
 namespace WarGames.Business.NUnit.ArsenalTests
 {
@@ -39,11 +41,16 @@ namespace WarGames.Business.NUnit.ArsenalTests
 			targetingCalculator = new TargetingCalculator(targetResource);
 			gameManager = new GameManager
 					(
-						testData.World
+						new WorldFactory(testData.World)
 						, Mock.Of<IArsenalAssignmentEngine>()
+						, new CompetitorResource(testData.Competitors)
 						, new CountryAssignmentEngine()
+						, Mock.Of<IDamageCalculator>() 
 						, targetResource
+						, targetingCalculator
 					);
+
+			await gameManager.LoadWorldAsync();
 
 			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
 			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);

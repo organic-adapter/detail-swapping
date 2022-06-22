@@ -1,10 +1,13 @@
-﻿using WarGames.Business.Arsenal;
+﻿using Moq;
+using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Business.MSTest;
 using WarGames.Contracts.Game;
+using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Competitors;
 using WarGames.Resources.Game;
 
 namespace WarGames.Business.MSTest.StartingGameTests
@@ -12,8 +15,6 @@ namespace WarGames.Business.MSTest.StartingGameTests
 	[TestClass]
 	public class World_Creation_Tests : IDisposable
 	{
-		private IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
 		private TestData testData;
@@ -22,13 +23,22 @@ namespace WarGames.Business.MSTest.StartingGameTests
 
 		public World_Creation_Tests()
 		{
-			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
 			testData = new TestData();
-			countryAssignmentEngine = new CountryAssignmentEngine();
 			targetResource = new TargetResource();
 
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager
+							(
+							new WorldFactory(testData.World)
+							, new ArsenalAssignmentEngine()
+							, new CompetitorResource(testData.Competitors)
+							, new CountryAssignmentEngine()
+							, Mock.Of<IDamageCalculator>()
+							, targetResource
+							, Mock.Of<ITargetingCalculator>()							
+							);
+
+			gameManager.LoadWorldAsync().Wait();
 		}
 
 		#endregion Set Ups

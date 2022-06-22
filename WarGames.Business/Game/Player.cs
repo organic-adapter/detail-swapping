@@ -4,6 +4,13 @@ namespace WarGames.Business.Game
 {
 	public class Player : IPlayer
 	{
+		public Player(string name, string id, PlayerType playerType)
+		{
+			Name = name;
+			Id = id;
+			PlayerType = playerType;
+		}
+
 		public Player(string name, string id)
 		{
 			Name = name;
@@ -18,5 +25,6 @@ namespace WarGames.Business.Game
 
 		public string Id { get; set; }
 		public string Name { get; set; }
+		public PlayerType PlayerType { get; set; }
 	}
 }

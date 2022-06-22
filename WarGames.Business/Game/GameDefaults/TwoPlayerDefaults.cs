@@ -1,5 +1,4 @@
-﻿using WarGames.Business.Game;
-using WarGames.Contracts.Arsenal;
+﻿using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Resources;
 
@@ -25,6 +24,17 @@ namespace WarGames.Contracts.Game.GameDefaults
 		public IDictionary<IPlayer, ICompetitor> GetPlayers()
 		{
 			return competitorResource.PlayerSelections;
+		}
+
+		public bool MetRequirements()
+		{
+			return competitorResource.Players.Where(p => p.PlayerType == PlayerType.Human).Count() == 2;
+
+		}
+
+		public void Trigger()
+		{
+			//no-op
 		}
 	}
 }

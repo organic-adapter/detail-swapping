@@ -7,7 +7,13 @@ namespace WarGames.Business.Game
 	{
 		private readonly IReadResource<Country, string> countryResource;
 		private readonly IReadResource<Settlement, string> settlementResource;
-
+		private readonly World? defaultWorld;
+		public WorldFactory(World defaultWorld)
+		{
+			this.defaultWorld = defaultWorld;
+			countryResource = new InMemoryReadResource<Country, string>();
+			settlementResource = new InMemoryReadResource<Settlement, string>();
+		}
 		public WorldFactory(IReadResource<Country, string> countryResource, IReadResource<Settlement, string> settlementResource)
 		{
 			this.countryResource = countryResource;
@@ -16,7 +22,7 @@ namespace WarGames.Business.Game
 
 		public async Task<World> BuildAsync()
 		{
-			var returnMe = new World();
+			var returnMe = defaultWorld ?? new World();
 			var options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
 			await Parallel.ForEachAsync
 				(

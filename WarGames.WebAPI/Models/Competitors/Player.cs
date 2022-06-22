@@ -6,5 +6,6 @@ namespace WarGames.WebAPI.Models.Competitors
 	{
 		public string Id { get; set; } = string.Empty;
 		public string Name { get; set; } = string.Empty;
+		public PlayerType PlayerType { get; set; }
 	}
 }

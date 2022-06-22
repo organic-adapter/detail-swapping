@@ -7,7 +7,9 @@ using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Game;
+using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Competitors;
 using WarGames.Resources.Game;
 
 namespace WarGames.Business.NUnit.StartingGameTests
@@ -34,11 +36,16 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			//We can use the InMemoryRepositories directly rather than Mock these.
 			gameManager = new GameManager
 					(
-						testData.World
+						new WorldFactory(testData.World)
 						, Mock.Of<IArsenalAssignmentEngine>()
+						, new CompetitorResource(testData.Competitors)
 						, new CountryAssignmentEngine()
+						, Mock.Of<IDamageCalculator>()
 						, new TargetResource()
+						, Mock.Of<ITargetingCalculator>()
 					);
+
+			gameManager.LoadWorldAsync().Wait();
 		}
 
 		#endregion Set Ups

@@ -7,6 +7,7 @@ namespace WarGames.Resources
 	{
 		public IEnumerable<ICompetitor> AvailableSides { get; }
 		public bool HasAvailableSide { get; }
+		public IEnumerable<IPlayer> Players { get; }
 		public IDictionary<IPlayer, ICompetitor> PlayerSelections { get; }
 		public IEnumerable<ICompetitor> Sides { get; }
 

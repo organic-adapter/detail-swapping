@@ -1,7 +1,9 @@
-﻿using WarGames.Business.Arsenal;
+﻿using Moq;
+using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 using WarGames.Resources.Game;
@@ -27,7 +29,16 @@ namespace WarGames.Business.MSTest.StartingGameTests
 			targetResource = new TargetResource();
 
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager(testData.World, arsenalAssignmentEngine, countryAssignmentEngine, targetResource);
+			gameManager = new GameManager
+								(
+									new WorldFactory(testData.World)
+									, arsenalAssignmentEngine
+									, new CompetitorResource(testData.Competitors)
+									, countryAssignmentEngine
+									, Mock.Of<IDamageCalculator>()
+									, targetResource
+									, Mock.Of<ITargetingCalculator>()
+								);
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 

@@ -5,7 +5,9 @@ using WarGames.Business.Game;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Competitors;
 
 namespace WarGames.Business.Managers
 {
@@ -15,7 +17,9 @@ namespace WarGames.Business.Managers
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
 		private readonly IDamageCalculator damageCalculator;
-		private readonly Dictionary<IPlayer, ICompetitor> loadedPlayers;
+		private readonly IEnumerable<IGameDefaults> gameDefaults;
+		private readonly ICompetitorResource competitorResource;
+		private IDictionary<IPlayer, ICompetitor> loadedPlayers => competitorResource.PlayerSelections;
 		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
 		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
@@ -23,45 +27,27 @@ namespace WarGames.Business.Managers
 		private World world;
 
 		public GameManager
-				(
-					WorldFactory worldFactory,
-					IArsenalAssignmentEngine arsenalAssignmentEngine,
-					ICountryAssignmentEngine countryAssignmentEngine,
-					IDamageCalculator damageCalculator,
-					ITargetResource targetResource,
-					ITargetingCalculator targetingCalculator
-				)
+		(
+			WorldFactory worldFactory,
+			IArsenalAssignmentEngine arsenalAssignmentEngine,
+			ICompetitorResource competitorResource,
+			ICountryAssignmentEngine countryAssignmentEngine,
+			IDamageCalculator damageCalculator,
+			ITargetResource targetResource,
+			ITargetingCalculator targetingCalculator
+		)
 		{
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
+			this.competitorResource = competitorResource;
 			this.countryAssignmentEngine = countryAssignmentEngine;
 			this.damageCalculator = damageCalculator;
 			this.targetingCalculator = targetingCalculator;
 			this.targetResource = targetResource;
 			this.worldFactory = worldFactory;
 
-			loadedPlayers = new Dictionary<IPlayer, ICompetitor>();
+			gameDefaults = new List<IGameDefaults>();
 			opposingSides = new Dictionary<ICompetitor, ICompetitor>();
 			world = World.Empty;
-		}
-
-		//I am a fan at defining delegate maps versus switches
-		public GameManager
-				(
-					World world,
-					IArsenalAssignmentEngine arsenalAssignmentEngine,
-					ICountryAssignmentEngine countryAssignmentEngine,
-					ITargetResource targetResource
-				)
-		{
-			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
-			this.countryAssignmentEngine = countryAssignmentEngine;
-			this.damageCalculator = new DamageCalculator();
-			this.targetingCalculator = new TargetingCalculator(targetResource);
-			this.targetResource = targetResource;
-			this.worldFactory = null;
-			loadedPlayers = new Dictionary<IPlayer, ICompetitor>();
-			opposingSides = new Dictionary<ICompetitor, ICompetitor>();
-			this.world = world;
 		}
 
 		public GamePhase CurrentPhase { get; set; }
@@ -102,6 +88,15 @@ namespace WarGames.Business.Managers
 			var side = loadedPlayers[source];
 			var opponent = opposingSides[side];
 			return await Task.Run(() => opponent.Settlements);
+		}
+
+		public async Task InitializeDefaultsAsync()
+		{
+			await Task.Run(() =>
+			{
+				var initializeMe = gameDefaults.First(gd => gd.MetRequirements());
+				initializeMe.Trigger();
+			});
 		}
 
 		public async Task LoadPlayerAsync(IPlayer player, ICompetitor competitor)

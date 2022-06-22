@@ -11,14 +11,11 @@ namespace WarGames.Contracts.Game.GameDefaults
 		private readonly IPlayer cpu0Player;
 		private readonly IPlayer cpu1Player;
 
-
 		public AutoPlayDefaults(ICompetitorResource competitorResource)
 		{
-			cpu0Player = new Player("JOSHUA0", Guid.NewGuid().ToString());
-			cpu1Player = new Player("JOSHUA1", Guid.NewGuid().ToString());
+			cpu0Player = new Player("JOSHUA0", Guid.NewGuid().ToString(), PlayerType.Cpu);
+			cpu1Player = new Player("JOSHUA1", Guid.NewGuid().ToString(), PlayerType.Cpu);
 			this.competitorResource = competitorResource;
-			this.competitorResource.Choose(cpu0Player, competitorResource.AvailableSides.First());
-			this.competitorResource.Choose(cpu1Player, competitorResource.AvailableSides.First());
 		}
 
 		public ArsenalAssignment ArsenalAssignment => ArsenalAssignment.Arbitrary;
@@ -32,6 +29,17 @@ namespace WarGames.Contracts.Game.GameDefaults
 		public IDictionary<IPlayer, ICompetitor> GetPlayers()
 		{
 			return competitorResource.PlayerSelections;
+		}
+
+		public bool MetRequirements()
+		{
+			return !competitorResource.Players.Any(p => p.PlayerType == PlayerType.Human);
+		}
+
+		public void Trigger()
+		{
+			competitorResource.Choose(cpu0Player, competitorResource.AvailableSides.First());
+			competitorResource.Choose(cpu1Player, competitorResource.AvailableSides.First());
 		}
 	}
 }

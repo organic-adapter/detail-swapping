@@ -5,17 +5,21 @@ using WarGames.Business.Managers;
 using WarGames.CLI.Renderers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
+using WarGames.Resources;
 
 namespace WarGames.CLI.Views
 {
 	internal class GTWView : ConsoleView
 	{
+		private IPlayer human;
+		private IPlayer cpu0;
+		private IPlayer cpu1;
+
 		private const int maxPicks = 9;
 		private string chatterText = "I'm afraid I can't do that";
-		private IPlayer cpu0;
 		private List<Settlement> currentPicks;
 		private IGameManager gameManager;
-		private IPlayer human;
+		private ICompetitorResource competitorResource;
 		private List<Settlement> potentialTargets;
 		private Dictionary<int, TargetPriority> prioritySelectionMap = new Dictionary<int, TargetPriority>()
 		{
@@ -29,12 +33,11 @@ namespace WarGames.CLI.Views
 			{ 2, TargetPriority.Tertiary },
 			{ 1, TargetPriority.Tertiary },
 		};
-		public GTWView(IGameManager gameManager) : base(new Dictionary<string, Action<string>>())
+		public GTWView(IGameManager gameManager, ICompetitorResource competitorResource) : base(new Dictionary<string, Action<string>>())
 		{
 			chatter = Chatter;
 			this.gameManager = gameManager;
-			cpu0 = new Player() { Name = "JOSHUA", Id = Guid.NewGuid().ToString() };
-			human = new Player() { Name = "HOOMAN", Id = Guid.NewGuid().ToString() };
+			this.competitorResource = competitorResource;
 			potentialTargets = new List<Settlement>();
 			currentPicks = new List<Settlement>();
 		}
@@ -43,12 +46,25 @@ namespace WarGames.CLI.Views
 		private int totalPicks => maxPicks - currentPicks.Count;
 		protected override void Initialize()
 		{
+			Console.WriteLine("How many players?");
+			Commands.Add("0", SetAutoPlay);
+			Commands.Add("1", SetSinglePlayer);
+			base.Initialize();
+		}
+		private void SetSinglePlayer(string _)
+		{
+			human = new Player("Hooman", Guid.NewGuid().ToString(), PlayerType.Human);
+
+			Commands.Clear();
 			Console.WriteLine("What side do you wish to play? \r\n NATO \r\n USSR");
 			Commands.Add("NATO", PickNato);
 			Commands.Add("USSR", PickUssr);
 			potentialTargets = new List<Settlement>();
 			currentPicks = new List<Settlement>();
-			base.Initialize();
+		}
+		private void SetAutoPlay(string _)
+		{
+			gameManager.InitializeDefaultsAsync().Wait();
 		}
 
 		private void CalculateTopTenTargets()
@@ -118,6 +134,7 @@ namespace WarGames.CLI.Views
 
 		private void LoadGamePrerequisites()
 		{
+			gameManager.InitializeDefaultsAsync().Wait();
 			gameManager.LoadWorldAsync().Wait();
 			gameManager.AssignCountriesAsync(CountryAssignment.Random).Wait();
 			gameManager.AssignArsenalAsync(ArsenalAssignment.Arbitrary).Wait();
@@ -130,9 +147,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				gameManager.LoadPlayerAsync(human, new Capitalism()).Wait();
-				gameManager.LoadPlayerAsync(cpu0, new Communism()).Wait();
-
+				competitorResource.Choose(human, new Capitalism());
 				LoadGamePrerequisites();
 			}
 		}
@@ -141,8 +156,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				gameManager.LoadPlayerAsync(human, new Communism()).Wait();
-				gameManager.LoadPlayerAsync(cpu0, new Capitalism()).Wait();
+				competitorResource.Choose(human, new Communism());
 
 				LoadGamePrerequisites();
 			}

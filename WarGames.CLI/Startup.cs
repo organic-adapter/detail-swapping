@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using SimpleMap.Contracts;
 using WarGames.Business.Arsenal;
+using WarGames.Business.Competitors;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.CLI.Views;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.Game.GameDefaults;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
@@ -57,6 +59,12 @@ namespace WarGames.CLI
 			services.AddSingleton<IDamageCalculator, DamageCalculator>();
 			services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
+			services.AddSingleton<ICompetitorResource, CompetitorResource>();
+			services.AddSingleton<ICompetitor, Capitalism>();
+			services.AddSingleton<ICompetitor, Communism>();
+			services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();
+			services.AddSingleton<IGameDefaults, TwoPlayerDefaults>();
+			services.AddSingleton<IGameDefaults, AutoPlayDefaults>();
 
 			services.AddAutoMapper(typeof(WorldMapperProfiles));
 

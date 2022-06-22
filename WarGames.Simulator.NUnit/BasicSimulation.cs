@@ -11,6 +11,7 @@ using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.Game.GameDefaults;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
@@ -95,6 +96,10 @@ namespace WarGames.Simulator.NUnit
 			services.AddSingleton<ITargetResource, TargetResource>();
 			services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
 			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
+			services.AddSingleton<ICompetitorResource, CompetitorResource>();
+			services.AddSingleton<ICompetitor, Capitalism>();
+			services.AddSingleton<ICompetitor, Communism>();
+			services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();
 
 			services.AddAutoMapper(typeof(WorldMapperProfiles));
 
