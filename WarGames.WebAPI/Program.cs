@@ -2,11 +2,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using WarGames.Business.Arsenal;
+using WarGames.Business.Competitors;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.Game.GameDefaults;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Competitors;
 using WarGames.Resources.Game;
 using WarGames.WebAPI;
 using WarGames.WebAPI.Models;
@@ -29,6 +33,13 @@ builder.Services.AddSingleton<ITargetResource, TargetResource>();
 builder.Services.AddSingleton<IDamageCalculator, DamageCalculator>();
 builder.Services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
 builder.Services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>(); //TODO: Replace all InMemory versions with one that can persist
+builder.Services.AddSingleton<ICompetitorResource, CompetitorResource>();
+builder.Services.AddSingleton<ICompetitor, Capitalism>();
+builder.Services.AddSingleton<ICompetitor, Communism>();
+builder.Services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();
+builder.Services.AddSingleton<IGameDefaults, TwoPlayerDefaults>();
+builder.Services.AddSingleton<IGameDefaults, AutoPlayDefaults>();
+
 builder.Services.AddAutoMapper(typeof(WorldMapperProfiles));
 
 
