@@ -1,4 +1,5 @@
 ﻿using WarGames.Contracts.Arsenal;
+using WarGames.Contracts.Competitors;
 
 namespace WarGames.Contracts.Game
 {
@@ -8,6 +9,6 @@ namespace WarGames.Contracts.Game
 		public IEnumerable<string> ArsenalTags { get; }
 		public CountryAssignment CountryAssignment { get; }
 		public IEnumerable<string> CountryTags { get; }
-		public IEnumerable<IPlayer> GetPlayers();
+		public IDictionary<IPlayer, ICompetitor> GetPlayers();
 	}
 }
