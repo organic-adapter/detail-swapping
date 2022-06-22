@@ -1,6 +1,7 @@
 ﻿using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
@@ -41,6 +42,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 						, new CompetitorResource(testData.Competitors)
 						, new CountryAssignmentEngine()
 						, Mock.Of<IDamageCalculator>()
+						, Mock.Of<IEnumerable<IGameDefaults>>()
 						, new TargetResource()
 						, Mock.Of<ITargetingCalculator>()
 					);

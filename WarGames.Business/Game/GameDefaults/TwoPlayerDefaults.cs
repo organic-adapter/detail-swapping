@@ -26,6 +26,11 @@ namespace WarGames.Contracts.Game.GameDefaults
 			return competitorResource.PlayerSelections;
 		}
 
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
+		{
+			//no-op
+		}
+
 		public bool MetRequirements()
 		{
 			return competitorResource.Players.Where(p => p.PlayerType == PlayerType.Human).Count() == 2;

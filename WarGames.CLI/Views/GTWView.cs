@@ -72,7 +72,7 @@ namespace WarGames.CLI.Views
 			if (gameManager.CurrentPhase == GamePhase.PickTargets)
 			{
 				Commands.Clear();
-				var topTen = (gameManager.GetPotentialTargets(human).Result).OrderByDescending(target => target.TargetValues.First().Value).Take(10).ToList();
+				var topTen = (gameManager.GetPotentialTargetsAsync(human).Result).OrderByDescending(target => target.TargetValues.First().Value).Take(10).ToList();
 
 				for (var i = 0; i < topTen.Count; i++)
 				{
@@ -90,18 +90,12 @@ namespace WarGames.CLI.Views
 			Console.WriteLine(chatterText);
 		}
 
-		private async Task CpuSelectTargetsAsync()
-		{
-			var topTen = (gameManager.GetPotentialTargets(cpu0).Result).OrderByDescending(target => target.TargetValues.First().Value).Take(10);
-			foreach (var t in topTen)
-				await gameManager.AddTargetAsync(t, TargetPriority.Primary);
-		}
-
 		private void DisplayDamageResults()
 		{
-			var humanSide = gameManager.WhatIsPlayerAsync(human).Result;
-			var cpu0Side = gameManager.WhatIsPlayerAsync(cpu0).Result;
-			var damageResultRenderer = new DamageResultRenderer(human, cpu0, humanSide, cpu0Side);
+			var player1 = gameManager.LoadedPlayers.First();
+			var player2 = gameManager.LoadedPlayers.Last();
+
+			var damageResultRenderer = new DamageResultRenderer(player1.Key, player2.Key, player1.Value, player2.Value);
 			damageResultRenderer.Draw();
 		}
 
@@ -138,8 +132,8 @@ namespace WarGames.CLI.Views
 			gameManager.LoadWorldAsync().Wait();
 			gameManager.AssignCountriesAsync(CountryAssignment.Random).Wait();
 			gameManager.AssignArsenalAsync(ArsenalAssignment.Arbitrary).Wait();
+			gameManager.MakeAiDecisionsAsync().Wait();
 
-			CpuSelectTargetsAsync().Wait();
 			CalculateTopTenTargets();
 		}
 
@@ -147,7 +141,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				competitorResource.Choose(human, new Capitalism());
+				competitorResource.Choose<Capitalism>(human);
 				LoadGamePrerequisites();
 			}
 		}
@@ -156,7 +150,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				competitorResource.Choose(human, new Communism());
+				competitorResource.Choose<Communism>(human);
 
 				LoadGamePrerequisites();
 			}

@@ -31,6 +31,13 @@ namespace WarGames.Contracts.Game.GameDefaults
 			return competitorResource.PlayerSelections;
 		}
 
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
+		{
+			var topTen = targets().OrderByDescending(target => target.TargetValues.First().Value).Take(10);
+			foreach (var t in topTen)
+				addAction(t, TargetPriority.Primary);
+		}
+
 		public bool MetRequirements()
 		{
 			return !competitorResource.Players.Any(p => p.PlayerType == PlayerType.Human);

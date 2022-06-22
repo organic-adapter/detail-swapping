@@ -8,6 +8,7 @@ namespace WarGames.Business.Managers
 	public interface IGameManager
 	{
 		public GamePhase CurrentPhase { get; }
+		public IDictionary<IPlayer, ICompetitor> LoadedPlayers { get; }
 
 		public Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority);
 
@@ -19,13 +20,15 @@ namespace WarGames.Business.Managers
 
 		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source);
 
-		public Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source);
+		public Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(IPlayer source);
 
 		public Task InitializeDefaultsAsync();
 
 		public Task LoadPlayerAsync(IPlayer player, ICompetitor competitor);
 
 		public Task LoadWorldAsync();
+
+		public Task MakeAiDecisionsAsync();
 
 		public Task RainFireAsync();
 

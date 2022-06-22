@@ -3,6 +3,7 @@ using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Contracts.Game;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
@@ -36,6 +37,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 									, new CompetitorResource(testData.Competitors)
 									, countryAssignmentEngine
 									, Mock.Of<IDamageCalculator>()
+									, Mock.Of<IEnumerable<IGameDefaults>>()
 									, targetResource
 									, Mock.Of<ITargetingCalculator>()
 								);

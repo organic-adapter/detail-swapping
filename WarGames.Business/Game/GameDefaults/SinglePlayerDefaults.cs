@@ -9,11 +9,12 @@ namespace WarGames.Contracts.Game.GameDefaults
 	{
 		private readonly ICompetitorResource competitorResource;
 		private readonly IPlayer cpu0Player;
-
+		private readonly Dictionary<GamePhase, Action> phaseActions;
 		public SinglePlayerDefaults(ICompetitorResource competitorResource)
 		{
 			cpu0Player = new Player("JOSHUA", Guid.NewGuid().ToString(), PlayerType.Cpu);
 			this.competitorResource = competitorResource;
+			phaseActions = new Dictionary<GamePhase, Action>();
 		}
 
 		public ArsenalAssignment ArsenalAssignment => ArsenalAssignment.Arbitrary;
@@ -37,6 +38,13 @@ namespace WarGames.Contracts.Game.GameDefaults
 		public void Trigger()
 		{
 			competitorResource.Choose(cpu0Player, competitorResource.AvailableSides.First());
+		}
+
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
+		{
+			var topTen = targets().OrderByDescending(target => target.TargetValues.First().Value).Take(10);
+			foreach (var t in topTen)
+				addAction(t, TargetPriority.Primary);
 		}
 	}
 }

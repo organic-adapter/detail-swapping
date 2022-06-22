@@ -5,6 +5,8 @@ namespace WarGames.Contracts.Game
 {
 	public interface IGameDefaults
 	{
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction);
+
 		public ArsenalAssignment ArsenalAssignment { get; }
 
 		public IEnumerable<string> ArsenalTags { get; }

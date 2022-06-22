@@ -36,6 +36,7 @@ namespace WarGames.Business.xUnit.StartingGameTests
 						, new CompetitorResource(testData.Competitors)
 						, countryAssignmentEngine
 						, Mock.Of<IDamageCalculator>()
+						, Mock.Of<IEnumerable<IGameDefaults>>()
 						, targetResource
 						, Mock.Of<ITargetingCalculator>()
 					);

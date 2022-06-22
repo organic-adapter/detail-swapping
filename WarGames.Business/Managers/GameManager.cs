@@ -7,7 +7,6 @@ using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
-using WarGames.Resources.Competitors;
 
 namespace WarGames.Business.Managers
 {
@@ -15,15 +14,15 @@ namespace WarGames.Business.Managers
 	{
 		private const byte MAX_PLAYERS = 2;
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;
+		private readonly ICompetitorResource competitorResource;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
 		private readonly IDamageCalculator damageCalculator;
 		private readonly IEnumerable<IGameDefaults> gameDefaults;
-		private readonly ICompetitorResource competitorResource;
-		private IDictionary<IPlayer, ICompetitor> loadedPlayers => competitorResource.PlayerSelections;
 		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
 		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
 		private readonly WorldFactory? worldFactory;
+		private IGameDefaults? activeGameDefaults;
 		private World world;
 
 		public GameManager
@@ -33,6 +32,7 @@ namespace WarGames.Business.Managers
 			ICompetitorResource competitorResource,
 			ICountryAssignmentEngine countryAssignmentEngine,
 			IDamageCalculator damageCalculator,
+			IEnumerable<IGameDefaults> gameDefaults,
 			ITargetResource targetResource,
 			ITargetingCalculator targetingCalculator
 		)
@@ -41,16 +41,17 @@ namespace WarGames.Business.Managers
 			this.competitorResource = competitorResource;
 			this.countryAssignmentEngine = countryAssignmentEngine;
 			this.damageCalculator = damageCalculator;
+			this.gameDefaults = gameDefaults;
 			this.targetingCalculator = targetingCalculator;
 			this.targetResource = targetResource;
 			this.worldFactory = worldFactory;
 
-			gameDefaults = new List<IGameDefaults>();
 			opposingSides = new Dictionary<ICompetitor, ICompetitor>();
 			world = World.Empty;
 		}
 
 		public GamePhase CurrentPhase { get; set; }
+		public IDictionary<IPlayer, ICompetitor> LoadedPlayers => competitorResource.PlayerSelections;
 
 		public async Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
 		{
@@ -59,16 +60,16 @@ namespace WarGames.Business.Managers
 
 		public async Task AssignArsenalAsync(ArsenalAssignment assignmentType)
 		{
-			await arsenalAssignmentEngine.AssignArsenalAsync(world, loadedPlayers.Values, assignmentType);
+			await arsenalAssignmentEngine.AssignArsenalAsync(world, LoadedPlayers.Values, assignmentType);
 		}
 
 		public async Task AssignCountriesAsync(CountryAssignment assignmentType)
 		{
-			if (loadedPlayers.Count < MAX_PLAYERS)
+			if (LoadedPlayers.Count < MAX_PLAYERS)
 				throw new PlayersNotReady();
 
 			CurrentPhase = GamePhase.PickTargets;
-			await countryAssignmentEngine.AssignCountriesAsync(world, loadedPlayers.Values, assignmentType);
+			await countryAssignmentEngine.AssignCountriesAsync(world, LoadedPlayers.Values, assignmentType);
 		}
 
 		public async Task<IEnumerable<ICompetitor>> AvailableSidesAsync()
@@ -78,14 +79,14 @@ namespace WarGames.Business.Managers
 
 		public async Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source)
 		{
-			var side = loadedPlayers[source];
+			var side = LoadedPlayers[source];
 			var opponent = opposingSides[side];
 			return await targetResource.GetAsync(opponent);
 		}
 
-		public async Task<IEnumerable<Settlement>> GetPotentialTargets(IPlayer source)
+		public async Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(IPlayer source)
 		{
-			var side = loadedPlayers[source];
+			var side = LoadedPlayers[source];
 			var opponent = opposingSides[side];
 			return await Task.Run(() => opponent.Settlements);
 		}
@@ -94,28 +95,30 @@ namespace WarGames.Business.Managers
 		{
 			await Task.Run(() =>
 			{
-				var initializeMe = gameDefaults.First(gd => gd.MetRequirements());
-				initializeMe.Trigger();
+				activeGameDefaults = gameDefaults.First(gd => gd.MetRequirements());
+				activeGameDefaults.Trigger();
+				opposingSides.Add(LoadedPlayers.Values.First(), LoadedPlayers.Values.Last());
+				opposingSides.Add(LoadedPlayers.Values.Last(), LoadedPlayers.Values.First());
 			});
 		}
 
 		public async Task LoadPlayerAsync(IPlayer player, ICompetitor competitor)
 		{
-			if (loadedPlayers.Any(lp => lp.Value == competitor && lp.Key != player))
+			if (LoadedPlayers.Any(lp => lp.Value == competitor && lp.Key != player))
 				throw new CompetitorAlreadyTaken();
 
 			await Task.Run(() =>
 			{
-				if (loadedPlayers.ContainsKey(player))
-					loadedPlayers[player] = competitor;
+				if (LoadedPlayers.ContainsKey(player))
+					LoadedPlayers[player] = competitor;
 				else
-					loadedPlayers.Add(player, competitor);
+					LoadedPlayers.Add(player, competitor);
 			});
 
-			if (loadedPlayers.Count == MAX_PLAYERS)
+			if (LoadedPlayers.Count == MAX_PLAYERS)
 			{
-				opposingSides.Add(loadedPlayers.Values.First(), loadedPlayers.Values.Last());
-				opposingSides.Add(loadedPlayers.Values.Last(), loadedPlayers.Values.First());
+				opposingSides.Add(LoadedPlayers.Values.First(), LoadedPlayers.Values.Last());
+				opposingSides.Add(LoadedPlayers.Values.Last(), LoadedPlayers.Values.First());
 			}
 		}
 
@@ -130,6 +133,21 @@ namespace WarGames.Business.Managers
 				throw new Exception("Missing WorldFactory dependency");
 
 			world = await worldFactory.BuildAsync();
+		}
+
+		public async Task MakeAiDecisionsAsync()
+		{
+			if (activeGameDefaults == null)
+				throw new Exception("Cannot make AI decisions unless game defaults have been initialized");
+
+			foreach (var ai in competitorResource.Players.Where(player => player.PlayerType == PlayerType.Cpu))
+			{
+				var potentialTargets = await GetPotentialTargetsAsync(ai);
+				await Task.Run(() =>
+				{
+					activeGameDefaults.CalculateAiTargets(() => potentialTargets, AddTarget);
+				});
+			}
 		}
 
 		public async Task RainFireAsync()
@@ -164,17 +182,22 @@ namespace WarGames.Business.Managers
 
 		public async Task SetTargetAssignmentsAsync()
 		{
-			await targetingCalculator.SetTargetAssignmentsByPriorityAsync(loadedPlayers.Select(kvp => kvp.Value));
+			await targetingCalculator.SetTargetAssignmentsByPriorityAsync(LoadedPlayers.Select(kvp => kvp.Value));
 		}
 
 		public async Task<ICompetitor> WhatIsPlayerAsync(IPlayer player)
 		{
-			return await Task.Run(() => loadedPlayers[player]);
+			return await Task.Run(() => LoadedPlayers[player]);
 		}
 
 		public async Task<IEnumerable<IPlayer>> WhoIsPlayingAsync()
 		{
-			return await Task.Run(() => loadedPlayers.Select(lp => lp.Key));
+			return await Task.Run(() => LoadedPlayers.Select(lp => lp.Key));
+		}
+
+		private void AddTarget(Settlement settlement, TargetPriority targetPriority)
+		{
+			AddTargetAsync(settlement, targetPriority).Wait();
 		}
 	}
 }

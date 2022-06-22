@@ -12,5 +12,7 @@ namespace WarGames.Resources
 		public IEnumerable<ICompetitor> Sides { get; }
 
 		public void Choose(IPlayer player, ICompetitor side);
+		public void Choose<T>(IPlayer player)
+			where T : ICompetitor;
 	}
 }
