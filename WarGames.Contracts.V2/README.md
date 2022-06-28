@@ -36,22 +36,26 @@ On every project where we had multiple developers in the same area, even though 
 the massive change always wrecked our assumptions as we were coding since we could only ever have 1 master. 
 
 This forced us to:
-* Wait for the model updates to be complete because we need the model change.
-* Have a massive conflict on every thing we touched and then wait for the model updates to be complete.
-* Wait for the model updates because we keep running into conflicts during the refactor.
+* __Wait for the model updates to be complete__ because we need the model change.
+* Have a massive conflict on every thing we touched and then __wait for the model updates to be complete__.
+* __Wait for the work in progress to be complete__ before we finish or start the refactor.
 
 ### New work can chose the new contract
-I was once in a project with around 490 different ASPX Forms, many (not all) of which required immediate changes to the common models shared between them. The rest of the pages could eventually use those changes.
-
+I was once in a project with around 490 different ASPX Forms, many (not all) of which required immediate changes to the common models shared between them. The rest of the pages could eventually use those changes. 
 Changing the model directly would require all of the pages eat the change right away whether they needed it or not.
 
-I was also once in a multi-microservice system that was fast and loose with the contracts. Without the new contract the team kept using the old in other microservices, immediately doubling the work needed to be done
-since every usage of the wrong contract had to be replaced in one go, with the new contract.
+I was also once in a multi-microservice system that was fast and loose with the contracts. They would only change the contract in one microservice at a time. 
+Without the new contract the team kept using the old in the other microservices, immediately doubling the work needed to be done since every usage of the wrong contract 
+had to be replaced in one go, with the new contract.
+
+It also forced ALL of the microservices to release at the same time rather than version the end points that were used.
 
 ## Reduced or no conflicts
 Because each area is left to chose the new versus old contract, the person doing the deprecation is only responsible for the old areas impacted by the change. 
 
 The active developers modifying existing areas or creating new ones can switch to the new contracts when they get to them.
+
+Versioning your contracts allows you to avoid conflicts because the work can be isolated and changed ad hoc.
 
 ## You may realize you need both contracts
 "But I need this!" "But I need that!" "People! People! We have enough models for everyone."
