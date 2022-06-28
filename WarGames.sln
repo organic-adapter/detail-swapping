@@ -25,7 +25,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleMap.Contracts", "Simp
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarGames.CLI", "WarGames.CLI\WarGames.CLI.csproj", "{F25EE0A0-BC02-4171-944C-BCEEEDA4FC76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.WebAPI", "WarGames.WebAPI\WarGames.WebAPI.csproj", "{D25885A9-D8B5-4F60-8277-59BF1EEF13BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WarGames.WebAPI", "WarGames.WebAPI\WarGames.WebAPI.csproj", "{D25885A9-D8B5-4F60-8277-59BF1EEF13BB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WarGames.Contracts.V2", "WarGames.Contracts.V2\WarGames.Contracts.V2.csproj", "{58F47BE3-1B48-4CBA-85C6-6247C0E34FDC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,6 +83,10 @@ Global
 		{D25885A9-D8B5-4F60-8277-59BF1EEF13BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D25885A9-D8B5-4F60-8277-59BF1EEF13BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D25885A9-D8B5-4F60-8277-59BF1EEF13BB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58F47BE3-1B48-4CBA-85C6-6247C0E34FDC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58F47BE3-1B48-4CBA-85C6-6247C0E34FDC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58F47BE3-1B48-4CBA-85C6-6247C0E34FDC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58F47BE3-1B48-4CBA-85C6-6247C0E34FDC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

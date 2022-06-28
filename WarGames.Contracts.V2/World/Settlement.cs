@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using WarGames.Contracts.Game;
 
-namespace WarGames.Contracts.Game
+namespace WarGames.Contracts.V2.World
 {
 	[Serializable]
 	public class Settlement : IUnique<string>
@@ -9,24 +10,16 @@ namespace WarGames.Contracts.Game
 
 		public Settlement()
 		{
-			Id = Guid.NewGuid().ToString();
-			Name = string.Empty;
-			Location = Game.Location.Empty;
 			AftermathValues = new ConcurrentBag<TargetValue>();
+			Id = string.Empty;
+			Location = Location.Empty;
 			TargetValues = new List<TargetValue>();
 		}
 
 		public ConcurrentBag<TargetValue> AftermathValues { get; set; }
 		public int Hits { get; set; }
-		public string Id { get; set; }
-		public ILocation Location { get; set; }
-		public string Name { get; set; }
+		public string Id { get; init; }
+		public Location Location { get; init; }
 		public List<TargetValue> TargetValues { get; set; }
-
-		[Obsolete("For serialization I added a setter to Hits. I don't need this in the contract.")]
-		public void Hit()
-		{
-			Hits++;
-		}
 	}
 }

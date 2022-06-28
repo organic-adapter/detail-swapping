@@ -4,7 +4,7 @@ namespace WarGames.Contracts.Game
 {
 	public class Location : ILocation
 	{
-		public static readonly ILocation Empty = new Location(NoAssignment.Instance, Coord.NoAssignment);
+		public static readonly Location Empty = new Location(NoAssignment.Instance, Coord.NoAssignment);
 
 		public Location(IGeographicalArea area, Coord coord)
 		{

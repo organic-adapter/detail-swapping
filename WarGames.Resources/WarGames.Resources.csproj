@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SimpleMap.Contracts\SimpleMap.Contracts.csproj" />
+    <ProjectReference Include="..\WarGames.Contracts.V2\WarGames.Contracts.V2.csproj" />
     <ProjectReference Include="..\WarGames.Contracts\WarGames.Contracts.csproj" />
   </ItemGroup>
 
