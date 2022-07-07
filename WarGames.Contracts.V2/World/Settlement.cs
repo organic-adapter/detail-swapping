@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Text.Json.Serialization;
 using WarGames.Contracts.Game;
 
 namespace WarGames.Contracts.V2.World
@@ -6,7 +7,7 @@ namespace WarGames.Contracts.V2.World
 	[Serializable]
 	public class Settlement : IUnique<string>
 	{
-		public static Settlement Empty = new Settlement();
+		public static readonly Settlement Empty = new Settlement();
 
 		public Settlement()
 		{

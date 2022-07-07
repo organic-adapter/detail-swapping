@@ -3,6 +3,8 @@
 	[Serializable]
 	public class Country : IUnique<string>
 	{
+		public static readonly Country Empty = new ();
+
 		public Country()
 		{
 			Id = string.Empty;

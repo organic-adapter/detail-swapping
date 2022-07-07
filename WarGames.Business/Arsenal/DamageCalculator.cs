@@ -31,6 +31,33 @@ namespace WarGames.Business.Arsenal
 			return world;
 		}
 
+		public async Task CalculateAfterMathAsync(IEnumerable<Contracts.V2.World.Settlement> settlements)
+		{
+			var options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
+
+			await Parallel.ForEachAsync
+				(
+					settlements,
+					options,
+					async (settlement, token) => await CalculateDamage(settlement)
+				);
+		}
+
+		private async Task CalculateDamage(Contracts.V2.World.Settlement settlement)
+		{
+			var options = new ParallelOptions { MaxDegreeOfParallelism = 2 };
+			await Parallel.ForEachAsync
+				(
+					settlement.TargetValues,
+					options,
+					async (targetValue, token) =>
+					{
+						var damage = await CalculateDamage(settlement.Hits, targetValue);
+						settlement.AftermathValues.Add(damage);
+					}
+				);
+		}
+
 		private async Task CalculateDamage(Settlement settlement)
 		{
 			var options = new ParallelOptions { MaxDegreeOfParallelism = 2 };

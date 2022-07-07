@@ -6,14 +6,24 @@ namespace WarGames.Resources.Planet
 {
 	public interface ISettlementResource
 	{
-		public Task<Settlement> RetrieveAsync(GameInstance game, string settlementId);
+		public Task AssignAsync(GameSession game, Country country, Settlement settlement);
 
-		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameInstance game);
+		public Task AssignAsync(GameSession game, Player player, Settlement settlement);
 
-		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameInstance game, Country country);
+		public Task AssignAsync(GameSession game, Side side, Settlement settlement);
 
-		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameInstance game, Player player);
+		public Task<Settlement> RetrieveAsync(GameSession game, string settlementId);
 
-		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameInstance game, Side side);
+		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameSession game);
+
+		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameSession game, Country country);
+
+		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameSession game, Player player);
+
+		public Task<IEnumerable<Settlement>> RetrieveManyAsync(GameSession game, Side side);
+
+		public Task SaveAsync(GameSession game, Settlement settlement);
+
+		public Task SaveManyAsync(GameSession game, IEnumerable<Settlement> settlements);
 	}
 }

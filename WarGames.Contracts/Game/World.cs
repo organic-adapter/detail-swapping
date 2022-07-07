@@ -1,31 +1,29 @@
 ﻿namespace WarGames.Contracts.Game
 {
 	/// <summary>
-	/// I made an explicit point to make this a serializable class in contracts.
-	/// It declares the intent that it must be serializable.
-	/// 
-	/// What happens to a default serializer when you introduce interfaces?
-	/// What happens to a default deserializer when you introduce interfaces?
-	/// 
-	/// Though this was purposeful sabotage, where it falls apart is I've mixed
-	/// Interface model representations with class contracts.
-	/// 
-	/// Are interfaces important? Absolutely, for establishing generic boundaries 
-	/// of logic that can be mocked.
-	/// 
-	/// How do we fix this? Coming soon in a check-in near you:
-	/// 
-	/// We now need to convert the interfaces to classes to allow the default serializers
-	/// a chance to use these objects.
+	/// Our journey through the lower level elements revealed our Version 1 contracts
+	/// are not JSON friendly in various ways.
+	///
+	/// When we persist:
+	/// 1. Countries would be duplicating Settlement Data
+	/// 2. The player sides duplicate the Country and Settlement data
+	///   a. In turn the countries we duplicate would duplicate settlement data.
+	/// 3. When loading all of this duplicate data we would have to loop through
+	///		all of the data to bind the duplicates to a common reference.
 	/// </summary>
 	[Serializable]
+	[Obsolete("Version 2 contracts inbound.")]
 	public class World : IUnique<Guid>
 	{
 		public static readonly World Empty = new World();
 
+		public static World Deprecating = new World();
+
 		public World()
 		{
+			Id = Guid.NewGuid();
 			Countries = new List<Country>();
+			PlayerSides = new List<IPlayerSide>();
 		}
 
 		public List<Country> Countries { get; set; }

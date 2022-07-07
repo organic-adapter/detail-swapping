@@ -6,12 +6,20 @@ namespace WarGames.Resources.Planet
 {
 	public interface ICountryResource
 	{
-		public Task<Country> RetrieveAsync(GameInstance game, string countryId);
+		public Task AssignAsync(GameSession game, Player player, Country country);
 
-		public Task<IEnumerable<Country>> RetrieveManyAsync(GameInstance game);
+		public Task AssignAsync(GameSession game, Side side, Country country);
 
-		public Task<IEnumerable<Country>> RetrieveManyAsync(GameInstance game, Player player);
+		public Task<Country> RetrieveAsync(GameSession game, string countryId);
 
-		public Task<IEnumerable<Country>> RetrieveManyAsync(GameInstance game, Side side);
+		public Task<IEnumerable<Country>> RetrieveManyAsync(GameSession game);
+
+		public Task<IEnumerable<Country>> RetrieveManyAsync(GameSession game, Player player);
+
+		public Task<IEnumerable<Country>> RetrieveManyAsync(GameSession game, Side side);
+
+		public Task SaveAsync(GameSession game, Country country);
+
+		public Task SaveManyAsync(GameSession game, IEnumerable<Country> countries);
 	}
 }
