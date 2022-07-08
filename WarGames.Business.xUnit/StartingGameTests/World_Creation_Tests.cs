@@ -4,6 +4,7 @@ using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 

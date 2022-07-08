@@ -9,6 +9,7 @@ using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 
@@ -79,8 +80,8 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		[Test]
 		public async Task Can_Find_Targets_In_Range()
 		{
-			var closestSettlement = testData.Capitalism.Settlements.OrderByDescending(settlement => settlement.Location.Coord.Longitude).First();
-			var farthestSettlement = testData.Capitalism.Settlements.OrderBy(settlement => settlement.Location.Coord.Longitude).First();
+			var closestSettlement = testData.Capitalism.Settlements.OrderByDescending(settlement => settlement.Location.Coord.Longitude).First() as Contracts.V2.World.Settlement;
+			var farthestSettlement = testData.Capitalism.Settlements.OrderBy(settlement => settlement.Location.Coord.Longitude).First() as Contracts.V2.World.Settlement;
 			await gameManager.AddTargetAsync(closestSettlement, TargetPriority.Primary);
 			await gameManager.AddTargetAsync(farthestSettlement, TargetPriority.Primary);
 

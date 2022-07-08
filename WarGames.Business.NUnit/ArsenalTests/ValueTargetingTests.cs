@@ -9,6 +9,7 @@ using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 
@@ -60,7 +61,7 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		[Test]
 		public async Task Game_Can_Target()
 		{
-			var capHighestValueTarget = testData.Capitalism.Settlements.OrderByDescending(s => s.TargetValues.Sum(tv => tv.Value)).First();
+			var capHighestValueTarget = testData.Capitalism.Settlements.OrderByDescending(s => s.TargetValues.Sum(tv => tv.Value)).First() as Contracts.V2.World.Settlement;
 
 			await gameManager.AddTargetAsync(capHighestValueTarget, TargetPriority.Primary);
 			var target = await targetResource.GetAsync(capHighestValueTarget);

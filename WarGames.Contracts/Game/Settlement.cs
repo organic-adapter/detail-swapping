@@ -29,5 +29,18 @@ namespace WarGames.Contracts.Game
 		{
 			Hits++;
 		}
+
+		public override int GetHashCode()
+		{
+			return Id.GetHashCode();
+		}
+		public override bool Equals(object? obj)
+		{
+			if (object.ReferenceEquals(obj, null)) return false;
+
+			if (object.ReferenceEquals(this, obj)) return true;
+
+			return Id.Equals((obj as Settlement).Id);
+		}
 	}
 }

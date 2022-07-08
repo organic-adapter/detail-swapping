@@ -19,45 +19,45 @@ namespace WarGames.Business.NUnit.Mockers
 		{
 			var returnMe = new List<Country>();
 
-			returnMe.Add(new Country() { Name = "NATO Capital" });
-			returnMe.Add(new Country() { Name = "NATO Military Center" });
-			returnMe.Add(new Country() { Name = "NATO Financial Center" });
-			returnMe.Add(new Country() { Name = "NATO Small City" });
-			returnMe.Add(new Country() { Name = "NATO Small Towns 1" });
-			returnMe.Add(new Country() { Name = "NATO Small Towns 2" });
-			returnMe.Add(new Country() { Name = "NATO Small Towns 3" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Capital" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Military Center" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Financial Center" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Small City" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Small Towns 1" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Small Towns 2" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "NATO Small Towns 3" });
 
-			returnMe.Add(new Country() { Name = "Communism Capital" });
-			returnMe.Add(new Country() { Name = "Communism Military Center" });
-			returnMe.Add(new Country() { Name = "Communism Financial Center" });
-			returnMe.Add(new Country() { Name = "Communism Small City" });
-			returnMe.Add(new Country() { Name = "Communism Small Towns 1" });
-			returnMe.Add(new Country() { Name = "Communism Small Towns 2" });
-			returnMe.Add(new Country() { Name = "Communism Small Towns 3" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Capital" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Military Center" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Financial Center" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Small City" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Small Towns 1" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Small Towns 2" });
+			returnMe.Add(new Contracts.V2.World.Country() { Name = "Communism Small Towns 3" });
 
 			foreach (var country in returnMe)
 			{
 				var direction = country.Name.StartsWith("Communism") ? (int)CardinalLong.E : (int)CardinalLong.W;
-				country.Settlements = MakeSettlements(country, direction);
+				country.Settlements = MakeSettlements(country as Contracts.V2.World.Country, direction);
 			}
 			return returnMe;
 		}
 
-		private static Settlement MakeSettlement(Country country, string settlementName, double lon)
+		private static Settlement MakeSettlement(Contracts.V2.World.Country country, string settlementName, double lon)
 		{
-			var returnMe = new Settlement()
+			var returnMe = new Contracts.V2.World.Settlement()
 			{
-				Id = Guid.NewGuid().ToString()
-				,
+				Id = Guid.NewGuid().ToString(),
 				Name = $"{country.Name} {settlementName}",
 				Location = new Location(country, new Coord(0, lon)),
+				Coord = new Coord(0, lon),
 			};
 
 			returnMe.TargetValues.Add(MakeTargetValue<CivilianPopulation>(10000, 10000000));
 			return returnMe;
 		}
 
-		private static List<Settlement> MakeSettlements(Country country, int direction)
+		private static List<Settlement> MakeSettlements(Contracts.V2.World.Country country, int direction)
 		{
 			var returnMe = new List<Settlement>
 			{

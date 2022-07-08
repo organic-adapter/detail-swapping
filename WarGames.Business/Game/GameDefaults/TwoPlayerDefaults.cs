@@ -1,5 +1,6 @@
 ﻿using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources;
 
 namespace WarGames.Contracts.Game.GameDefaults
@@ -26,7 +27,7 @@ namespace WarGames.Contracts.Game.GameDefaults
 			return competitorResource.PlayerSelections;
 		}
 
-		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
+		public void CalculateAiTargets(Func<IEnumerable<V2.World.Settlement>> targets, Action<V2.World.Settlement, TargetPriority> addAction)
 		{
 			//no-op
 		}

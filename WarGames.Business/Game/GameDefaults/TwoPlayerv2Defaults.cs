@@ -1,5 +1,6 @@
 ﻿using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
+using WarGames.Contracts.V2.Games;
 
 namespace WarGames.Contracts.Game.GameDefaults
 {
@@ -20,7 +21,7 @@ namespace WarGames.Contracts.Game.GameDefaults
 
 		public IEnumerable<string> CountryTags => new List<string>();
 
-		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
+		public void CalculateAiTargets(Func<IEnumerable<V2.World.Settlement>> targets, Action<V2.World.Settlement, TargetPriority> addAction)
 		{
 			//no-op
 		}

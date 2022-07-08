@@ -190,7 +190,7 @@ namespace WarGames.CLI.Views
 			PrepareForEndOfWorld();
 		}
 
-		private void SelectTarget(Settlement selectMe, string index)
+		private void SelectTarget(Contracts.V2.World.Settlement selectMe, string index)
 		{
 			gameManager.AddTargetAsync(selectMe, prioritySelectionMap[totalPicks]).Wait();
 			currentPicks.Add(selectMe);

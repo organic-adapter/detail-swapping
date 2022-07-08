@@ -3,6 +3,7 @@ using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources;
 using WarGames.Resources.Sides;
 
@@ -31,7 +32,7 @@ namespace WarGames.Game.GameDefaults
 
 		public IEnumerable<string> CountryTags => new List<string>();
 
-		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
+		public void CalculateAiTargets(Func<IEnumerable<Contracts.V2.World.Settlement>> targets, Action<Contracts.V2.World.Settlement, TargetPriority> addAction)
 		{
 			var topTen = targets().OrderByDescending(target => target.TargetValues.First().Value).Take(10);
 			foreach (var t in topTen)

@@ -28,7 +28,7 @@ namespace WarGames.Contracts.V2.World
 
 			if (object.ReferenceEquals(this, obj)) return true;
 
-			return Id.Equals(Id);
+			return Id.Equals((obj as Country).Id);
 		}
 
 		public override int GetHashCode()

@@ -6,6 +6,7 @@ using WarGames.Business.Planet;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Planet;
@@ -70,7 +71,7 @@ namespace WarGames.Business.Managers
 		public GamePhase CurrentPhase { get; set; }
 		public IDictionary<IPlayer, ICompetitor> LoadedPlayers => competitorResource.PlayerSelections;
 
-		public async Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
+		public async Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			await targetResource.AddTargetAsync(settlement, targetPriority);
 		}
@@ -105,7 +106,7 @@ namespace WarGames.Business.Managers
 			return await targetResource.GetAsync(opponent);
 		}
 
-		public async Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(IPlayer source)
+		public async Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(IPlayer source)
 		{
 			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source as Contracts.V2.Sides.Player);
 			return await settlementResource.RetrieveManyAsync(currentGame.GameSession, opponent);
@@ -202,7 +203,7 @@ namespace WarGames.Business.Managers
 			return await Task.Run(() => LoadedPlayers.Select(lp => lp.Key));
 		}
 
-		private void AddTarget(Settlement settlement, TargetPriority targetPriority)
+		private void AddTarget(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			AddTargetAsync(settlement, targetPriority).Wait();
 		}

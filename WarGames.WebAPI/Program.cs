@@ -8,6 +8,7 @@ using WarGames.Business.Managers;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 using WarGames.Contracts.Game.GameDefaults;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;

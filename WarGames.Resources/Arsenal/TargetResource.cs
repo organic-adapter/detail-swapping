@@ -15,7 +15,7 @@ namespace WarGames.Resources.Arsenal
 			targets = new ConcurrentBag<Target>();
 		}
 
-		public async Task<Target> AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
+		public async Task<Target> AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			return await Task.Run(() =>
 			{
@@ -32,7 +32,7 @@ namespace WarGames.Resources.Arsenal
 			return await Task.Run(() => targets);
 		}
 
-		public async Task<Target> GetAsync(Settlement settlement)
+		public async Task<Target> GetAsync(Contracts.V2.World.Settlement settlement)
 		{
 			return await Task.Run(() => Get(settlement));
 		}
@@ -49,7 +49,7 @@ namespace WarGames.Resources.Arsenal
 				return competitor
 						.Settlements
 						.Where(settlement => targets.Any(target => target.Key.Equals(settlement)))
-						.Select(settlement => Get(settlement));
+						.Select(settlement => Get(settlement as Contracts.V2.World.Settlement));
 			});
 		}
 
@@ -58,7 +58,7 @@ namespace WarGames.Resources.Arsenal
 			throw new NotImplementedException();
 		}
 
-		private Target Get(Settlement settlement)
+		private Target Get(Contracts.V2.World.Settlement settlement)
 		{
 			return targets.First(target => target.Key.Equals(settlement));
 		}

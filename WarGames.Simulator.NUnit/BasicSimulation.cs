@@ -12,6 +12,7 @@ using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
 using WarGames.Contracts.Game.GameDefaults;
+using WarGames.Contracts.V2.Games;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
@@ -132,7 +133,7 @@ namespace WarGames.Simulator.NUnit
 
 		private void SetTargets(ICompetitor competitor)
 		{
-			foreach (var settlement in competitor.Settlements)
+			foreach (var settlement in competitor.Settlements.Cast <Contracts.V2.World.Settlement>())
 				gameManager.AddTargetAsync(settlement, TargetPriority.Primary);
 		}
 	}
