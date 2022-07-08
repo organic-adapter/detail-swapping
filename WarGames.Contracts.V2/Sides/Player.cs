@@ -3,6 +3,15 @@
 	[Serializable]
 	public class Player : IUnique<string>
 	{
+		public static readonly Player Empty = new();
+
+		public Player(string id, string name, PlayerType playerType)
+		{
+			Id = id;
+			Name = name;
+			PlayerType = playerType;
+		}
+
 		public Player()
 		{
 			Id = string.Empty;
