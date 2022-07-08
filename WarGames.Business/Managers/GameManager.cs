@@ -1,4 +1,5 @@
-﻿using WarGames.Business.Arsenal;
+﻿using AutoMapper;
+using WarGames.Business.Arsenal;
 using WarGames.Business.Competitors;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
@@ -19,6 +20,7 @@ namespace WarGames.Business.Managers
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
 		private readonly IDamageCalculator damageCalculator;
 		private readonly IEnumerable<IGameDefaults> gameDefaults;
+		private readonly IMapper mapper;
 		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
 		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
@@ -28,6 +30,7 @@ namespace WarGames.Business.Managers
 
 		public GameManager
 		(
+			IMapper mapper,
 			WorldFactory worldFactory,
 			IArsenalAssignmentEngine arsenalAssignmentEngine,
 			ICompetitorResource competitorResource,
@@ -38,6 +41,7 @@ namespace WarGames.Business.Managers
 			ITargetingCalculator targetingCalculator
 		)
 		{
+			this.mapper = mapper;
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
 			this.competitorResource = competitorResource;
 			this.countryAssignmentEngine = countryAssignmentEngine;
@@ -89,7 +93,7 @@ namespace WarGames.Business.Managers
 		{
 			var side = LoadedPlayers[source];
 			var opponent = opposingSides[side];
-			return await Task.Run(() => opponent.Settlements.Cast<Contracts.V2.World.Settlement>());
+			return await Task.Run(() => mapper.Map<List<Contracts.V2.World.Settlement>>(opponent.Settlements));
 		}
 
 		public async Task InitializeDefaultsAsync()

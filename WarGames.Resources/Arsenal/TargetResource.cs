@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using AutoMapper;
+using System.Collections.Concurrent;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
@@ -9,9 +10,14 @@ namespace WarGames.Resources.Arsenal
 	public class TargetResource : ITargetResource
 	{
 		private readonly ConcurrentBag<Target> targets;
-
+		private readonly IMapper mapper;
 		public TargetResource()
 		{
+			targets = new ConcurrentBag<Target>();
+		}
+		public TargetResource(IMapper mapper)
+		{
+			this.mapper = mapper;
 			targets = new ConcurrentBag<Target>();
 		}
 
@@ -46,8 +52,8 @@ namespace WarGames.Resources.Arsenal
 		{
 			return await Task.Run(() =>
 			{
-				return competitor
-						.Settlements
+				var settlements = mapper.Map<List<Contracts.V2.World.Settlement>>(competitor.Settlements);
+				return settlements
 						.Where(settlement => targets.Any(target => target.Key.Equals(settlement)))
 						.Select(settlement => Get(settlement as Contracts.V2.World.Settlement));
 			});

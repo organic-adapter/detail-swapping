@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using AutoMapper;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Business.Planet;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
 using WarGames.Contracts.V2.Games;
@@ -34,16 +36,22 @@ namespace WarGames.Business.NUnit.ArsenalTests
 			await SetUpGameManager();
 			SetUpMds();
 		}
-
+		private IMapper GenerateMapper()
+		{
+			var config = new MapperConfiguration(cfg => cfg.AddProfile<ContractConversionMapperProfiles>());
+			return config.CreateMapper();
+		}
 		private async Task SetUpGameManager()
 		{
+			var mapper = GenerateMapper();
 			testData = new TestData();
 			//We can use the InMemoryRepositories directly rather than Mock these.
-			var targetResource = new TargetResource();
+			var targetResource = new TargetResource(mapper);
 			targetingCalculator = new TargetingCalculator(targetResource);
 			gameManager = new GameManager
 					(
-						new WorldFactory(testData.World)
+						mapper
+						, new WorldFactory(testData.World)
 						, Mock.Of<IArsenalAssignmentEngine>()
 						, new CompetitorResource(testData.Competitors)
 						, new CountryAssignmentEngine()

@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using AutoMapper;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -34,7 +35,8 @@ namespace WarGames.Business.NUnit.ArsenalTests
 			//We can use the InMemoryRepositories directly rather than Mock these.
 			gameManager = new GameManager
 					(
-						new WorldFactory(testData.World)
+						Mock.Of<IMapper>()
+						, new WorldFactory(testData.World)
 						, Mock.Of<IArsenalAssignmentEngine>()
 						, new CompetitorResource(testData.Competitors)
 						, new CountryAssignmentEngine()

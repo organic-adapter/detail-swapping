@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using AutoMapper;
+using Moq;
 using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
@@ -31,7 +32,8 @@ namespace WarGames.Business.MSTest.StartingGameTests
 			//We can use the InMemoryRepositories directly rather than Mock these.
 			gameManager = new GameManager
 							(
-							new WorldFactory(testData.World)
+							Mock.Of<IMapper>()
+							, new WorldFactory(testData.World)
 							, new ArsenalAssignmentEngine()
 							, new CompetitorResource(testData.Competitors)
 							, new CountryAssignmentEngine()

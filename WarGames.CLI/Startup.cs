@@ -4,6 +4,7 @@ using WarGames.Business.Arsenal;
 using WarGames.Business.Competitors;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Business.Planet;
 using WarGames.CLI.Views;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
@@ -34,7 +35,7 @@ namespace WarGames.CLI
 
 		private void InitializeServices(IServiceCollection services)
 		{
-			services.AddAutoMapper(typeof(WorldMapperProfiles));
+			services.AddAutoMapper(typeof(WorldMapperProfiles), typeof(ContractConversionMapperProfiles));
 
 			services.InitializeCoreGameServices()
 				.AddScoped<MenuController>()
