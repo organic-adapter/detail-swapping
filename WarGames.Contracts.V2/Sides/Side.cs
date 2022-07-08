@@ -3,6 +3,8 @@
 	[Serializable]
 	public class Side : IUnique<string>
 	{
+		public static readonly Side Empty = new Side();
+
 		public Side()
 		{
 			Id = Guid.NewGuid().ToString();

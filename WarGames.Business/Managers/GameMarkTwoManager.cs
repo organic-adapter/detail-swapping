@@ -6,8 +6,8 @@ using WarGames.Business.Planet;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Game;
 using WarGames.Resources.Planet;
 using static WarGames.Business.Game.CurrentGame;
 
@@ -17,7 +17,6 @@ namespace WarGames.Business.Managers
 	{
 		private const byte MAX_PLAYERS = 2;
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private readonly ICompetitorResource competitorResource;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
 		private readonly ICountryResource countryResource;
 		private readonly CurrentGame currentGame;
@@ -25,20 +24,21 @@ namespace WarGames.Business.Managers
 		private readonly IEnumerable<IGameDefaults> gameDefaults;
 		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
 		private readonly ISettlementResource settlementResource;
+		private readonly IPlayerResource playerResource;
 		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
 		private readonly IWorldBuildingEngine worldBuildingEngine;
-		private IGameDefaults? activeGameDefaults;
+		private Contracts.V2.Games.IGameDefaults? activeGameDefaults;
 
 		public GameMarkTwoManager
 		(
 			CurrentGame currentGame,
 			IArsenalAssignmentEngine arsenalAssignmentEngine,
-			ICompetitorResource competitorResource,
 			ICountryAssignmentEngine countryAssignmentEngine,
 			ICountryResource countryResource,
 			IDamageCalculator damageCalculator,
 			IEnumerable<IGameDefaults> gameDefaults,
+			IPlayerResource playerResource,
 			ISettlementResource settlementResource,
 			ITargetResource targetResource,
 			ITargetingCalculator targetingCalculator,
@@ -47,11 +47,11 @@ namespace WarGames.Business.Managers
 		{
 			this.currentGame = currentGame;
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
-			this.competitorResource = competitorResource;
 			this.countryAssignmentEngine = countryAssignmentEngine;
 			this.countryResource = countryResource;
 			this.damageCalculator = damageCalculator;
 			this.gameDefaults = gameDefaults;
+			this.playerResource = playerResource;
 			this.settlementResource = settlementResource;
 			this.targetingCalculator = targetingCalculator;
 			this.targetResource = targetResource;
@@ -61,9 +61,14 @@ namespace WarGames.Business.Managers
 		}
 
 		public GamePhase CurrentPhase { get; set; }
-		public IDictionary<IPlayer, ICompetitor> LoadedPlayers => competitorResource.PlayerSelections;
+		public IDictionary<IPlayer, ICompetitor> LoadedPlayers => throw new NotImplementedException();
 
 		public async Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
+		{
+			await targetResource.AddTargetAsync(settlement, targetPriority);
+		}
+
+		public async Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			await targetResource.AddTargetAsync(settlement, targetPriority);
 		}
@@ -79,7 +84,7 @@ namespace WarGames.Business.Managers
 				throw new PlayersNotReady();
 
 			CurrentPhase = GamePhase.PickTargets;
-			await countryAssignmentEngine.AssignCountriesAsync(World.Deprecating, LoadedPlayers.Values, assignmentType);
+			await countryAssignmentEngine.AssignCountriesAsync(currentGame, assignmentType);
 		}
 
 		public async Task<IEnumerable<ICompetitor>> AvailableSidesAsync()
@@ -94,11 +99,21 @@ namespace WarGames.Business.Managers
 			return await targetResource.GetAsync(opponent);
 		}
 
+		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(Contracts.V2.Sides.Player source)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(IPlayer source)
 		{
 			var side = LoadedPlayers[source];
 			var opponent = opposingSides[side];
 			return await Task.Run(() => opponent.Settlements);
+		}
+
+		public Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(Contracts.V2.Sides.Player source)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task InitializeDefaultsAsync()
@@ -145,7 +160,8 @@ namespace WarGames.Business.Managers
 			if (activeGameDefaults == null)
 				throw new Exception("Cannot make AI decisions unless game defaults have been initialized");
 
-			foreach (var ai in competitorResource.Players.Where(player => player.PlayerType == PlayerType.Cpu))
+			var cpuPlayers = await playerResource.RetrieveManyAsync(currentGame.GameSession, Contracts.V2.Sides.PlayerType.Cpu);
+			foreach (var ai in cpuPlayers)
 			{
 				var potentialTargets = await GetPotentialTargetsAsync(ai);
 				await Task.Run(() =>
@@ -200,7 +216,7 @@ namespace WarGames.Business.Managers
 			return await Task.Run(() => LoadedPlayers.Select(lp => lp.Key));
 		}
 
-		private void AddTarget(Settlement settlement, TargetPriority targetPriority)
+		private void AddTarget(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			AddTargetAsync(settlement, targetPriority).Wait();
 		}

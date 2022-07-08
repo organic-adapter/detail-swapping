@@ -14,7 +14,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 	[TestClass]
 	public class Select_Sides_Tests
 	{
-		private ICompetitorManager competitorManager;
+		private IPlayerSideManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;

@@ -90,6 +90,9 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
+				if (!countries.ContainsKey(game))
+					countries.Add(game, new());
+
 				if (!countries[game].ContainsKey(country.Id))
 					countries[game].Add(country.Id, Country.Empty);
 

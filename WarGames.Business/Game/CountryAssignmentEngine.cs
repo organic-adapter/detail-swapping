@@ -1,5 +1,6 @@
 ﻿using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Sides;
 
 namespace WarGames.Business.Game
 {
@@ -19,6 +20,16 @@ namespace WarGames.Business.Game
 		public async Task AssignCountriesAsync(World world, IEnumerable<ICompetitor> competitors, CountryAssignment assignmentType)
 		{
 			await Task.Run(() => assignmentDelegates[assignmentType](world, competitors));
+		}
+
+		public Task AssignCountriesAsync(CurrentGame currentGame, IEnumerable<PlayerSide> sides, CountryAssignment assignmentType)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task AssignCountriesAsync(CurrentGame currentGame, CountryAssignment assignmentType)
+		{
+			throw new NotImplementedException();
 		}
 
 		private void AssignCountry(ICompetitor competitor, Country country)

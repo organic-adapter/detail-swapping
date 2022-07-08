@@ -14,7 +14,7 @@ namespace WarGames.Business.xUnit.StartingGameTests
 	public class Select_Sides_Tests
 	{
 		private IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private ICompetitorManager competitorManager;
+		private IPlayerSideManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;

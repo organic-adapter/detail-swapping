@@ -3,6 +3,7 @@ using WarGames.Resources;
 
 namespace WarGames.Business.Game
 {
+	[Obsolete("World class is obsoleting.")]
 	public class WorldFactory
 	{
 		private readonly IReadResource<Country, string> countryResource;

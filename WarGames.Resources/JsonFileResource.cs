@@ -70,8 +70,8 @@ namespace WarGames.Resources
 			var json = File.ReadAllText(options.CurrentValue.RootPath);
 
 			var list = IsConversionRequired ? Convert(json) : JsonSerializer.Deserialize<List<TInt>>(json);
-
-			foreach (var item in list.Distinct())
+			var unique = list.Distinct();
+			foreach (var item in unique)
 				cached.Add(item.Id, item);
 		}
 	}

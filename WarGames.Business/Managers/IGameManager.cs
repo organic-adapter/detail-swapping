@@ -8,8 +8,12 @@ namespace WarGames.Business.Managers
 	public interface IGameManager
 	{
 		public GamePhase CurrentPhase { get; }
+
+		[Obsolete("Version 2 contracts incoming")]
 		public IDictionary<IPlayer, ICompetitor> LoadedPlayers { get; }
 
+		public Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority);
+		[Obsolete("Version 2 contracts incoming")]
 		public Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority);
 
 		public Task AssignArsenalAsync(ArsenalAssignment assignmentType);
@@ -18,7 +22,10 @@ namespace WarGames.Business.Managers
 
 		public Task<IEnumerable<ICompetitor>> AvailableSidesAsync();
 
+		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(Contracts.V2.Sides.Player source);
 		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source);
+
+		public Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(Contracts.V2.Sides.Player source);
 
 		public Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(IPlayer source);
 

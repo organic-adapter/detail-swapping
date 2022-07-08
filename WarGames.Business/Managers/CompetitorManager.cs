@@ -1,9 +1,11 @@
 ﻿using WarGames.Contracts.Competitors;
+using WarGames.Contracts.V2.Sides;
 using WarGames.Resources;
 
 namespace WarGames.Business.Managers
 {
-	public class CompetitorManager : ICompetitorManager
+	[Obsolete("Version 2 contracts incoming.")]
+	public class CompetitorManager : IPlayerSideManager
 	{
 		public readonly IRepository<ICompetitor, string> competitorRepository;
 
@@ -12,14 +14,19 @@ namespace WarGames.Business.Managers
 			this.competitorRepository = competitorRepository;
 		}
 
-		public async Task<IEnumerable<ICompetitor>> GetCompetitorsAsync()
+		public Task AddAsync(Player player)
 		{
-			return await competitorRepository.GetAllAsync();
+			throw new NotImplementedException();
 		}
 
-		public async Task<string> SaveCompetitor(ICompetitor competitor)
+		public Task AddAsync(Side side)
 		{
-			return await competitorRepository.SaveAsync(competitor);
+			throw new NotImplementedException();
+		}
+
+		public Task ChooseAsync(Player player, Side side)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

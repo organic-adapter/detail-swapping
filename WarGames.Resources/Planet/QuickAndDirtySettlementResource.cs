@@ -115,6 +115,9 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
+				if (!settlements.ContainsKey(game))
+					settlements.Add(game, new());
+
 				if (!settlements[game].ContainsKey(settlement.Id))
 					settlements[game].Add(settlement.Id, Settlement.Empty);
 

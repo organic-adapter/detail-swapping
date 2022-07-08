@@ -19,7 +19,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 	[TestFixture]
 	public class Select_Sides_Tests
 	{
-		private ICompetitorManager competitorManager;
+		private IPlayerSideManager competitorManager;
 		private IGameManager gameManager;
 		private TestData testData;
 

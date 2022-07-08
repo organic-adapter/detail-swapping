@@ -10,6 +10,7 @@ using WarGames.Resources.Arsenal;
 
 namespace WarGames.Business.Managers
 {
+	[Obsolete("Version 2 contracts incoming.")]
 	public class GameManager : IGameManager
 	{
 		private const byte MAX_PLAYERS = 2;
@@ -58,6 +59,11 @@ namespace WarGames.Business.Managers
 			await targetResource.AddTargetAsync(settlement, targetPriority);
 		}
 
+		public Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task AssignArsenalAsync(ArsenalAssignment assignmentType)
 		{
 			await arsenalAssignmentEngine.AssignArsenalAsync(world, LoadedPlayers.Values, assignmentType);
@@ -89,6 +95,11 @@ namespace WarGames.Business.Managers
 			var side = LoadedPlayers[source];
 			var opponent = opposingSides[side];
 			return await Task.Run(() => opponent.Settlements);
+		}
+
+		public Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(Contracts.V2.Sides.Player source)
+		{
+			throw new NotImplementedException();
 		}
 
 		public async Task InitializeDefaultsAsync()

@@ -1,5 +1,4 @@
-﻿using WarGames.Business.Arsenal;
-using WarGames.Business.Competitors;
+﻿using WarGames.Business.Competitors;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.CLI.Renderers;
@@ -11,16 +10,18 @@ namespace WarGames.CLI.Views
 {
 	internal class GTWView : ConsoleView
 	{
-		private IPlayer human;
-		private IPlayer cpu0;
-		private IPlayer cpu1;
-
 		private const int maxPicks = 9;
+		private readonly CurrentGame currentGame;
+		private readonly IPlayerSideManager playerSideManager;
 		private string chatterText = "I'm afraid I can't do that";
-		private List<Settlement> currentPicks;
-		private IGameManager gameManager;
 		private ICompetitorResource competitorResource;
-		private List<Settlement> potentialTargets;
+		private Contracts.V2.Sides.Player cpu0;
+		private Contracts.V2.Sides.Player cpu1;
+		private List<Contracts.V2.World.Settlement> currentPicks;
+		private IGameManager gameManager;
+		private Contracts.V2.Sides.Player humanPlayer;
+		private List<Contracts.V2.World.Settlement> potentialTargets;
+
 		private Dictionary<int, TargetPriority> prioritySelectionMap = new Dictionary<int, TargetPriority>()
 		{
 			{ 9, TargetPriority.Primary },
@@ -33,38 +34,41 @@ namespace WarGames.CLI.Views
 			{ 2, TargetPriority.Tertiary },
 			{ 1, TargetPriority.Tertiary },
 		};
-		public GTWView(IGameManager gameManager, ICompetitorResource competitorResource) : base(new Dictionary<string, Action<string>>())
+
+		public GTWView
+				(
+					CurrentGame currentGame
+					, IGameManager gameManager
+					, IPlayerSideManager playerSideManager
+					, ICompetitorResource competitorResource
+				) : base(new Dictionary<string, Action<string>>())
 		{
 			chatter = Chatter;
+			this.currentGame = currentGame;
+			currentGame.GameSession = new Contracts.V2.GameSession() { Id = Guid.NewGuid().ToString() };
 			this.gameManager = gameManager;
+			this.playerSideManager = playerSideManager;
 			this.competitorResource = competitorResource;
-			potentialTargets = new List<Settlement>();
-			currentPicks = new List<Settlement>();
+			potentialTargets = new List<Contracts.V2.World.Settlement>();
+			currentPicks = new List<Contracts.V2.World.Settlement>();
+
+			cpu0 = Contracts.V2.Sides.Player.Empty;
+			cpu1 = Contracts.V2.Sides.Player.Empty;
+			humanPlayer = Contracts.V2.Sides.Player.Empty;
 		}
 
 		public override string Title => "GTW";
-		private int totalPicks => maxPicks - currentPicks.Count;
+		private int TotalPicks => maxPicks - currentPicks.Count;
+
 		protected override void Initialize()
 		{
+			playerSideManager.AddAsync(Business.Sides.Capitalism.Instance).Wait();
+			playerSideManager.AddAsync(Business.Sides.Communism.Instance).Wait();
+
 			Console.WriteLine("How many players?");
 			Commands.Add("0", SetAutoPlay);
 			Commands.Add("1", SetSinglePlayer);
 			base.Initialize();
-		}
-		private void SetSinglePlayer(string _)
-		{
-			human = new Player("Hooman", Guid.NewGuid().ToString(), PlayerType.Human);
-
-			Commands.Clear();
-			Console.WriteLine("What side do you wish to play? \r\n NATO \r\n USSR");
-			Commands.Add("NATO", PickNato);
-			Commands.Add("USSR", PickUssr);
-			potentialTargets = new List<Settlement>();
-			currentPicks = new List<Settlement>();
-		}
-		private void SetAutoPlay(string _)
-		{
-			gameManager.InitializeDefaultsAsync().Wait();
 		}
 
 		private void CalculateTopTenTargets()
@@ -72,14 +76,14 @@ namespace WarGames.CLI.Views
 			if (gameManager.CurrentPhase == GamePhase.PickTargets)
 			{
 				Commands.Clear();
-				var topTen = (gameManager.GetPotentialTargetsAsync(human).Result).OrderByDescending(target => target.TargetValues.First().Value).Take(10).ToList();
+				var topTen = (gameManager.GetPotentialTargetsAsync(humanPlayer).Result).OrderByDescending(target => target.TargetValues.First().Value).Take(10).ToList();
 
 				for (var i = 0; i < topTen.Count; i++)
 				{
-					var t = topTen[i];
+					var item = topTen[i];
 					var pack = i.ToString();
-					potentialTargets.Add(t);
-					Commands.Add(i.ToString(), (string parameters) => SelectTarget(t, pack));
+					potentialTargets.Add(item);
+					Commands.Add(i.ToString(), (string parameters) => SelectTarget(item, pack));
 				}
 				DrawTargetDetails();
 			}
@@ -110,7 +114,7 @@ namespace WarGames.CLI.Views
 		private void DrawCurrentTargetList()
 		{
 			Console.WriteLine("-------Current Selections--------");
-			IEnumerable<Target> currentTargets = gameManager.GetCurrentTargetsAsync(human).Result;
+			IEnumerable<Target> currentTargets = gameManager.GetCurrentTargetsAsync(humanPlayer).Result;
 			foreach (var target in currentTargets)
 				Console.WriteLine(target.Key.Name);
 		}
@@ -119,7 +123,7 @@ namespace WarGames.CLI.Views
 		{
 			Console.Clear();
 			Console.WriteLine("Pick your targets");
-			Console.WriteLine($"{totalPicks} remaining choices");
+			Console.WriteLine($"{TotalPicks} remaining choices");
 			Console.WriteLine("---------------------------------");
 
 			DrawCurrentTargetList();
@@ -141,7 +145,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				competitorResource.Choose<Capitalism>(human);
+				playerSideManager.ChooseAsync(humanPlayer, Business.Sides.Capitalism.Instance);
 				LoadGamePrerequisites();
 			}
 		}
@@ -150,8 +154,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				competitorResource.Choose<Communism>(human);
-
+				playerSideManager.ChooseAsync(humanPlayer, Business.Sides.Communism.Instance);
 				LoadGamePrerequisites();
 			}
 		}
@@ -174,7 +177,7 @@ namespace WarGames.CLI.Views
 			Console.WriteLine("Launch");
 			var task = gameManager.RainFireAsync();
 			var tick = 1;
-			while(!task.IsCompleted)
+			while (!task.IsCompleted)
 			{
 				Console.SetCursorPosition(2, 10);
 				Console.WriteLine(new string(' ', Console.WindowWidth));
@@ -199,14 +202,32 @@ namespace WarGames.CLI.Views
 			Thread.Sleep(1000);
 			PrepareForEndOfWorld();
 		}
-		private void SelectTarget(Settlement selectMe, string index)
+
+		private void SelectTarget(Contracts.V2.World.Settlement selectMe, string index)
 		{
-			gameManager.AddTargetAsync(selectMe, prioritySelectionMap[totalPicks]).Wait();
+			gameManager.AddTargetAsync(selectMe, prioritySelectionMap[TotalPicks]).Wait();
 			currentPicks.Add(selectMe);
 			Commands.Remove(index);
 			DrawTargetDetails();
-			if (totalPicks == 0)
+			if (TotalPicks == 0)
 				PrepareTargetAssignmentPhase();
+		}
+
+		private void SetAutoPlay(string _)
+		{
+			gameManager.InitializeDefaultsAsync().Wait();
+		}
+
+		private void SetSinglePlayer(string _)
+		{
+			humanPlayer = new Contracts.V2.Sides.Player("Hooman", Guid.NewGuid().ToString(), Contracts.V2.Sides.PlayerType.Human);
+
+			Commands.Clear();
+			Console.WriteLine("What side do you wish to play? \r\n NATO \r\n USSR");
+			Commands.Add("NATO", PickNato);
+			Commands.Add("USSR", PickUssr);
+			potentialTargets = new List<Contracts.V2.World.Settlement>();
+			currentPicks = new List<Contracts.V2.World.Settlement>();
 		}
 	}
 }
