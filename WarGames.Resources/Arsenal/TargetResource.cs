@@ -48,6 +48,7 @@ namespace WarGames.Resources.Arsenal
 			return await Task.Run(() => Get(country));
 		}
 
+		[Obsolete("Not only does this one cheat (It's using the competitor object to find the settlements), Competitor is being removed as a concept.")]
 		public async Task<IEnumerable<Target>> GetAsync(ICompetitor competitor)
 		{
 			return await Task.Run(() =>
