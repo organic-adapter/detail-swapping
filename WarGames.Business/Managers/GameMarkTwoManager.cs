@@ -3,6 +3,7 @@ using WarGames.Business.Competitors;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Planet;
+using WarGames.Contracts;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
@@ -63,7 +64,7 @@ namespace WarGames.Business.Managers
 		public GamePhase CurrentPhase { get; set; }
 		public IDictionary<IPlayer, ICompetitor> LoadedPlayers => competitorResource.PlayerSelections;
 
-		public async Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
+		public async Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			await targetResource.AddTargetAsync(settlement, targetPriority);
 		}
@@ -200,9 +201,15 @@ namespace WarGames.Business.Managers
 			return await Task.Run(() => LoadedPlayers.Select(lp => lp.Key));
 		}
 
-		private void AddTarget(Settlement settlement, TargetPriority targetPriority)
+		private void AddTarget(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			AddTargetAsync(settlement, targetPriority).Wait();
+		}
+
+		[Obsolete(ObsoleteConstants.Version2Incoming)]
+		private void AddTarget(Settlement settlement, TargetPriority targetPriority)
+		{
+			AddTarget(settlement as Contracts.V2.World.Settlement, targetPriority);
 		}
 	}
 }

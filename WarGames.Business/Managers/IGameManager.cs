@@ -10,7 +10,7 @@ namespace WarGames.Business.Managers
 		public GamePhase CurrentPhase { get; }
 		public IDictionary<IPlayer, ICompetitor> LoadedPlayers { get; }
 
-		public Task AddTargetAsync(Settlement settlement, TargetPriority targetPriority);
+		public Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority);
 
 		public Task AssignArsenalAsync(ArsenalAssignment assignmentType);
 

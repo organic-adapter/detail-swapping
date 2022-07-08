@@ -14,7 +14,7 @@ namespace WarGames.Resources.Arsenal
 			targets = new ConcurrentBag<Target>();
 		}
 
-		public async Task<Target> AddTargetAsync(Settlement settlement, TargetPriority targetPriority)
+		public async Task<Target> AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
 		{
 			return await Task.Run(() =>
 			{
@@ -31,12 +31,12 @@ namespace WarGames.Resources.Arsenal
 			return await Task.Run(() => targets);
 		}
 
-		public async Task<Target> GetAsync(Settlement settlement)
+		public async Task<Target> GetAsync(Contracts.V2.World.Settlement settlement)
 		{
 			return await Task.Run(() => Get(settlement));
 		}
 
-		public async Task<IEnumerable<Target>> GetAsync(Country country)
+		public async Task<IEnumerable<Target>> GetAsync(Contracts.V2.World.Country country)
 		{
 			return await Task.Run(() => Get(country));
 		}
@@ -48,16 +48,16 @@ namespace WarGames.Resources.Arsenal
 				return competitor
 						.Settlements
 						.Where(settlement => targets.Any(target => target.Key.Equals(settlement)))
-						.Select(settlement => Get(settlement));
+						.Select(settlement => Get(settlement as Contracts.V2.World.Settlement));
 			});
 		}
 
-		private Target Get(Settlement settlement)
+		private Target Get(Contracts.V2.World.Settlement settlement)
 		{
 			return targets.First(target => target.Key.Equals(settlement));
 		}
 
-		private IEnumerable<Target> Get(Country country)
+		private IEnumerable<Target> Get(Contracts.V2.World.Country country)
 		{
 			return targets.Where(t => country.Settlements.Any(settlement => settlement.Equals(t.Key)));
 		}
