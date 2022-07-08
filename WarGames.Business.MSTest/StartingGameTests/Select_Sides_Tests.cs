@@ -17,6 +17,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 		private ICompetitorManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
+		private ICompetitorBasedGame competitorBasedGame;
 		private ITargetResource targetResource;
 		private TestData testData;
 
@@ -41,6 +42,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 									, targetResource
 									, Mock.Of<ITargetingCalculator>()
 								);
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
@@ -73,9 +75,9 @@ namespace WarGames.Business.MSTest.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Communism);
-			await gameManager.LoadPlayerAsync(player1, testData.Capitalism);
-			var playerCompetitor = await gameManager.WhatIsPlayerAsync(player1);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
+			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
 
 			Assert.AreEqual(testData.Capitalism, playerCompetitor);
 		}
@@ -85,8 +87,8 @@ namespace WarGames.Business.MSTest.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Capitalism);
-			var playerCompetitor = await gameManager.WhatIsPlayerAsync(player1);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
+			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
 
 			Assert.AreEqual(testData.Capitalism, playerCompetitor);
 		}
@@ -96,8 +98,8 @@ namespace WarGames.Business.MSTest.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Communism);
-			var playerCompetitor = await gameManager.WhatIsPlayerAsync(player1);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
+			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
 
 			Assert.AreEqual(testData.Communism, playerCompetitor);
 		}
@@ -115,8 +117,8 @@ namespace WarGames.Business.MSTest.StartingGameTests
 			var player2 = new Player("Test Player 2", Guid.NewGuid().ToString());
 			var theSameSide = testData.Communism;
 
-			await gameManager.LoadPlayerAsync(player1, theSameSide);
-			await gameManager.LoadPlayerAsync(player2, theSameSide);
+			await competitorBasedGame.LoadPlayerAsync(player1, theSameSide);
+			await competitorBasedGame.LoadPlayerAsync(player2, theSameSide);
 		}
 
 		[TestMethod]
@@ -125,10 +127,10 @@ namespace WarGames.Business.MSTest.StartingGameTests
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-			var communism = await gameManager.WhatIsPlayerAsync(playerCommunism);
-			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			var communism = await competitorBasedGame.WhatIsPlayerAsync(playerCommunism);
+			var capitalism = await competitorBasedGame.WhatIsPlayerAsync(playerCapitalism);
 			Assert.AreEqual(testData.Communism, communism);
 			Assert.AreEqual(testData.Capitalism, capitalism);
 		}

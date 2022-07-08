@@ -4,16 +4,15 @@ using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
-using WarGames.Resources.Game;
 
 namespace WarGames.Business.xUnit.StartingGameTests
 {
 	public class Select_Sides_Tests
 	{
 		private IArsenalAssignmentEngine arsenalAssignmentEngine;
+		private ICompetitorBasedGame competitorBasedGame;
 		private ICompetitorManager competitorManager;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
@@ -41,6 +40,7 @@ namespace WarGames.Business.xUnit.StartingGameTests
 									, targetResource
 									, Mock.Of<ITargetingCalculator>()
 								);
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
@@ -73,9 +73,9 @@ namespace WarGames.Business.xUnit.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Communism);
-			await gameManager.LoadPlayerAsync(player1, testData.Capitalism);
-			var playerCompetitor = await gameManager.WhatIsPlayerAsync(player1);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
+			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
 
 			Assert.Equal(testData.Capitalism, playerCompetitor);
 		}
@@ -85,8 +85,8 @@ namespace WarGames.Business.xUnit.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Capitalism);
-			var playerCompetitor = await gameManager.WhatIsPlayerAsync(player1);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
+			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
 
 			Assert.Equal(testData.Capitalism, playerCompetitor);
 		}
@@ -96,8 +96,8 @@ namespace WarGames.Business.xUnit.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Communism);
-			var playerCompetitor = await gameManager.WhatIsPlayerAsync(player1);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
+			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
 
 			Assert.Equal(testData.Communism, playerCompetitor);
 		}
@@ -114,8 +114,8 @@ namespace WarGames.Business.xUnit.StartingGameTests
 			var player2 = new Player("Test Player 2", Guid.NewGuid().ToString());
 			var theSameSide = testData.Communism;
 
-			await gameManager.LoadPlayerAsync(player1, theSameSide);
-			await Assert.ThrowsAsync<CompetitorAlreadyTaken>(() => gameManager.LoadPlayerAsync(player2, theSameSide));
+			await competitorBasedGame.LoadPlayerAsync(player1, theSameSide);
+			await Assert.ThrowsAsync<CompetitorAlreadyTaken>(() => competitorBasedGame.LoadPlayerAsync(player2, theSameSide));
 		}
 
 		[Fact]
@@ -124,10 +124,10 @@ namespace WarGames.Business.xUnit.StartingGameTests
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-			var communism = await gameManager.WhatIsPlayerAsync(playerCommunism);
-			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			var communism = await competitorBasedGame.WhatIsPlayerAsync(playerCommunism);
+			var capitalism = await competitorBasedGame.WhatIsPlayerAsync(playerCapitalism);
 			Assert.Equal(testData.Communism, communism);
 			Assert.Equal(testData.Capitalism, capitalism);
 		}

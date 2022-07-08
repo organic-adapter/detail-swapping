@@ -4,16 +4,15 @@ using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
-using WarGames.Resources.Game;
 
 namespace WarGames.Business.xUnit.StartingGameTests
 {
 	public class World_Creation_Tests : IDisposable
 	{
 		private IArsenalAssignmentEngine arsenalAssignmentEngine;
+		private ICompetitorBasedGame competitorBasedGame;
 		private ICountryAssignmentEngine countryAssignmentEngine;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
@@ -40,7 +39,7 @@ namespace WarGames.Business.xUnit.StartingGameTests
 						, targetResource
 						, Mock.Of<ITargetingCalculator>()
 					);
-
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 			gameManager.LoadWorldAsync().Wait();
 		}
 
@@ -57,10 +56,10 @@ namespace WarGames.Business.xUnit.StartingGameTests
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-			var communism = await gameManager.WhatIsPlayerAsync(playerCommunism);
-			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			var communism = await competitorBasedGame.WhatIsPlayerAsync(playerCommunism);
+			var capitalism = await competitorBasedGame.WhatIsPlayerAsync(playerCapitalism);
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
 			Assert.True(communism.Countries.Count > 0);

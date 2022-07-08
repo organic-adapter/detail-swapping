@@ -10,7 +10,7 @@ using WarGames.Resources.Arsenal;
 
 namespace WarGames.Business.Managers
 {
-	public class GameManager : IGameManager
+	public class GameManager : IGameManager, ICompetitorBasedGame
 	{
 		private const byte MAX_PLAYERS = 2;
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;

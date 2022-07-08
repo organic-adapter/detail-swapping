@@ -9,7 +9,6 @@ using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 
@@ -18,6 +17,7 @@ namespace WarGames.Business.NUnit.ArsenalTests
 	[TestFixture]
 	public class ValueTargetingTests
 	{
+		private ICompetitorBasedGame competitorBasedGame;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
 		private TestData testData;
@@ -42,14 +42,15 @@ namespace WarGames.Business.NUnit.ArsenalTests
 						, targetResource
 						, Mock.Of<ITargetingCalculator>()
 					);
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
 			await gameManager.LoadWorldAsync();
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
 		}
@@ -60,7 +61,7 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		public async Task Game_Can_Target()
 		{
 			var capHighestValueTarget = testData.Capitalism.Settlements.OrderByDescending(s => s.TargetValues.Sum(tv => tv.Value)).First();
-			
+
 			await gameManager.AddTargetAsync(capHighestValueTarget, TargetPriority.Primary);
 			var target = await targetResource.GetAsync(capHighestValueTarget);
 

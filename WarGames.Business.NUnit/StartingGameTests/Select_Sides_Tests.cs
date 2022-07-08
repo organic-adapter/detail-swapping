@@ -9,16 +9,15 @@ using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
-using WarGames.Resources.Game;
 
 namespace WarGames.Business.NUnit.StartingGameTests
 {
 	[TestFixture]
 	public class Select_Sides_Tests
 	{
+		private ICompetitorBasedGame competitorBasedGame;
 		private ICompetitorManager competitorManager;
 		private IGameManager gameManager;
 		private TestData testData;
@@ -42,6 +41,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 									, Mock.Of<ITargetResource>()
 									, Mock.Of<ITargetingCalculator>()
 								);
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
 		}
 
@@ -74,10 +74,10 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Communism);
-			await gameManager.LoadPlayerAsync(player1, testData.Capitalism);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
 
-			Assert.That(await gameManager.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Capitalism));
+			Assert.That(await competitorBasedGame.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Capitalism));
 		}
 
 		[Test]
@@ -85,9 +85,9 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Capitalism);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
 
-			Assert.That(await gameManager.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Capitalism));
+			Assert.That(await competitorBasedGame.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Capitalism));
 		}
 
 		[Test]
@@ -95,9 +95,9 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		{
 			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(player1, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
 
-			Assert.That(await gameManager.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Communism));
+			Assert.That(await competitorBasedGame.WhatIsPlayerAsync(player1), Is.EqualTo(testData.Communism));
 		}
 
 		/// <summary>
@@ -112,8 +112,8 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			var player2 = new Player("Test Player 2", Guid.NewGuid().ToString());
 			var theSameSide = testData.Communism;
 
-			await gameManager.LoadPlayerAsync(player1, theSameSide);
-			Assert.ThrowsAsync<CompetitorAlreadyTaken>(() => gameManager.LoadPlayerAsync(player2, theSameSide));
+			await competitorBasedGame.LoadPlayerAsync(player1, theSameSide);
+			Assert.ThrowsAsync<CompetitorAlreadyTaken>(() => competitorBasedGame.LoadPlayerAsync(player2, theSameSide));
 		}
 
 		[Test]
@@ -122,11 +122,11 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
 
-			Assert.That(await gameManager.WhatIsPlayerAsync(playerCommunism), Is.EqualTo(testData.Communism));
-			Assert.That(await gameManager.WhatIsPlayerAsync(playerCapitalism), Is.EqualTo(testData.Capitalism));
+			Assert.That(await competitorBasedGame.WhatIsPlayerAsync(playerCommunism), Is.EqualTo(testData.Communism));
+			Assert.That(await competitorBasedGame.WhatIsPlayerAsync(playerCapitalism), Is.EqualTo(testData.Capitalism));
 		}
 	}
 }

@@ -9,7 +9,6 @@ using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Game;
-using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Competitors;
 
@@ -18,6 +17,7 @@ namespace WarGames.Business.NUnit.ArsenalTests
 	[TestFixture]
 	public class TargetingCalculatorTests
 	{
+		private ICompetitorBasedGame competitorBasedGame;
 		private IGameManager gameManager;
 		private IPlayer playerCapitalism;
 		private IPlayer playerCommunism;
@@ -46,16 +46,16 @@ namespace WarGames.Business.NUnit.ArsenalTests
 						, Mock.Of<IArsenalAssignmentEngine>()
 						, new CompetitorResource(testData.Competitors)
 						, new CountryAssignmentEngine()
-						, Mock.Of<IDamageCalculator>() 
+						, Mock.Of<IDamageCalculator>()
 						, Mock.Of<IEnumerable<IGameDefaults>>()
 						, targetResource
 						, targetingCalculator
 					);
-
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 			await gameManager.LoadWorldAsync();
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
 		}

@@ -11,6 +11,7 @@ namespace WarGames.WebAPI.Controllers
 	public class PlayerController : ControllerBase
 	{
 		private readonly IGameManager gameManager;
+		private readonly ICompetitorBasedGame competitorBasedGame;
 		/*
 		 * This should be a stateless API. Do not instantiate or persist things here
 		 * that will linger within an API.
@@ -19,6 +20,7 @@ namespace WarGames.WebAPI.Controllers
 		public PlayerController(IGameManager gameManager)
 		{
 			this.gameManager = gameManager;
+			competitorBasedGame = this.gameManager as ICompetitorBasedGame;
 		}
 
 		[HttpPost("amount")]
@@ -35,7 +37,7 @@ namespace WarGames.WebAPI.Controllers
 		[HttpGet("sides/available")]
 		public async Task<IActionResult> AvailableSides()
 		{
-			var sides = await gameManager.AvailableSidesAsync();
+			var sides = await competitorBasedGame.AvailableSidesAsync();
 			return Ok(sides);
 		}
 	}

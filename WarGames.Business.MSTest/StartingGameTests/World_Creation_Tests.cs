@@ -15,6 +15,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 	[TestClass]
 	public class World_Creation_Tests : IDisposable
 	{
+		private ICompetitorBasedGame competitorBasedGame;
 		private IGameManager gameManager;
 		private ITargetResource targetResource;
 		private TestData testData;
@@ -38,7 +39,7 @@ namespace WarGames.Business.MSTest.StartingGameTests
 							, targetResource
 							, Mock.Of<ITargetingCalculator>()							
 							);
-
+			competitorBasedGame = gameManager as ICompetitorBasedGame;
 			gameManager.LoadWorldAsync().Wait();
 		}
 
@@ -55,10 +56,10 @@ namespace WarGames.Business.MSTest.StartingGameTests
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
 
-			await gameManager.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await gameManager.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-			var communism = await gameManager.WhatIsPlayerAsync(playerCommunism);
-			var capitalism = await gameManager.WhatIsPlayerAsync(playerCapitalism);
+			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
+			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			var communism = await competitorBasedGame.WhatIsPlayerAsync(playerCommunism);
+			var capitalism = await competitorBasedGame.WhatIsPlayerAsync(playerCapitalism);
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
 			Assert.IsTrue(communism.Countries.Count > 0);

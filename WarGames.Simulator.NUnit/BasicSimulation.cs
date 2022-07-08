@@ -28,6 +28,7 @@ namespace WarGames.Simulator.NUnit
 	{
 		private const string settlementsFile = "settlements.copyright.json";
 		private readonly string rootDataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
+		private ICompetitorBasedGame competitorBasedGame;
 		private IGameManager gameManager;
 		private Player playerCap;
 		private Player playerCom;
@@ -45,8 +46,8 @@ namespace WarGames.Simulator.NUnit
 #pragma warning disable CS8601 // Possible null reference assignment.
 
 			gameManager = provider.GetService<IGameManager>();
-			await gameManager.LoadPlayerAsync(playerCap, new Capitalism());
-			await gameManager.LoadPlayerAsync(playerCom, new Communism());
+			await competitorBasedGame.LoadPlayerAsync(playerCap, new Capitalism());
+			await competitorBasedGame.LoadPlayerAsync(playerCom, new Communism());
 
 			await gameManager.LoadWorldAsync();
 
@@ -111,8 +112,8 @@ namespace WarGames.Simulator.NUnit
 		[Test]
 		public async Task Blow_Up_The_World()
 		{
-			var cap = await gameManager.WhatIsPlayerAsync(playerCap);
-			var com = await gameManager.WhatIsPlayerAsync(playerCom);
+			var cap = await competitorBasedGame.WhatIsPlayerAsync(playerCap);
+			var com = await competitorBasedGame.WhatIsPlayerAsync(playerCom);
 
 			SeedArsenal(cap);
 			SeedArsenal(com);
