@@ -52,10 +52,12 @@ namespace WarGames.Resources.Arsenal
 		{
 			return await Task.Run(() =>
 			{
+				//WHAT'S This? Oh noes! We forgot about mutability and immutability. By doing this we lose the reference to the competitor settlements.
+				//This actually creates a bug when it tries to calculate damage.
 				var settlements = mapper.Map<List<Contracts.V2.World.Settlement>>(competitor.Settlements);
 				return settlements
 						.Where(settlement => targets.Any(target => target.Key.Equals(settlement)))
-						.Select(settlement => Get(settlement as Contracts.V2.World.Settlement));
+						.Select(settlement => Get(settlement));
 			});
 		}
 
