@@ -1,11 +1,8 @@
 ﻿using WarGames.Contracts.Arsenal;
+using WarGames.Contracts.V2.World;
 
-namespace WarGames.Contracts.Game
+namespace WarGames.Contracts.V2.Games
 {
-	/// <summary>
-	/// This one will be hard deleted once we are ready to replace.
-	/// </summary>
-	[Obsolete(ObsoleteConstants.Version2Incoming)]
 	public interface IGameDefaults
 	{
 		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction);
@@ -14,7 +11,7 @@ namespace WarGames.Contracts.Game
 
 		public IEnumerable<string> ArsenalTags { get; }
 
-		public CountryAssignment CountryAssignment { get; }
+		public Game.CountryAssignment CountryAssignment { get; }
 
 		public IEnumerable<string> CountryTags { get; }
 
