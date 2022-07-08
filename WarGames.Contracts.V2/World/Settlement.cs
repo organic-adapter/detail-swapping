@@ -5,9 +5,9 @@ using WarGames.Contracts.Game;
 namespace WarGames.Contracts.V2.World
 {
 	[Serializable]
-	public class Settlement : IUnique<string>
+	public class Settlement : Game.Settlement, IUnique<string>
 	{
-		public static readonly Settlement Empty = new Settlement();
+		public static new readonly Settlement Empty = new Settlement();
 
 		public Settlement()
 		{
@@ -18,12 +18,12 @@ namespace WarGames.Contracts.V2.World
 			TargetValues = new List<TargetValue>();
 		}
 
-		public ConcurrentBag<TargetValue> AftermathValues { get; set; }
-		public int Hits { get; set; }
-		public string Id { get; set; }
+		public override ConcurrentBag<TargetValue> AftermathValues { get; set; }
+		public override int Hits { get; set; }
+		public override string Id { get; set; }
 		public Coord Coord { get; set; }
-		public string Name { get; set; }
-		public List<TargetValue> TargetValues { get; set; }
+		public override string Name { get; set; }
+		public override List<TargetValue> TargetValues { get; set; }
 
 		public override bool Equals(object? obj)
 		{

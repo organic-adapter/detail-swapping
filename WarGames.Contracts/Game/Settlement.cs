@@ -17,12 +17,12 @@ namespace WarGames.Contracts.Game
 			TargetValues = new List<TargetValue>();
 		}
 
-		public ConcurrentBag<TargetValue> AftermathValues { get; set; }
-		public int Hits { get; set; }
-		public string Id { get; set; }
+		public virtual ConcurrentBag<TargetValue> AftermathValues { get; set; }
+		public virtual int Hits { get; set; }
+		public virtual string Id { get; set; }
 		public ILocation Location { get; set; }
-		public string Name { get; set; }
-		public List<TargetValue> TargetValues { get; set; }
+		public virtual string Name { get; set; }
+		public virtual List<TargetValue> TargetValues { get; set; }
 
 		[Obsolete("For serialization I added a setter to Hits. I don't need this in the contract.")]
 		public void Hit()

@@ -20,11 +20,11 @@ namespace WarGames.Contracts.Game
 		public List<Country> AdjacentCountries { get; }
 		public IEnumerable<IGeographicalArea> AdjacentGeographicalAreas => AdjacentGeographicalAreas.Union(AdjacentCountries);
 		public List<Ocean> AdjacentOceans { get; }
-		public string Id { get; set; }
+		public virtual string Id { get; set; }
 		public IEnumerable<ILocation> LoiteringPositions { get; set; }
-		public string Name { get; set; }
+		public virtual string Name { get; set; }
 		public ICompetitor? Owner { get; set; }
-		public List<Settlement> Settlements { get; set; }
+		public virtual List<Settlement> Settlements { get; set; }
 
 		//TODO: This will have little effect on non-UI implementations. We do not need to define this yet.
 		public IGeoShape? Shape { get; }

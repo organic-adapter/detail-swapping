@@ -3,7 +3,7 @@
 namespace WarGames.Contracts.V2.World
 {
 	[Serializable]
-	public class Country : IUnique<string>
+	public class Country : Game.Country, IUnique<string>
 	{
 		public static readonly Country Empty = new();
 
@@ -13,18 +13,14 @@ namespace WarGames.Contracts.V2.World
 			Name = string.Empty;
 			SettlementIds = new List<string>();
 
-			Settlements = new List<Settlement>();
+			Settlements = new List<Game.Settlement>();
 		}
 
-		public string Id { get; init; }
+		public override string Id { get; set; }
 
-		public string Name { get; init; }
+		public override string Name { get; set; }
 
 		public List<string> SettlementIds { get; set; }
-
-		[JsonIgnore]
-		[Obsolete("Iterative Step towards full country replacement")]
-		public List<Settlement> Settlements { get; set; }
 
 		public override bool Equals(object? obj)
 		{
