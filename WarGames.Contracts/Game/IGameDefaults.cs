@@ -15,8 +15,6 @@ namespace WarGames.Contracts.Game
 
 		public IEnumerable<string> CountryTags { get; }
 
-		public IDictionary<IPlayer, ICompetitor> GetPlayers();
-
 		public bool MetRequirements();
 
 		public void Trigger();

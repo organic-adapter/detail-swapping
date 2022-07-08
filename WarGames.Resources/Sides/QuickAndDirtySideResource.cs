@@ -1,9 +1,4 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WarGames.Contracts.V2;
 using WarGames.Contracts.V2.Sides;
 
@@ -36,6 +31,15 @@ namespace WarGames.Resources.Sides
 			});
 		}
 
+		public async Task<bool> IsAvailableAsync(GameSession game, Side side)
+		{
+			return await Task.Run
+							(()=> 
+								playerReverseMap.ContainsKey(game)
+								&& !playerReverseMap[game].ContainsKey(side)
+							);
+		}
+
 		public async Task<Side> RetrieveAsync(GameSession game, string sideId)
 		{
 			return await Task.Run(() => sides[game][sideId]);
@@ -55,6 +59,11 @@ namespace WarGames.Resources.Sides
 			where T : ISideUnique
 		{
 			return await Task.Run(() => playerMap[game].Select(kvp => mapper.Map<T>(kvp)));
+		}
+
+		public async Task<Side> RetrieveOpposingSideAsync(GameSession game, Player player)
+		{
+			return await Task.Run(() => playerMap[game].First(kvp => !player.Equals(kvp.Key)).Value);
 		}
 
 		public async Task SaveAsync(GameSession game, Side side)

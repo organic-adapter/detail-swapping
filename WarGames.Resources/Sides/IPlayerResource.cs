@@ -9,7 +9,7 @@ namespace WarGames.Resources.Sides
 
 		public Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game);
 
-		public Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game, PlayerType playerType);
+		public Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game, Contracts.Game.PlayerType playerType);
 
 		public Task SaveAsync(GameSession game, Player player);
 

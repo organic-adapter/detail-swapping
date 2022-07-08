@@ -19,6 +19,7 @@ namespace WarGames.CLI.Views
 		private List<Settlement> currentPicks;
 		private IGameManager gameManager;
 		private IPlayer human;
+		private IPlayerSideManager playerSideManager;
 		private List<Settlement> potentialTargets;
 
 		private Dictionary<int, TargetPriority> prioritySelectionMap = new Dictionary<int, TargetPriority>()
@@ -34,11 +35,12 @@ namespace WarGames.CLI.Views
 			{ 1, TargetPriority.Tertiary },
 		};
 
-		public GTWView(IGameManager gameManager, ICompetitorResource competitorResource) : base(new Dictionary<string, Action<string>>())
+		public GTWView(IGameManager gameManager, IPlayerSideManager playerSideManager, ICompetitorResource competitorResource) : base(new Dictionary<string, Action<string>>())
 		{
 			chatter = Chatter;
 			this.gameManager = gameManager;
 			competitorBasedGame = this.gameManager as ICompetitorBasedGame;
+			this.playerSideManager = playerSideManager;
 			this.competitorResource = competitorResource;
 			potentialTargets = new List<Settlement>();
 			currentPicks = new List<Settlement>();

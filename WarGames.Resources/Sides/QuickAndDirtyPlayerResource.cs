@@ -22,7 +22,7 @@ namespace WarGames.Resources.Sides
 			return await Task.Run(() => players[game].Select(kvp => kvp.Value));
 		}
 
-		public async Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game, PlayerType playerType)
+		public async Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game, Contracts.Game.PlayerType playerType)
 		{
 			return await Task.Run
 				(

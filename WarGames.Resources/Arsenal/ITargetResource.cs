@@ -10,6 +10,8 @@ namespace WarGames.Resources.Arsenal
 
 		public Task<IEnumerable<Target>> GetAllAsync();
 
+		public Task<IEnumerable<Target>> GetAsync(Contracts.V2.Sides.Side side);
+
 		public Task<Target> GetAsync(Settlement settlement);
 
 		public Task<IEnumerable<Target>> GetAsync(Country country);

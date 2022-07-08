@@ -9,13 +9,15 @@ using WarGames.Contracts.Game;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
 using WarGames.Resources.Planet;
+using WarGames.Resources.Sides;
 using static WarGames.Business.Game.CurrentGame;
 
 namespace WarGames.Business.Managers
 {
-	public class GameMarkTwoManager : IGameManager
+	public class GameMarkTwoManager : IGameManager, ISideBasedGame
 	{
 		private const byte MAX_PLAYERS = 2;
+		private readonly IEnumerable<(Contracts.V2.Sides.Player, Contracts.V2.Sides.Side)> activePlayers;
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;
 		private readonly ICompetitorResource competitorResource;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
@@ -23,8 +25,9 @@ namespace WarGames.Business.Managers
 		private readonly CurrentGame currentGame;
 		private readonly IDamageCalculator damageCalculator;
 		private readonly IEnumerable<IGameDefaults> gameDefaults;
-		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
+		private readonly IPlayerResource playerResource;
 		private readonly ISettlementResource settlementResource;
+		private readonly ISideResource sideResource;
 		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
 		private readonly IWorldBuildingEngine worldBuildingEngine;
@@ -39,7 +42,9 @@ namespace WarGames.Business.Managers
 			ICountryResource countryResource,
 			IDamageCalculator damageCalculator,
 			IEnumerable<IGameDefaults> gameDefaults,
+			IPlayerResource playerResource,
 			ISettlementResource settlementResource,
+			ISideResource sideResource,
 			ITargetResource targetResource,
 			ITargetingCalculator targetingCalculator,
 			IWorldBuildingEngine worldBuildingEngine
@@ -52,12 +57,14 @@ namespace WarGames.Business.Managers
 			this.countryResource = countryResource;
 			this.damageCalculator = damageCalculator;
 			this.gameDefaults = gameDefaults;
+			this.playerResource = playerResource;
 			this.settlementResource = settlementResource;
+			this.sideResource = sideResource;
 			this.targetingCalculator = targetingCalculator;
 			this.targetResource = targetResource;
 			this.worldBuildingEngine = worldBuildingEngine;
 
-			opposingSides = new Dictionary<ICompetitor, ICompetitor>();
+			activePlayers = new List<(Contracts.V2.Sides.Player player, Contracts.V2.Sides.Side)>();
 		}
 
 		public GamePhase CurrentPhase { get; set; }
@@ -87,18 +94,21 @@ namespace WarGames.Business.Managers
 			return await Task.Run(() => new List<ICompetitor> { new Capitalism(), new Communism() });
 		}
 
+		public IEnumerable<(Contracts.V2.Sides.Player, Contracts.V2.Sides.Side)> GetActivePlayers()
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source)
 		{
-			var side = LoadedPlayers[source];
-			var opponent = opposingSides[side];
+			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source as Contracts.V2.Sides.Player);
 			return await targetResource.GetAsync(opponent);
 		}
 
 		public async Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(IPlayer source)
 		{
-			var side = LoadedPlayers[source];
-			var opponent = opposingSides[side];
-			return await Task.Run(() => opponent.Settlements);
+			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source as Contracts.V2.Sides.Player);
+			return await settlementResource.RetrieveManyAsync(currentGame.GameSession, opponent);
 		}
 
 		public async Task InitializeDefaultsAsync()
@@ -107,8 +117,6 @@ namespace WarGames.Business.Managers
 			{
 				activeGameDefaults = gameDefaults.First(gd => gd.MetRequirements());
 				activeGameDefaults.Trigger();
-				opposingSides.Add(LoadedPlayers.Values.First(), LoadedPlayers.Values.Last());
-				opposingSides.Add(LoadedPlayers.Values.Last(), LoadedPlayers.Values.First());
 			});
 		}
 
@@ -124,12 +132,6 @@ namespace WarGames.Business.Managers
 				else
 					LoadedPlayers.Add(player, competitor);
 			});
-
-			if (LoadedPlayers.Count == MAX_PLAYERS)
-			{
-				opposingSides.Add(LoadedPlayers.Values.First(), LoadedPlayers.Values.Last());
-				opposingSides.Add(LoadedPlayers.Values.Last(), LoadedPlayers.Values.First());
-			}
 		}
 
 		public async Task LoadWorldAsync()

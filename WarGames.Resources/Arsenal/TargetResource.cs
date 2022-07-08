@@ -2,6 +2,7 @@
 using WarGames.Contracts.Arsenal;
 using WarGames.Contracts.Competitors;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Sides;
 
 namespace WarGames.Resources.Arsenal
 {
@@ -50,6 +51,11 @@ namespace WarGames.Resources.Arsenal
 						.Where(settlement => targets.Any(target => target.Key.Equals(settlement)))
 						.Select(settlement => Get(settlement));
 			});
+		}
+
+		public async Task<IEnumerable<Target>> GetAsync(Side side)
+		{
+			throw new NotImplementedException();
 		}
 
 		private Target Get(Settlement settlement)
