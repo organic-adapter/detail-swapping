@@ -2,6 +2,7 @@
 
 namespace WarGames.Contracts.Game
 {
+	[Obsolete(ObsoleteConstants.Version2Incoming)]
 	[Serializable]
 	public class Settlement : IUnique<string>
 	{

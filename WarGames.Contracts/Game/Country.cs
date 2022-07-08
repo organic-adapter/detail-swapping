@@ -3,6 +3,7 @@ using WarGames.Contracts.Competitors;
 
 namespace WarGames.Contracts.Game
 {
+	[Obsolete(ObsoleteConstants.Version2Incoming)]
 	[Serializable]
 	public class Country : IGeographicalArea, IUnique<string>
 	{
