@@ -1,9 +1,11 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WarGames.Business.Arsenal;
 using WarGames.Contracts.Game;
 using WarGames.Contracts.Game.TargetValues;
+using WarGames.Contracts.V2.World;
 
 namespace WarGames.Business.NUnit.ArsenalTests
 {
@@ -16,7 +18,6 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		private const float startingPopulation = 10003f;
 		private IDamageCalculator damageCalculator;
 		private Settlement settlement;
-		private World world;
 
 		#region Set Ups
 
@@ -24,21 +25,16 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		public void SetUp()
 		{
 			damageCalculator = new DamageCalculator();
-			world = new World();
-			world.Countries.Add(DefaultCountry());
+			DefaultSettlement();
 		}
 
-		private Country DefaultCountry()
+		private void DefaultSettlement()
 		{
 			settlement = new Settlement();
 			settlement.TargetValues.Add(new CivilianPopulation(startingPopulation));
 			settlement.TargetValues.Add(new MilitaryPower(startingMilitary));
 			settlement.TargetValues.Add(new IndustrialOutput(startingIndustry));
 			settlement.TargetValues.Add(new FoodOutput(startingFood));
-
-			var country = new Country();
-			country.Settlements.Add(settlement);
-			return country;
 		}
 
 		#endregion Set Ups
@@ -46,7 +42,9 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		[Test]
 		public async Task NoHits_LeaveTargetValuesUnchanged()
 		{
-			var afterMathWorld = await damageCalculator.CalculateAfterMathAsync(world);
+			var settlements = new List<Settlement>() { settlement };
+			var afterMathWorld = await damageCalculator.CalculateAfterMathAsync(settlements);
+
 			//TODO: This is an example of a bit more abstraction and we make aftermath values a class we can more easily grab various TargetValues
 			//The class interface would look like AftermathValues.Get<CivilianPopulation>();
 			var afterMathPopulation = settlement.AftermathValues.First(av => av.GetType() == typeof(CivilianPopulation)).Value;
@@ -54,6 +52,7 @@ namespace WarGames.Business.NUnit.ArsenalTests
 			var afterMathIndustry = settlement.AftermathValues.First(av => av.GetType() == typeof(IndustrialOutput)).Value;
 			var afterMathFood = settlement.AftermathValues.First(av => av.GetType() == typeof(FoodOutput)).Value;
 
+			Assert.That(afterMathWorld, Is.Not.Null);
 			Assert.That(afterMathPopulation, Is.EqualTo(startingPopulation));
 			Assert.That(afterMathMilitary, Is.EqualTo(startingMilitary));
 			Assert.That(afterMathIndustry, Is.EqualTo(startingIndustry));
@@ -63,15 +62,17 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		[Test]
 		public async Task EachHit_ReducesTargetValues()
 		{
-			settlement.Hit();
+			settlement.Hits++;
+			var settlements = new List<Settlement>() { settlement };
 
-			var afterMathWorld = await damageCalculator.CalculateAfterMathAsync(world);
+			var afterMathWorld = await damageCalculator.CalculateAfterMathAsync(settlements);
 
 			var afterMathPopulation = settlement.AftermathValues.First(av => av.GetType() == typeof(CivilianPopulation)).Value;
 			var afterMathMilitary = settlement.AftermathValues.First(av => av.GetType() == typeof(MilitaryPower)).Value;
 			var afterMathIndustry = settlement.AftermathValues.First(av => av.GetType() == typeof(IndustrialOutput)).Value;
 			var afterMathFood = settlement.AftermathValues.First(av => av.GetType() == typeof(FoodOutput)).Value;
 
+			Assert.That(afterMathWorld, Is.Not.Null);
 			Assert.That(afterMathPopulation, Is.LessThan(startingPopulation));
 			Assert.That(afterMathMilitary, Is.LessThan(startingMilitary));
 			Assert.That(afterMathIndustry, Is.LessThan(startingIndustry));

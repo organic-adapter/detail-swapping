@@ -1,22 +1,23 @@
-﻿using WarGames.Business.Game;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
+﻿using WarGames.Business.Managers;
+using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Games;
-using WarGames.Resources;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 
-namespace WarGames.Contracts.Game.GameDefaults
+namespace WarGames.Business.Game.GameDefaults
 {
 	public class AutoPlayDefaults : IGameDefaults
 	{
-		private readonly ICompetitorResource competitorResource;
-		private readonly IPlayer cpu0Player;
-		private readonly IPlayer cpu1Player;
+		private readonly Player cpu0Player;
+		private readonly Player cpu1Player;
+		private readonly IPlayerSideManager playerSideManager;
 
-		public AutoPlayDefaults(ICompetitorResource competitorResource)
+		public AutoPlayDefaults(IPlayerSideManager playerSideManager)
 		{
 			cpu0Player = new Player("JOSHUA0", Guid.NewGuid().ToString(), PlayerType.Cpu);
 			cpu1Player = new Player("JOSHUA1", Guid.NewGuid().ToString(), PlayerType.Cpu);
-			this.competitorResource = competitorResource;
+
+			this.playerSideManager = playerSideManager;
 		}
 
 		public ArsenalAssignment ArsenalAssignment => ArsenalAssignment.Arbitrary;
@@ -27,27 +28,30 @@ namespace WarGames.Contracts.Game.GameDefaults
 
 		public IEnumerable<string> CountryTags => new List<string>();
 
-		public IDictionary<IPlayer, ICompetitor> GetPlayers()
-		{
-			return competitorResource.PlayerSelections;
-		}
-
-		public void CalculateAiTargets(Func<IEnumerable<V2.World.Settlement>> targets, Action<V2.World.Settlement, TargetPriority> addAction)
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
 		{
 			var topTen = targets().OrderByDescending(target => target.TargetValues.First().Value).Take(10);
 			foreach (var t in topTen)
 				addAction(t, TargetPriority.Primary);
 		}
 
+		public void CalculateAiTargets()
+		{
+			throw new NotImplementedException();
+		}
+
 		public bool MetRequirements()
 		{
-			return !competitorResource.Players.Any(p => p.PlayerType == PlayerType.Human);
+			return !playerSideManager.HasPlayerType(PlayerType.Human);
 		}
 
 		public void Trigger()
 		{
-			competitorResource.Choose(cpu0Player, competitorResource.AvailableSides.First());
-			competitorResource.Choose(cpu1Player, competitorResource.AvailableSides.First());
+			var cpu0Side = playerSideManager.NextAvailableSideAsync().Result;
+			playerSideManager.ChooseAsync(cpu0Player, cpu0Side);
+
+			var cpu1Side = playerSideManager.NextAvailableSideAsync().Result;
+			playerSideManager.ChooseAsync(cpu1Player, cpu1Side);
 		}
 	}
 }

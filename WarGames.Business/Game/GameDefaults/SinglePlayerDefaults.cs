@@ -1,21 +1,21 @@
-﻿using WarGames.Business.Game;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
+﻿using WarGames.Business.Managers;
+using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Games;
-using WarGames.Resources;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 
-namespace WarGames.Contracts.Game.GameDefaults
+namespace WarGames.Business.Game.GameDefaults
 {
 	public class SinglePlayerDefaults : IGameDefaults
 	{
-		private readonly ICompetitorResource competitorResource;
-		private readonly IPlayer cpu0Player;
-		private readonly Dictionary<GamePhase, Action> phaseActions;
-		public SinglePlayerDefaults(ICompetitorResource competitorResource)
+		private readonly Player cpu0Player;
+		private readonly IPlayerSideManager playerSideManager;
+
+		public SinglePlayerDefaults(IPlayerSideManager playerSideManager)
 		{
 			cpu0Player = new Player("JOSHUA", Guid.NewGuid().ToString(), PlayerType.Cpu);
-			this.competitorResource = competitorResource;
-			phaseActions = new Dictionary<GamePhase, Action>();
+
+			this.playerSideManager = playerSideManager;
 		}
 
 		public ArsenalAssignment ArsenalAssignment => ArsenalAssignment.Arbitrary;
@@ -26,26 +26,22 @@ namespace WarGames.Contracts.Game.GameDefaults
 
 		public IEnumerable<string> CountryTags => new List<string>();
 
-		public IDictionary<IPlayer, ICompetitor> GetPlayers()
-		{
-			return competitorResource.PlayerSelections;
-		}
-
-		public bool MetRequirements()
-		{
-			return competitorResource.Players.Where(p => p.PlayerType == PlayerType.Human).Count() == 1;
-		}
-
-		public void Trigger()
-		{
-			competitorResource.Choose(cpu0Player, competitorResource.AvailableSides.First());
-		}
-
-		public void CalculateAiTargets(Func<IEnumerable<V2.World.Settlement>> targets, Action<V2.World.Settlement, TargetPriority> addAction)
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
 		{
 			var topTen = targets().OrderByDescending(target => target.TargetValues.First().Value).Take(10);
 			foreach (var t in topTen)
 				addAction(t, TargetPriority.Primary);
+		}
+
+		public bool MetRequirements()
+		{
+			return playerSideManager.Count(PlayerType.Human) == 1;
+		}
+
+		public void Trigger()
+		{
+			var cpu0Side = playerSideManager.NextAvailableSideAsync().Result;
+			playerSideManager.ChooseAsync(cpu0Player, cpu0Side);
 		}
 	}
 }

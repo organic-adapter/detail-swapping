@@ -1,4 +1,5 @@
-﻿using WarGames.Contracts.Game;
+﻿using Map.Engine;
+using WarGames.Contracts.Game;
 
 namespace WarGames.Contracts.V2.Arsenal
 {
@@ -6,21 +7,14 @@ namespace WarGames.Contracts.V2.Arsenal
 	{
 		public Target Assignment { get; set; }
 
-		public IGeographicalArea CurrentArea { get; }
-
 		public bool HasTarget { get; }
-		public ILocation Location { get; }
 
-		public TerrainType MovementConstraint { get; }
+		public Coord Coord { get; set; }
 
-		public float MovementSpeedKps { get; }
+		public short PayloadCount { get; set; }
 
-		public short PayloadCount { get; }
+		public IMissile PayloadType { get; set; }
 
-		public IMissile PayloadType { get; }
-
-		public bool InAttackRange(ILocation location);
-
-		public void MoveTo(ILocation location);
+		public bool InAttackRange(Coord coord);
 	}
 }

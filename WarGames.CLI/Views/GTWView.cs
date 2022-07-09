@@ -1,27 +1,26 @@
-﻿using WarGames.Business.Competitors;
-using WarGames.Business.Game;
+﻿using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Business.Sides;
 using WarGames.CLI.Renderers;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Game;
-using WarGames.Resources;
+using WarGames.Contracts.V2.Arsenal;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 
 namespace WarGames.CLI.Views
 {
 	internal class GTWView : ConsoleView
 	{
 		private const int maxPicks = 9;
+		private readonly CurrentGame currentGame;
+		private readonly IGameManager gameManager;
+		private readonly IPlayerSideManager playerSideManager;
+		private readonly IWorldManager worldManager;
 		private string chatterText = "I'm afraid I can't do that";
-		private ICompetitorBasedGame competitorBasedGame;
-		private ICompetitorResource competitorResource;
-		private IPlayer cpu0;
-		private IPlayer cpu1;
+		private Player cpu0;
+		private Player cpu1;
 		private List<Settlement> currentPicks;
-		private IGameManager gameManager;
-		private IPlayer human;
-		private IPlayerSideManager playerSideManager;
+		private Player human;
 		private List<Settlement> potentialTargets;
-
 		private Dictionary<int, TargetPriority> prioritySelectionMap = new Dictionary<int, TargetPriority>()
 		{
 			{ 9, TargetPriority.Primary },
@@ -35,19 +34,30 @@ namespace WarGames.CLI.Views
 			{ 1, TargetPriority.Tertiary },
 		};
 
-		public GTWView(IGameManager gameManager, IPlayerSideManager playerSideManager, ICompetitorResource competitorResource) : base(new Dictionary<string, Action<string>>())
+		public GTWView
+				(
+					CurrentGame currentGame
+					, IGameManager gameManager
+					, IPlayerSideManager playerSideManager
+					, IWorldManager worldManager
+				) : base(new Dictionary<string, Action<string>>())
 		{
-			chatter = Chatter;
+			this.currentGame = currentGame;
 			this.gameManager = gameManager;
-			competitorBasedGame = this.gameManager as ICompetitorBasedGame;
 			this.playerSideManager = playerSideManager;
-			this.competitorResource = competitorResource;
+			this.worldManager = worldManager;
+
+			chatter = Chatter;
 			potentialTargets = new List<Settlement>();
 			currentPicks = new List<Settlement>();
+
+			cpu0 = Player.Empty;
+			cpu1 = Player.Empty;
+			human = Player.Empty;
 		}
 
 		public override string Title => "GTW";
-		private int totalPicks => maxPicks - currentPicks.Count;
+		private int TotalPicks => maxPicks - currentPicks.Count;
 
 		protected override void Initialize()
 		{
@@ -62,6 +72,7 @@ namespace WarGames.CLI.Views
 			if (gameManager.CurrentPhase == GamePhase.PickTargets)
 			{
 				Commands.Clear();
+				var side = playerSideManager.WhatIsPlayerAsync(human).Result;
 				var topTen = (gameManager.GetPotentialTargetsAsync(human).Result).OrderByDescending(target => target.TargetValues.First().Value).Take(10).ToList();
 
 				for (var i = 0; i < topTen.Count; i++)
@@ -69,7 +80,7 @@ namespace WarGames.CLI.Views
 					var t = topTen[i];
 					var pack = i.ToString();
 					potentialTargets.Add(t);
-					Commands.Add(i.ToString(), (string parameters) => SelectTarget(t, pack));
+					Commands.Add(i.ToString(), (string parameters) => SelectTarget(side, t, pack));
 				}
 				DrawTargetDetails();
 			}
@@ -82,10 +93,15 @@ namespace WarGames.CLI.Views
 
 		private void DisplayDamageResults()
 		{
-			var player1 = competitorBasedGame.LoadedPlayers.First();
-			var player2 = competitorBasedGame.LoadedPlayers.Last();
+			var players = playerSideManager.GetPlayersAsync().Result;
+			var player1 = players.First();
+			var player2 = players.Last();
+			var side1 = playerSideManager.WhatIsPlayerAsync(player1).Result;
+			var side2 = playerSideManager.WhatIsPlayerAsync(player2).Result;
+			var side1Settlements = worldManager.GetSettlementsAsync(side1).Result;
+			var side2Settlements = worldManager.GetSettlementsAsync(side2).Result;
 
-			var damageResultRenderer = new DamageResultRenderer(player1.Key, player2.Key, player1.Value, player2.Value);
+			var damageResultRenderer = new DamageResultRenderer(side1Settlements, side2Settlements, player1, player2, side1, side2);
 			damageResultRenderer.Draw();
 		}
 
@@ -109,7 +125,7 @@ namespace WarGames.CLI.Views
 		{
 			Console.Clear();
 			Console.WriteLine("Pick your targets");
-			Console.WriteLine($"{totalPicks} remaining choices");
+			Console.WriteLine($"{TotalPicks} remaining choices");
 			Console.WriteLine("---------------------------------");
 
 			DrawCurrentTargetList();
@@ -131,7 +147,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				competitorResource.Choose<Capitalism>(human);
+				playerSideManager.ChooseAsync(human, new Capitalism()).Wait();
 				LoadGamePrerequisites();
 			}
 		}
@@ -140,7 +156,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				competitorResource.Choose<Communism>(human);
+				playerSideManager.ChooseAsync(human, new Communism()).Wait();
 
 				LoadGamePrerequisites();
 			}
@@ -190,13 +206,13 @@ namespace WarGames.CLI.Views
 			PrepareForEndOfWorld();
 		}
 
-		private void SelectTarget(Contracts.V2.World.Settlement selectMe, string index)
+		private void SelectTarget(Side side, Settlement selectMe, string index)
 		{
-			gameManager.AddTargetAsync(selectMe, prioritySelectionMap[totalPicks]).Wait();
+			gameManager.AddTargetAsync(side, selectMe, prioritySelectionMap[TotalPicks]).Wait();
 			currentPicks.Add(selectMe);
 			Commands.Remove(index);
 			DrawTargetDetails();
-			if (totalPicks == 0)
+			if (TotalPicks == 0)
 				PrepareTargetAssignmentPhase();
 		}
 

@@ -1,99 +1,110 @@
 ﻿using AutoMapper;
 using WarGames.Business.Arsenal;
-using WarGames.Business.Competitors;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
+using WarGames.Business.Planet;
+using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Games;
-using WarGames.Resources;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Planet;
+using WarGames.Resources.Sides;
+using static WarGames.Business.Game.CurrentGame;
 
 namespace WarGames.Business.Managers
 {
-	public class GameManager : IGameManager, ICompetitorBasedGame
+	public class GameManager : IGameManager, ISideBasedGame
 	{
 		private const byte MAX_PLAYERS = 2;
+		private readonly IEnumerable<(Contracts.V2.Sides.Player, Contracts.V2.Sides.Side)> activePlayers;
 		private readonly IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private readonly ICompetitorResource competitorResource;
 		private readonly ICountryAssignmentEngine countryAssignmentEngine;
+		private readonly ICountryResource countryResource;
+		private readonly CurrentGame currentGame;
 		private readonly IDamageCalculator damageCalculator;
 		private readonly IEnumerable<IGameDefaults> gameDefaults;
 		private readonly IMapper mapper;
-		private readonly Dictionary<ICompetitor, ICompetitor> opposingSides;
+		private readonly IPlayerResource playerResource;
+		private readonly ISettlementResource settlementResource;
+		private readonly ISideResource sideResource;
 		private readonly ITargetingCalculator targetingCalculator;
 		private readonly ITargetResource targetResource;
-		private readonly WorldFactory? worldFactory;
+		private readonly IWorldBuildingEngine worldBuildingEngine;
 		private IGameDefaults? activeGameDefaults;
-		private World world;
 
 		public GameManager
 		(
 			IMapper mapper,
-			WorldFactory worldFactory,
+
+			CurrentGame currentGame,
 			IArsenalAssignmentEngine arsenalAssignmentEngine,
-			ICompetitorResource competitorResource,
 			ICountryAssignmentEngine countryAssignmentEngine,
+			ICountryResource countryResource,
 			IDamageCalculator damageCalculator,
 			IEnumerable<IGameDefaults> gameDefaults,
+			IPlayerResource playerResource,
+			ISettlementResource settlementResource,
+			ISideResource sideResource,
 			ITargetResource targetResource,
-			ITargetingCalculator targetingCalculator
+			ITargetingCalculator targetingCalculator,
+			IWorldBuildingEngine worldBuildingEngine
 		)
 		{
 			this.mapper = mapper;
+
+			this.currentGame = currentGame;
 			this.arsenalAssignmentEngine = arsenalAssignmentEngine;
-			this.competitorResource = competitorResource;
 			this.countryAssignmentEngine = countryAssignmentEngine;
+			this.countryResource = countryResource;
 			this.damageCalculator = damageCalculator;
 			this.gameDefaults = gameDefaults;
+			this.playerResource = playerResource;
+			this.settlementResource = settlementResource;
+			this.sideResource = sideResource;
 			this.targetingCalculator = targetingCalculator;
 			this.targetResource = targetResource;
-			this.worldFactory = worldFactory;
+			this.worldBuildingEngine = worldBuildingEngine;
 
-			opposingSides = new Dictionary<ICompetitor, ICompetitor>();
-			world = World.Empty;
+			activePlayers = new List<(Contracts.V2.Sides.Player player, Contracts.V2.Sides.Side)>();
 		}
 
 		public GamePhase CurrentPhase { get; set; }
-		public IDictionary<IPlayer, ICompetitor> LoadedPlayers => competitorResource.PlayerSelections;
 
-		public async Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
+		public async Task AddTargetAsync(Contracts.V2.Sides.Side side, Contracts.V2.World.Settlement settlement, Contracts.V2.Arsenal.TargetPriority targetPriority)
 		{
-			await targetResource.AddTargetAsync(settlement, targetPriority);
+			await targetResource.AddTargetAsync(currentGame.GameSession, side, settlement, targetPriority);
 		}
 
 		public async Task AssignArsenalAsync(ArsenalAssignment assignmentType)
 		{
-			await arsenalAssignmentEngine.AssignArsenalAsync(world, LoadedPlayers.Values, assignmentType);
+			await arsenalAssignmentEngine.AssignArsenalAsync(currentGame.GameSession, assignmentType);
 		}
 
 		public async Task AssignCountriesAsync(CountryAssignment assignmentType)
 		{
-			if (LoadedPlayers.Count < MAX_PLAYERS)
+			if (!await ReachedMaxPlayers())
 				throw new PlayersNotReady();
 
 			CurrentPhase = GamePhase.PickTargets;
-			await countryAssignmentEngine.AssignCountriesAsync(world, LoadedPlayers.Values, assignmentType);
+			await countryAssignmentEngine.AssignCountriesAsync(currentGame.GameSession, assignmentType);
 		}
 
-		public async Task<IEnumerable<ICompetitor>> AvailableSidesAsync()
+		public IEnumerable<(Player, Side)> GetActivePlayers()
 		{
-			return await Task.Run(() => new List<ICompetitor> { new Capitalism(), new Communism() });
+			throw new NotImplementedException();
 		}
 
-		public async Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source)
+		public async Task<IEnumerable<Target>> GetCurrentTargetsAsync(Player source)
 		{
-			var side = LoadedPlayers[source];
-			var opponent = opposingSides[side];
-			return await targetResource.GetAsync(opponent);
+			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source);
+			return await targetResource.RetrieveManyAsync(currentGame.GameSession, opponent);
 		}
 
-		public async Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(IPlayer source)
+		public async Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(Player source)
 		{
-			var side = LoadedPlayers[source];
-			var opponent = opposingSides[side];
-			return await Task.Run(() => mapper.Map<List<Contracts.V2.World.Settlement>>(opponent.Settlements));
+			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source as Contracts.V2.Sides.Player);
+			return await settlementResource.RetrieveManyAsync(currentGame.GameSession, opponent);
 		}
 
 		public async Task InitializeDefaultsAsync()
@@ -102,42 +113,15 @@ namespace WarGames.Business.Managers
 			{
 				activeGameDefaults = gameDefaults.First(gd => gd.MetRequirements());
 				activeGameDefaults.Trigger();
-				opposingSides.Add(LoadedPlayers.Values.First(), LoadedPlayers.Values.Last());
-				opposingSides.Add(LoadedPlayers.Values.Last(), LoadedPlayers.Values.First());
 			});
 		}
 
-		public async Task LoadPlayerAsync(IPlayer player, ICompetitor competitor)
-		{
-			if (LoadedPlayers.Any(lp => lp.Value == competitor && lp.Key != player))
-				throw new CompetitorAlreadyTaken();
-
-			await Task.Run(() =>
-			{
-				if (LoadedPlayers.ContainsKey(player))
-					LoadedPlayers[player] = competitor;
-				else
-					LoadedPlayers.Add(player, competitor);
-			});
-
-			if (LoadedPlayers.Count == MAX_PLAYERS)
-			{
-				opposingSides.Add(LoadedPlayers.Values.First(), LoadedPlayers.Values.Last());
-				opposingSides.Add(LoadedPlayers.Values.Last(), LoadedPlayers.Values.First());
-			}
-		}
-
-		/// <summary>
-		/// TODO: Not complete. We need a way to load a specific world or trigger
-		/// a randomized world.
-		/// </summary>
-		/// <returns></returns>
 		public async Task LoadWorldAsync()
 		{
-			if (worldFactory == null)
-				throw new Exception("Missing WorldFactory dependency");
+			if (currentGame.NotLoaded)
+				throw new GameSessionNotLoadedException();
 
-			world = await worldFactory.BuildAsync();
+			await worldBuildingEngine.BuildAsync(currentGame.GameSession);
 		}
 
 		public async Task MakeAiDecisionsAsync()
@@ -145,19 +129,25 @@ namespace WarGames.Business.Managers
 			if (activeGameDefaults == null)
 				throw new Exception("Cannot make AI decisions unless game defaults have been initialized");
 
-			foreach (var ai in competitorResource.Players.Where(player => player.PlayerType == PlayerType.Cpu))
+			var ais = await playerResource.RetrieveManyAsync(currentGame.GameSession, PlayerType.Cpu);
+			foreach (var ai in ais)
 			{
+				var aiSide = await sideResource.RetrieveAsync(currentGame.GameSession, ai);
 				var potentialTargets = await GetPotentialTargetsAsync(ai);
 				await Task.Run(() =>
 				{
-					activeGameDefaults.CalculateAiTargets(() => potentialTargets, AddTarget);
+					Action<Settlement, TargetPriority> addTarget = (Settlement settlement, TargetPriority targetPriority) =>
+					{
+						AddTargetAsync(aiSide, settlement, targetPriority).Wait();
+					};
+					activeGameDefaults.CalculateAiTargets(() => potentialTargets, addTarget);
 				});
 			}
 		}
 
 		public async Task RainFireAsync()
 		{
-			var targets = await targetResource.GetAllAsync();
+			var targets = await targetResource.RetrieveAllAsync(currentGame.GameSession);
 			var options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
 			await Parallel.ForEachAsync
 				(
@@ -171,8 +161,8 @@ namespace WarGames.Business.Managers
 						});
 					}
 				); ;
-
-			await damageCalculator.CalculateAfterMathAsync(world);
+			var settlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession);
+			await damageCalculator.CalculateAfterMathAsync(settlements);
 		}
 
 		public void ReadyForLaunch()
@@ -187,22 +177,19 @@ namespace WarGames.Business.Managers
 
 		public async Task SetTargetAssignmentsAsync()
 		{
-			await targetingCalculator.SetTargetAssignmentsByPriorityAsync(LoadedPlayers.Select(kvp => kvp.Value));
+			var sides = await sideResource.RetrieveManyAsync(currentGame.GameSession);
+			await targetingCalculator.SetTargetAssignmentsByPriorityAsync(sides);
 		}
 
-		public async Task<ICompetitor> WhatIsPlayerAsync(IPlayer player)
+		public async Task<IEnumerable<Player>> WhoIsPlayingAsync()
 		{
-			return await Task.Run(() => LoadedPlayers[player]);
+			return await playerResource.RetrieveManyAsync(currentGame.GameSession);
 		}
 
-		public async Task<IEnumerable<IPlayer>> WhoIsPlayingAsync()
+		private async Task<bool> ReachedMaxPlayers()
 		{
-			return await Task.Run(() => LoadedPlayers.Select(lp => lp.Key));
-		}
-
-		private void AddTarget(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority)
-		{
-			AddTargetAsync(settlement, targetPriority).Wait();
+			var activePlayers = await playerResource.RetrieveManyAsync(currentGame.GameSession);
+			return activePlayers.Count() == MAX_PLAYERS;
 		}
 	}
 }

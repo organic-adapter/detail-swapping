@@ -1,11 +1,9 @@
-﻿using WarGames.Contracts.Game;
+﻿using WarGames.Contracts.V2.World;
 
 namespace WarGames.Business.Arsenal
 {
 	public interface IDamageCalculator
 	{
-		public Task<World> CalculateAfterMathAsync(World world);
-
-		public Task CalculateAfterMathAsync(IEnumerable<Contracts.V2.World.Settlement> settlements);
+		public Task<IEnumerable<Settlement>> CalculateAfterMathAsync(IEnumerable<Settlement> settlements);
 	}
 }

@@ -5,7 +5,7 @@ using WarGames.Contracts.Game;
 namespace WarGames.Contracts.V2.World
 {
 	[Serializable]
-	public class Settlement : Game.Settlement, IUnique<string>
+	public class Settlement : IUnique<string>
 	{
 		public static new readonly Settlement Empty = new Settlement();
 
@@ -18,20 +18,23 @@ namespace WarGames.Contracts.V2.World
 			TargetValues = new List<TargetValue>();
 		}
 
-		public override ConcurrentBag<TargetValue> AftermathValues { get; set; }
-		public override int Hits { get; set; }
-		public override string Id { get; set; }
+		public ConcurrentBag<TargetValue> AftermathValues { get; set; }
+		public int Hits { get; set; }
+		public string Id { get; set; }
 		public Coord Coord { get; set; }
-		public override string Name { get; set; }
-		public override List<TargetValue> TargetValues { get; set; }
+		public string Name { get; set; }
+		public List<TargetValue> TargetValues { get; set; }
 
 		public override bool Equals(object? obj)
 		{
+			var other = obj as Settlement;			
+			if(other == null) return false;
+
 			if (object.ReferenceEquals(obj, null)) return false;
 
 			if (object.ReferenceEquals(this, obj)) return true;
 
-			return Id.Equals((obj as Settlement).Id);
+			return Id.Equals(other.Id);
 		}
 
 		public override int GetHashCode()

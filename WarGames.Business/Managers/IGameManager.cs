@@ -1,6 +1,7 @@
 ﻿using WarGames.Business.Game;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.Arsenal;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 
 namespace WarGames.Business.Managers
 {
@@ -8,15 +9,15 @@ namespace WarGames.Business.Managers
 	{
 		public GamePhase CurrentPhase { get; }
 
-		public Task AddTargetAsync(Contracts.V2.World.Settlement settlement, TargetPriority targetPriority);
+		public Task AddTargetAsync(Contracts.V2.Sides.Side side, Settlement settlement, TargetPriority targetPriority);
 
 		public Task AssignArsenalAsync(ArsenalAssignment assignmentType);
 
 		public Task AssignCountriesAsync(CountryAssignment assignmentType);
 
-		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(IPlayer source);
+		public Task<IEnumerable<Target>> GetCurrentTargetsAsync(Player source);
 
-		public Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(IPlayer source);
+		public Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(Player source);
 
 		public Task InitializeDefaultsAsync();
 
@@ -32,6 +33,6 @@ namespace WarGames.Business.Managers
 
 		public Task SetTargetAssignmentsAsync();
 
-		public Task<IEnumerable<IPlayer>> WhoIsPlayingAsync();
+		public Task<IEnumerable<Player>> WhoIsPlayingAsync();
 	}
 }

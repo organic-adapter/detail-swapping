@@ -1,11 +1,10 @@
-﻿using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
+﻿using WarGames.Contracts.V2;
+using WarGames.Contracts.V2.Arsenal;
 
 namespace WarGames.Business.Arsenal
 {
 	public interface IArsenalAssignmentEngine
 	{
-		public Task AssignArsenalAsync(World world, IEnumerable<ICompetitor> competitors, ArsenalAssignment assignmentType);
+		public Task AssignArsenalAsync(GameSession gameSession, ArsenalAssignment assignmentType);
 	}
 }

@@ -1,74 +1,102 @@
-﻿using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
+﻿using WarGames.Contracts.V2;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
+using WarGames.Resources.Planet;
+using WarGames.Resources.Sides;
 
 namespace WarGames.Business.Game
 {
 	public class CountryAssignmentEngine : ICountryAssignmentEngine
 	{
-		private readonly Dictionary<CountryAssignment, Action<World, IEnumerable<ICompetitor>>> assignmentDelegates;
+		private readonly Dictionary<CountryAssignment, Func<GameSession, Task>> assignmentDelegates;
+		private readonly ICountryResource countryResource;
+		private readonly ISideResource sideResource;
 
-		public CountryAssignmentEngine()
+		public CountryAssignmentEngine
+				(
+					ICountryResource countryResource
+					, ISideResource sideResource
+				)
 		{
-			assignmentDelegates = new Dictionary<CountryAssignment, Action<World, IEnumerable<ICompetitor>>>()
+			this.countryResource = countryResource;
+			this.sideResource = sideResource;
+
+			assignmentDelegates = new()
 			{
 				{ CountryAssignment.Random, CountryAssignmentRandom },
 				{ CountryAssignment.ByName, CountryAssignmentByName }
 			};
 		}
 
-		public async Task AssignCountriesAsync(World world, IEnumerable<ICompetitor> competitors, CountryAssignment assignmentType)
+		public async Task AssignCountriesAsync(GameSession gameSession, CountryAssignment assignmentType)
 		{
-			await Task.Run(() => assignmentDelegates[assignmentType](world, competitors));
+			await Task.Run(() => assignmentDelegates[assignmentType](gameSession));
 		}
 
-		private void AssignCountry(ICompetitor competitor, Country country)
+		private async Task AssignCountry(GameSession gameSession, Side side, Country country)
 		{
-			competitor.Countries.Add(country);
-			country.Owner = competitor;
+			await countryResource.AssignAsync(gameSession, side, country);
 		}
 
-		private void CountryAssignmentByName(World world, IEnumerable<ICompetitor> competitors)
+		private async Task CountryAssignmentByName(GameSession gameSession)
 		{
-			var assignmentQueue = new Queue<Country>();
+			var sides = await sideResource.RetrieveManyAsync(gameSession);
+			var countries = await countryResource.RetrieveManyAsync(gameSession);
 
-			foreach (var competitor in competitors)
-				foreach (var country in world.Countries
-											.Where(country =>
-														country.Name.Contains(competitor.Name)
-														|| country.Name.Contains(competitor.Id, StringComparison.OrdinalIgnoreCase))
-												  )
-					AssignCountry(competitor, country);
-		}
-
-		private void CountryAssignmentRandom(World world, IEnumerable<ICompetitor> competitors)
-		{
-			var assignmentQueue = new Queue<Country>();
-			var competitorToggles = MakeCompetitorToggles(competitors);
-
-			foreach (var country in world.Countries.OrderBy(w => Guid.NewGuid()))
-				assignmentQueue.Enqueue(country);
-
-			byte nextToggle = (byte)(assignmentQueue.Count % competitorToggles.Count);
-			while (assignmentQueue.Any())
+			foreach (var side in sides)
 			{
-				var nextCompetitor = competitorToggles[nextToggle];
-				var nextCountry = assignmentQueue.Dequeue();
-
-				AssignCountry(nextCompetitor, nextCountry);
-				nextToggle = (byte)(assignmentQueue.Count % competitorToggles.Count);
+				var countriesByName = FilterCountriesBySideName(countries, side);
+				foreach (var country in countriesByName)
+					await AssignCountry(gameSession, side, country);
 			}
 		}
 
-		private Dictionary<byte, ICompetitor> MakeCompetitorToggles(IEnumerable<ICompetitor> competitors)
+		private async Task CountryAssignmentRandom(GameSession gameSession)
 		{
-			var returnMe = new Dictionary<byte, ICompetitor>();
-			byte nextIndex = 0;
-			foreach (var competitor in competitors)
+			var assignmentQueue = await RandomizeAssignmentsQueue(gameSession);
+			var sides = await sideResource.RetrieveManyAsync(gameSession);
+			var sideToggles = GenerateSideToggles(sides);
+
+			byte nextToggle = (byte)(assignmentQueue.Count % sideToggles.Count);
+			while (assignmentQueue.Any())
 			{
-				returnMe.Add(nextIndex, competitor);
+				var nextSide = sideToggles[nextToggle];
+				var nextCountry = assignmentQueue.Dequeue();
+
+				await AssignCountry(gameSession, nextSide, nextCountry);
+				nextToggle = (byte)(assignmentQueue.Count % sideToggles.Count);
+			}
+		}
+
+		private IEnumerable<Country> FilterCountriesBySideName(IEnumerable<Country> countries, Side side)
+		{
+			return countries
+				.Where(country =>
+							country.Name.Contains(side.DisplayName)
+							|| country.Name.Contains(side.Id, StringComparison.OrdinalIgnoreCase)
+						);
+		}
+
+		private Dictionary<byte, Side> GenerateSideToggles(IEnumerable<Side> sides)
+		{
+			var returnMe = new Dictionary<byte, Side>();
+			byte nextIndex = 0;
+			foreach (var side in sides)
+			{
+				returnMe.Add(nextIndex, side);
 				nextIndex++;
 			}
 			return returnMe;
+		}
+
+		private async Task<Queue<Country>> RandomizeAssignmentsQueue(GameSession gameSession)
+		{
+			var assignmentQueue = new Queue<Country>();
+			var countries = await countryResource.RetrieveManyAsync(gameSession);
+			foreach (var country in countries.OrderBy(w => Guid.NewGuid()))
+				assignmentQueue.Enqueue(country);
+
+			return assignmentQueue;
 		}
 	}
 }

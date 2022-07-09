@@ -10,10 +10,16 @@ namespace WarGames.Business.Managers
 
 		public Task ChooseAsync(Player player, Side side);
 
-		public int Count(Contracts.Game.PlayerType playerType);
+		public int Count(PlayerType playerType);
 
-		public bool HasPlayerType(Contracts.Game.PlayerType playerType);
+		public Task<IEnumerable<Player>> GetPlayersAsync();
+
+		public Task<Side> GetSideAsync(string sideId);
+
+		public bool HasPlayerType(PlayerType playerType);
 
 		public Task<Side> NextAvailableSideAsync();
+
+		public Task<Side> WhatIsPlayerAsync(Player player);
 	}
 }

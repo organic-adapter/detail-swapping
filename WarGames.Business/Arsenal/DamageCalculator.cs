@@ -1,5 +1,6 @@
 ﻿using WarGames.Contracts.Game;
 using WarGames.Contracts.Game.TargetValues;
+using WarGames.Contracts.V2.World;
 
 namespace WarGames.Business.Arsenal
 {
@@ -18,20 +19,7 @@ namespace WarGames.Business.Arsenal
 			};
 		}
 
-		public async Task<World> CalculateAfterMathAsync(World world)
-		{
-			var options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
-
-			await Parallel.ForEachAsync
-				(
-					world.Settlements,
-					options,
-					async (settlement, token) => await CalculateDamage(settlement)
-				);
-			return world;
-		}
-
-		public async Task CalculateAfterMathAsync(IEnumerable<Contracts.V2.World.Settlement> settlements)
+		public async Task<IEnumerable<Settlement>> CalculateAfterMathAsync(IEnumerable<Settlement> settlements)
 		{
 			var options = new ParallelOptions { MaxDegreeOfParallelism = 8 };
 
@@ -41,9 +29,10 @@ namespace WarGames.Business.Arsenal
 					options,
 					async (settlement, token) => await CalculateDamage(settlement)
 				);
+			return settlements;
 		}
 
-		private async Task CalculateDamage(Contracts.V2.World.Settlement settlement)
+		private async Task CalculateDamage(Settlement settlement)
 		{
 			var options = new ParallelOptions { MaxDegreeOfParallelism = 2 };
 			await Parallel.ForEachAsync
@@ -55,21 +44,6 @@ namespace WarGames.Business.Arsenal
 						var damage = await CalculateDamage(settlement.Hits, targetValue);
 						settlement.AftermathValues.Add(damage);
 					}
-				);
-		}
-
-		private async Task CalculateDamage(Settlement settlement)
-		{
-			var options = new ParallelOptions { MaxDegreeOfParallelism = 2 };
-			await Parallel.ForEachAsync
-				(
-					settlement.TargetValues,
-					options,
-					async (targetValue, token) =>
-						{
-							var damage = await CalculateDamage(settlement.Hits, targetValue);
-							settlement.AftermathValues.Add(damage);
-						}
 				);
 		}
 

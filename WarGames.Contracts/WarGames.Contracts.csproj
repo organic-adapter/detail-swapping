@@ -10,4 +10,8 @@
     <ProjectReference Include="..\Map.Engine\Map.Engine.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Arsenal\" />
+  </ItemGroup>
+
 </Project>

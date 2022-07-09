@@ -3,7 +3,7 @@
 namespace WarGames.Contracts.V2.Sides
 {
 	[Serializable]
-	public class Player : IPlayer, IUnique<string>
+	public class Player : IUnique<string>
 	{
 		public static readonly Player Empty = new();
 

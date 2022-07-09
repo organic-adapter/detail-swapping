@@ -1,18 +1,14 @@
-﻿using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Game;
+﻿using WarGames.Contracts.V2.Arsenal;
 
 namespace WarGames.Business.Arsenal.MissileDeliverySystems
 {
 	public class Silo : BaseMissileDeliverySystem
 	{
-		public Silo(float movementSpeed, short payloadCount, IMissile payloadType)
+		public Silo(short payloadCount, IMissile payloadType)
 		{
-			MovementSpeedKps = movementSpeed;
 			PayloadCount = payloadCount;
 			PayloadType = payloadType;
 			Assignment = Target.Empty;
 		}
-
-		public override TerrainType MovementConstraint => TerrainType.None;
 	}
 }

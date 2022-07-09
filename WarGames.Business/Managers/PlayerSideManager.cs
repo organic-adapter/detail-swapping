@@ -1,5 +1,4 @@
 ﻿using WarGames.Business.Game;
-using WarGames.Contracts.Game;
 using WarGames.Contracts.V2.Sides;
 using WarGames.Resources.Sides;
 
@@ -18,24 +17,35 @@ namespace WarGames.Business.Managers
 			this.sideResource = sideResource;
 		}
 
-		public async Task AddAsync(Contracts.V2.Sides.Player player)
+		public async Task AddAsync(Player player)
 		{
 			await playerResource.SaveAsync(currentGame.GameSession, player);
 		}
 
-		public async Task AddAsync(Contracts.V2.Sides.Side side)
+		public async Task AddAsync(Side side)
 		{
 			await sideResource.SaveAsync(currentGame.GameSession, side);
 		}
 
-		public async Task ChooseAsync(Contracts.V2.Sides.Player player, Contracts.V2.Sides.Side side)
+		public async Task ChooseAsync(Player player, Side side)
 		{
+			await EnforceUniqueSide(player, side);
 			await sideResource.AssignAsync(currentGame.GameSession, player, side);
 		}
 
 		public int Count(PlayerType playerType)
 		{
 			return playerResource.RetrieveManyAsync(currentGame.GameSession, playerType).Result.Count();
+		}
+
+		public async Task<IEnumerable<Player>> GetPlayersAsync()
+		{
+			return await playerResource.RetrieveManyAsync(currentGame.GameSession);
+		}
+
+		public async Task<Side> GetSideAsync(string sideId)
+		{
+			return await sideResource.RetrieveAsync(currentGame.GameSession, sideId);
 		}
 
 		public bool HasPlayerType(PlayerType playerType)
@@ -52,7 +62,23 @@ namespace WarGames.Business.Managers
 			throw new NoAvailableSideException();
 		}
 
+		public async Task<Side> WhatIsPlayerAsync(Player player)
+		{
+			return await sideResource.RetrieveAsync(currentGame.GameSession, player);
+		}
+
+		private async Task EnforceUniqueSide(Player player, Side checkMe)
+		{
+			var opponentSide = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, player);
+			if (opponentSide == checkMe)
+				throw new SideAlreadyTakenException();
+		}
+
 		public class NoAvailableSideException : Exception
+		{
+		}
+
+		public class SideAlreadyTakenException : Exception
 		{
 		}
 	}

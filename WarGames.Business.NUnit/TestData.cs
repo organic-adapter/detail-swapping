@@ -1,39 +1,36 @@
-﻿using System.Collections.Generic;
-using WarGames.Business.Competitors;
+﻿using Map.Engine;
+using System.Collections.Generic;
 using WarGames.Business.NUnit.Mockers;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
+using WarGames.Business.Sides;
+using WarGames.Contracts.V2.Arsenal;
+using WarGames.Contracts.V2.Sides;
 
 namespace WarGames.Business.NUnit
 {
 	internal class TestData
 	{
-		public ICompetitor Capitalism;
-		public ICompetitor Communism;
-		public ICompetitor Empty;
+		public Side Capitalism;
+		public Side Communism;
+		public Side Empty;
 
 		public TestData()
 		{
 			Capitalism = new Capitalism();
 			Communism = new Communism();
-			Empty = Competitor.Empty;
-			Competitors = new List<ICompetitor>()
+			Empty = Side.Empty;
+			Sides = new List<Side>()
 			{
 				Capitalism,
 				Communism
 			};
-
-			World = TestWorldFactory.Make();
 		}
 
-		public IEnumerable<ICompetitor> Competitors { get; set; }
+		public IEnumerable<Side> Sides { get; set; }
 		public IMissile StandardMissile => new StandardMissile();
-		public World World { get; set; }
 
-		public IMissileDeliverySystem StandardMissileDeliverySystem(IGeographicalArea area, ILocation location)
+		public IMissileDeliverySystem StandardMissileDeliverySystem(Coord coord)
 		{
-			return new StandardMissileDeliverySystem(location);
+			return new StandardMissileDeliverySystem(coord);
 		}
 	}
 }

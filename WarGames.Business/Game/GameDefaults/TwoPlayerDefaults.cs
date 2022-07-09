@@ -1,17 +1,18 @@
-﻿using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
+﻿using WarGames.Business.Managers;
+using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Games;
-using WarGames.Resources;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 
-namespace WarGames.Contracts.Game.GameDefaults
+namespace WarGames.Business.Game.GameDefaults
 {
 	public class TwoPlayerDefaults : IGameDefaults
 	{
-		private readonly ICompetitorResource competitorResource;
+		private readonly IPlayerSideManager playerSideManager;
 
-		public TwoPlayerDefaults(ICompetitorResource competitorResource)
+		public TwoPlayerDefaults(IPlayerSideManager playerSideManager)
 		{
-			this.competitorResource = competitorResource;
+			this.playerSideManager = playerSideManager;
 		}
 
 		public ArsenalAssignment ArsenalAssignment => ArsenalAssignment.Arbitrary;
@@ -22,20 +23,14 @@ namespace WarGames.Contracts.Game.GameDefaults
 
 		public IEnumerable<string> CountryTags => new List<string>();
 
-		public IDictionary<IPlayer, ICompetitor> GetPlayers()
-		{
-			return competitorResource.PlayerSelections;
-		}
-
-		public void CalculateAiTargets(Func<IEnumerable<V2.World.Settlement>> targets, Action<V2.World.Settlement, TargetPriority> addAction)
+		public void CalculateAiTargets(Func<IEnumerable<Settlement>> targets, Action<Settlement, TargetPriority> addAction)
 		{
 			//no-op
 		}
 
 		public bool MetRequirements()
 		{
-			return competitorResource.Players.Where(p => p.PlayerType == PlayerType.Human).Count() == 2;
-
+			return playerSideManager.Count(PlayerType.Human) == 2;
 		}
 
 		public void Trigger()

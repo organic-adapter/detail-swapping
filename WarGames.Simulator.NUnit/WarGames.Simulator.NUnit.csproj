@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
@@ -24,6 +25,7 @@
     <ProjectReference Include="..\WarGames.Business\WarGames.Business.csproj" />
     <ProjectReference Include="..\WarGames.Contracts\WarGames.Contracts.csproj" />
     <ProjectReference Include="..\WarGames.Resources\WarGames.Resources.csproj" />
+    <ProjectReference Include="..\WarGames.Startups\WarGames.Startups.csproj" />
   </ItemGroup>
 
   <ItemGroup>

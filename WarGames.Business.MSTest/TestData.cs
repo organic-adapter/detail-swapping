@@ -1,32 +1,26 @@
-﻿using System.Collections.Generic;
-using WarGames.Business.Competitors;
-using WarGames.Business.MSTest.Mockers;
-using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
+﻿using WarGames.Business.Sides;
+using WarGames.Contracts.V2.Sides;
 
 namespace WarGames.Business.MSTest
 {
-	public class TestData
+	internal class TestData
 	{
-		public ICompetitor Capitalism;
-		public ICompetitor Communism;
-		public ICompetitor Empty;
+		public Side Capitalism;
+		public Side Communism;
+		public Side Empty;
 
 		public TestData()
 		{
 			Capitalism = new Capitalism();
 			Communism = new Communism();
-			Empty = Competitor.Empty;
-			Competitors = new List<ICompetitor>()
+			Empty = Side.Empty;
+			Sides = new List<Side>()
 			{
 				Capitalism,
 				Communism
 			};
-
-			World = TestWorldFactory.Make();
 		}
 
-		public IEnumerable<ICompetitor> Competitors { get; set; }
-		public World World { get; set; }
+		public IEnumerable<Side> Sides { get; set; }
 	}
 }

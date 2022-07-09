@@ -1,27 +1,39 @@
 ﻿using System.Globalization;
-using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
 using WarGames.Contracts.Game.TargetValues;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 
 namespace WarGames.CLI.Renderers
 {
 	internal class DamageResultRenderer
 	{
 		private const int maxHeight = 20;
-		private readonly ICompetitor competitor1;
-		private readonly ICompetitor competitor2;
-		private readonly IPlayer player1;
-		private readonly IPlayer player2;
+		private readonly Player player1;
+		private readonly Player player2;
+		private readonly IEnumerable<Settlement> side1Settlements;
+		private readonly IEnumerable<Settlement> side2Settlements;
+		private readonly Side side1;
+		private readonly Side side2;
 		private readonly int split2 = Console.WindowWidth / 2;
 		private readonly int split4 = Console.WindowWidth / 4;
 		private readonly int width = Console.WindowWidth;
 
-		public DamageResultRenderer(IPlayer player1, IPlayer player2, ICompetitor competitor1, ICompetitor competitor2)
+		public DamageResultRenderer
+				(
+				 IEnumerable<Settlement> side1Settlements
+				, IEnumerable<Settlement> side2Settlements
+				, Player player1
+				, Player player2
+				, Side side1
+				, Side side2
+				)
 		{
+			this.side1Settlements = side1Settlements;
+			this.side2Settlements = side2Settlements;
 			this.player1 = player1;
 			this.player2 = player2;
-			this.competitor1 = competitor1;
-			this.competitor2 = competitor2;
+			this.side1 = side1;
+			this.side2 = side2;
 		}
 
 		public void Draw()
@@ -31,8 +43,8 @@ namespace WarGames.CLI.Renderers
 
 			Console.Clear();
 			FillOutline();
-			WritePlayerDetails(player1DrawPositions, player1, competitor1);
-			WritePlayerDetails(player2DrawPositions, player2, competitor2);
+			WritePlayerDetails(player1DrawPositions, side1Settlements, player1, side1);
+			WritePlayerDetails(player2DrawPositions, side2Settlements, player2, side2);
 			Console.SetCursorPosition(0, maxHeight + 5);
 		}
 
@@ -49,16 +61,16 @@ namespace WarGames.CLI.Renderers
 			Console.WriteLine(horizontalLine);
 		}
 
-		private void WritePlayerDetails(DrawPositions pos, IPlayer player, ICompetitor competitor)
+		private void WritePlayerDetails(DrawPositions pos, IEnumerable<Settlement> settlements, Player player, Side side)
 		{
 			Console.SetCursorPosition(pos.columnStart, pos.header1);
 			Console.Write(player.Name);
 			Console.SetCursorPosition(pos.columnStart, pos.header2);
-			Console.Write(competitor.Name);
+			Console.Write(side.DisplayName);
 
 			Console.SetCursorPosition(pos.columnStart, pos.bodyStart);
-			var startingPopulation = competitor.Settlements.Sum(settlement => settlement.TargetValues.First(tv => typeof(CivilianPopulation) == tv.GetType()).Value);
-			var finalPopulation = competitor.Settlements.Sum(settlement => settlement.AftermathValues.First(tv => typeof(CivilianPopulation) == tv.GetType()).Value);
+			var startingPopulation = settlements.Sum(settlement => settlement.TargetValues.First(tv => typeof(CivilianPopulation) == tv.GetType()).Value);
+			var finalPopulation = settlements.Sum(settlement => settlement.AftermathValues.First(tv => typeof(CivilianPopulation) == tv.GetType()).Value);
 
 			var currentLine = pos.bodyStart;
 

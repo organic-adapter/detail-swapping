@@ -1,5 +1,5 @@
 ﻿using Map.Engine;
-using WarGames.Contracts.Arsenal;
+using WarGames.Contracts.V2.Arsenal;
 
 namespace WarGames.Business.Arsenal.Missiles
 {
@@ -7,6 +7,7 @@ namespace WarGames.Business.Arsenal.Missiles
 	{
 		public float DamageRadiusKm => 4.6f;
 
+		public Coord? LaunchSource { get; set; }
 		public float? LaunchTimeIndex { get; set; }
 		public IMissile? MIRV => null;
 
@@ -15,8 +16,7 @@ namespace WarGames.Business.Arsenal.Missiles
 		public float RangeKm => 1800f;
 
 		public float SpeedKps => 3.205f;
+		public Coord? TargetDestination { get; set; }
 		public float? TimeIndexToImpact { get; set; }
-		public Coord? LaunchSource {get;set;}
-		public Coord? TargetDestination {get;set;}
 	}
 }

@@ -1,44 +1,32 @@
-﻿using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Game;
+﻿using Map.Engine;
+using WarGames.Contracts.V2.Arsenal;
 
 namespace WarGames.Business.MSTest.Mockers
 {
 	internal class TestMissileDeliverySystem : IMissileDeliverySystem
 	{
-		public TestMissileDeliverySystem(IGeographicalArea currentArea, ILocation location, TerrainType movementConstraint, float movementSpeedKps, short payloadCount, IMissile payloadType)
+		public TestMissileDeliverySystem(Coord coord, short payloadCount, IMissile payloadType)
 		{
-			CurrentArea = currentArea;
-			Location = location;
-			MovementConstraint = movementConstraint;
-			MovementSpeedKps = movementSpeedKps;
+			Coord = coord;
 			PayloadCount = payloadCount;
 			PayloadType = payloadType;
 			Assignment = Target.Empty;
 		}
 
 		public Target Assignment { get; set; }
-		public IGeographicalArea CurrentArea { get; }
 
 		public bool HasTarget => Assignment != Target.Empty;
-		public ILocation Location { get; }
 
-		public TerrainType MovementConstraint { get; }
+		public Coord Coord { get; set; }
 
-		public float MovementSpeedKps { get; }
+		public short PayloadCount { get; set; }
 
-		public short PayloadCount { get; }
+		public IMissile PayloadType { get; set; }
 
-		public IMissile PayloadType { get; }
-
-		public bool InAttackRange(ILocation target)
+		public bool InAttackRange(Coord coord)
 		{
-			var distanceKm = Location.Coord.DistanceKm(target.Coord);
+			var distanceKm = Coord.DistanceKm(coord);
 			return PayloadType.RangeKm >= distanceKm;
-		}
-
-		public void MoveTo(ILocation location)
-		{
-			throw new NotImplementedException();
 		}
 	}
 }

@@ -1,108 +1,104 @@
-﻿using AutoMapper;
-using Moq;
-using WarGames.Business.Arsenal;
-using WarGames.Business.Exceptions;
+﻿using Microsoft.Extensions.DependencyInjection;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
-using WarGames.Contracts.Game;
-using WarGames.Contracts.V2.Games;
-using WarGames.Resources.Arsenal;
-using WarGames.Resources.Competitors;
+using WarGames.Business.xUnit.Mockers;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Startups;
+using static WarGames.Business.Managers.PlayerSideManager;
 
 namespace WarGames.Business.xUnit.StartingGameTests
 {
 	public class Select_Sides_Tests
 	{
-		private IArsenalAssignmentEngine arsenalAssignmentEngine;
-		private ICompetitorBasedGame competitorBasedGame;
-		private ICompetitorManager competitorManager;
-		private ICountryAssignmentEngine countryAssignmentEngine;
-		private IGameManager gameManager;
-		private ITargetResource targetResource;
+		private IServiceProvider serviceProvider;
 		private TestData testData;
+		private CurrentGame currentGame;
 
 		#region Set Ups
 
 		public Select_Sides_Tests()
 		{
 			testData = new TestData();
-			arsenalAssignmentEngine = new ArsenalAssignmentEngine();
-			countryAssignmentEngine = new CountryAssignmentEngine();
-			targetResource = new TargetResource();
+			serviceProvider = ServicesMocker
+								.DefaultMocker
+								.Build();
 
-			//We can use the InMemoryRepositories directly rather than Mock these.
-			gameManager = new GameManager
-								(
-									Mock.Of<IMapper>()
-									, new WorldFactory(testData.World)
-									, arsenalAssignmentEngine
-									, new CompetitorResource(testData.Competitors)
-									, countryAssignmentEngine
-									, Mock.Of<IDamageCalculator>()
-									, Mock.Of<IEnumerable<IGameDefaults>>()
-									, targetResource
-									, Mock.Of<ITargetingCalculator>()
-								);
-			competitorBasedGame = gameManager as ICompetitorBasedGame;
-			competitorManager = new CompetitorManager(new InMemoryCompetitorRepository(testData.Competitors));
+			currentGame = GetService<CurrentGame>();
 		}
-
+		private T GetService<T>()
+		{
+			return serviceProvider.GetService<T>()
+				?? throw new ArgumentNullException();
+		}
 		#endregion Set Ups
 
 		[Fact]
 		public async Task Can_Select_Capitalism()
 		{
-			var competitors = await competitorManager.GetCompetitorsAsync();
-			var list = competitors.ToList();
-			Assert.Contains(competitors, c => c.Equals(testData.Capitalism));
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var expectedSide = testData.Capitalism;
+
+			var actualSide = await playerSideManager.GetSideAsync(expectedSide.Id);
+			Assert.Equal(expectedSide, actualSide);
 		}
 
 		[Fact]
 		public async Task Can_Select_Communism()
 		{
-			var competitors = await competitorManager.GetCompetitorsAsync();
-			Assert.Contains(competitors, c => c.Equals(testData.Communism));
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var expectedSide = testData.Communism;
+
+			var actualSide = await playerSideManager.GetSideAsync(expectedSide.Id);
+			Assert.Equal(expectedSide, actualSide);
 		}
 
 		[Fact]
 		public async Task Cannot_Select_Empty()
 		{
-			var competitors = await competitorManager.GetCompetitorsAsync();
-			Assert.DoesNotContain(competitors, c => c.Equals(testData.Empty));
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var expectedSide = testData.Empty;
+
+			await Assert.ThrowsAsync<Exception>(() => playerSideManager.GetSideAsync(expectedSide.Id));
 		}
 
 		[Fact]
 		public async Task New_Selection_Ovewrites_Previous_Selection()
 		{
-			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var player1 = new Player("Test Player", Guid.NewGuid().ToString(), PlayerType.Human);
 
-			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
-			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
-			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
-
-			Assert.Equal(testData.Capitalism, playerCompetitor);
+			await playerSideManager.AddAsync(player1);
+			await playerSideManager.ChooseAsync(player1, testData.Communism);
+			await playerSideManager.ChooseAsync(player1, testData.Capitalism);
+			var playerSide = await playerSideManager.WhatIsPlayerAsync(player1);
+			
+			Assert.Equal(testData.Capitalism, playerSide);
 		}
 
 		[Fact]
 		public async Task Select_Capitalism()
 		{
-			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var player1 = new Player("Test Player", Guid.NewGuid().ToString(), PlayerType.Human);
 
-			await competitorBasedGame.LoadPlayerAsync(player1, testData.Capitalism);
-			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
+			await playerSideManager.AddAsync(player1);
+			await playerSideManager.ChooseAsync(player1, testData.Capitalism);
+			var playerSide = await playerSideManager.WhatIsPlayerAsync(player1);
 
-			Assert.Equal(testData.Capitalism, playerCompetitor);
+			Assert.Equal(testData.Capitalism, playerSide);
 		}
 
 		[Fact]
 		public async Task Select_Communism()
 		{
-			var player1 = new Player("Test Player", Guid.NewGuid().ToString());
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var player1 = new Player("Test Player", Guid.NewGuid().ToString(), PlayerType.Human);
 
-			await competitorBasedGame.LoadPlayerAsync(player1, testData.Communism);
-			var playerCompetitor = await competitorBasedGame.WhatIsPlayerAsync(player1);
+			await playerSideManager.AddAsync(player1);
+			await playerSideManager.ChooseAsync(player1, testData.Communism);
+			var playerSide = await playerSideManager.WhatIsPlayerAsync(player1);
 
-			Assert.Equal(testData.Communism, playerCompetitor);
+			Assert.Equal(testData.Communism, playerSide);
 		}
 
 		/// <summary>
@@ -113,24 +109,32 @@ namespace WarGames.Business.xUnit.StartingGameTests
 		[Fact]
 		public async Task Two_Players_Cannot_Both_Pick_The_Same_Side()
 		{
-			var player1 = new Player("Test Player 1", Guid.NewGuid().ToString());
-			var player2 = new Player("Test Player 2", Guid.NewGuid().ToString());
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var player1 = new Player("Test Player 1", Guid.NewGuid().ToString(), PlayerType.Human);
+			var player2 = new Player("Test Player 2", Guid.NewGuid().ToString(), PlayerType.Human);
 			var theSameSide = testData.Communism;
 
-			await competitorBasedGame.LoadPlayerAsync(player1, theSameSide);
-			await Assert.ThrowsAsync<CompetitorAlreadyTaken>(() => competitorBasedGame.LoadPlayerAsync(player2, theSameSide));
+			await playerSideManager.AddAsync(player1);
+			await playerSideManager.AddAsync(player2);
+
+			await playerSideManager.ChooseAsync(player1, theSameSide);
+			await Assert.ThrowsAsync<SideAlreadyTakenException>(() => playerSideManager.ChooseAsync(player2, theSameSide));
 		}
 
 		[Fact]
 		public async Task Two_Players_Select_Communism_Other_Capitalism()
 		{
-			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
-			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString(), PlayerType.Human);
+			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString(), PlayerType.Human);
 
-			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
-			var communism = await competitorBasedGame.WhatIsPlayerAsync(playerCommunism);
-			var capitalism = await competitorBasedGame.WhatIsPlayerAsync(playerCapitalism);
+			await playerSideManager.AddAsync(playerCommunism);
+			await playerSideManager.AddAsync(playerCapitalism);
+			await playerSideManager.ChooseAsync(playerCommunism, testData.Communism);
+			await playerSideManager.ChooseAsync(playerCapitalism, testData.Capitalism);
+
+			var communism = await playerSideManager.WhatIsPlayerAsync(playerCommunism);
+			var capitalism = await playerSideManager.WhatIsPlayerAsync(playerCapitalism);
 			Assert.Equal(testData.Communism, communism);
 			Assert.Equal(testData.Capitalism, capitalism);
 		}

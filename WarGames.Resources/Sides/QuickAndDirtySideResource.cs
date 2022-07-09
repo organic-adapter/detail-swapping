@@ -16,6 +16,7 @@ namespace WarGames.Resources.Sides
 		public QuickAndDirtySideResource(IMapper mapper)
 		{
 			this.mapper = mapper;
+
 			sides = new();
 			playerMap = new();
 			playerReverseMap = new();
@@ -34,7 +35,7 @@ namespace WarGames.Resources.Sides
 		public async Task<bool> IsAvailableAsync(GameSession game, Side side)
 		{
 			return await Task.Run
-							(()=> 
+							(() =>
 								playerReverseMap.ContainsKey(game)
 								&& !playerReverseMap[game].ContainsKey(side)
 							);
@@ -63,7 +64,13 @@ namespace WarGames.Resources.Sides
 
 		public async Task<Side> RetrieveOpposingSideAsync(GameSession game, Player player)
 		{
-			return await Task.Run(() => playerMap[game].First(kvp => !player.Equals(kvp.Key)).Value);
+			return await Task.Run(() =>
+				{
+					if (playerMap[game].Any())
+						return playerMap[game].First(kvp => !player.Equals(kvp.Key)).Value;
+					
+					return Side.Empty;
+				});
 		}
 
 		public async Task SaveAsync(GameSession game, Side side)

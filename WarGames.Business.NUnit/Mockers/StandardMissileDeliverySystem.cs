@@ -1,14 +1,12 @@
-﻿using WarGames.Contracts.Game;
+﻿using Map.Engine;
 
 namespace WarGames.Business.NUnit.Mockers
 {
 	internal class StandardMissileDeliverySystem : TestMissileDeliverySystem
 	{
-		public StandardMissileDeliverySystem(ILocation location)
+		public StandardMissileDeliverySystem(Coord coord)
 			: base(
-					  location
-					  , Defaults.MissileDeliverySystem.MOVEMENT_CONSTRAINT
-					  , Defaults.MissileDeliverySystem.MOVEMENT_KPS
+					  coord
 					  , Defaults.MissileDeliverySystem.PAYLOAD_COUNT
 					  , new StandardMissile()
 				  )

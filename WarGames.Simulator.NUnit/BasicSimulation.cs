@@ -1,22 +1,17 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Moq;
-using SimpleMap.Contracts;
-using WarGames.Business.Arsenal;
 using WarGames.Business.Arsenal.MissileDeliverySystems;
 using WarGames.Business.Arsenal.Missiles;
-using WarGames.Business.Competitors;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
-using WarGames.Contracts.Game.GameDefaults;
-using WarGames.Contracts.V2.Games;
-using WarGames.Resources;
+using WarGames.Business.Sides;
+using WarGames.Contracts.V2.Arsenal;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 using WarGames.Resources.Arsenal;
-using WarGames.Resources.Competitors;
-using WarGames.Resources.Game;
+using WarGames.Resources.Planet;
+using WarGames.Startups;
 
 namespace WarGames.Simulator.NUnit
 {
@@ -27,34 +22,30 @@ namespace WarGames.Simulator.NUnit
 	[TestFixture]
 	public class BasicSimulation
 	{
-		private const string settlementsFile = "settlements.copyright.json";
-		private readonly string rootDataDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data");
-		private ICompetitorBasedGame competitorBasedGame;
-		private IGameManager gameManager;
+		private CurrentGame currentGame;
 		private Player playerCap;
 		private Player playerCom;
-
+		private IServiceProvider serviceProvider;
 		#region Set Ups
 
 		[OneTimeSetUp]
 		public async Task OneTimeSetUp()
 		{
-			playerCap = new Player("Smith", Guid.NewGuid().ToString());
-			playerCom = new Player("Marx", Guid.NewGuid().ToString());
-			var services = MockServices();
-			var provider = services.BuildServiceProvider();
+			playerCap = new Player("Smith", Guid.NewGuid().ToString(), PlayerType.Human);
+			playerCom = new Player("Marx", Guid.NewGuid().ToString(), PlayerType.Human);
+			MockServices();
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-
-			gameManager = provider.GetService<IGameManager>();
-			await competitorBasedGame.LoadPlayerAsync(playerCap, new Capitalism());
-			await competitorBasedGame.LoadPlayerAsync(playerCom, new Communism());
+			currentGame = GetService<CurrentGame>();
+			var gameManager = GetService<IGameManager>();
+			var playerSideManager = GetService<IPlayerSideManager>();
+			await playerSideManager.AddAsync(playerCap);
+			await playerSideManager.AddAsync(playerCom);
+			await playerSideManager.ChooseAsync(playerCap, new Capitalism());
+			await playerSideManager.ChooseAsync(playerCom, new Communism());
 
 			await gameManager.LoadWorldAsync();
 
 			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
-
-#pragma warning restore CS8601 // Possible null reference assignment.
 		}
 
 		private IOptionsMonitor<T> BuildMockOptionsMonitor<T>(T withMe)
@@ -63,47 +54,17 @@ namespace WarGames.Simulator.NUnit
 			return Mock.Of<IOptionsMonitor<T>>(_ => _.CurrentValue == withMe);
 		}
 
+		private T GetService<T>()
+		{
+			return serviceProvider.GetService<T>()
+				?? throw new ArgumentNullException();
+		}
+
 		private IServiceCollection MockServices()
 		{
 			IServiceCollection services = new ServiceCollection();
-			var mockCountryConfig = BuildMockOptionsMonitor
-										(
-											new JsonFileConfiguration<Country, string>()
-											{
-												RootPath = Path.Combine(rootDataDir, settlementsFile)
-												,
-												ConversionRequired = new ConversionRequired<List<SimpleMapEntry>, List<Country>>()
-											}
-										);
-			var mockSettlementConfig = BuildMockOptionsMonitor
-							(
-								new JsonFileConfiguration<Settlement, string>()
-								{
-									RootPath = Path.Combine(rootDataDir, settlementsFile)
-									,
-									ConversionRequired = new ConversionRequired<List<SimpleMapEntry>, List<Settlement>>()
-								}
-							);
-			services.AddSingleton(mockCountryConfig);
-			services.AddSingleton(mockSettlementConfig);
-			services.AddSingleton<LocationResolver>();
-			services.AddSingleton<WorldFactory>();
-			services.AddSingleton<IReadResource<Country, string>, ReadonlyJsonFileResource<Country, string>>();
-			services.AddSingleton<IReadResource<Settlement, string>, ReadonlyJsonFileResource<Settlement, string>>();
-			services.AddSingleton<IRepository<ICompetitor, string>, InMemoryCompetitorRepository>();
-			services.AddSingleton<IArsenalAssignmentEngine, ArsenalAssignmentEngine>();
-			services.AddSingleton<ICountryAssignmentEngine, CountryAssignmentEngine>();
-			services.AddSingleton<IGameManager, GameManager>();
-			services.AddSingleton<IDamageCalculator, DamageCalculator>();
-			services.AddSingleton<ITargetResource, TargetResource>();
-			services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
-			services.AddSingleton<IRepository<World, Guid>, InMemoryWorldRepository>();
-			services.AddSingleton<ICompetitorResource, CompetitorResource>();
-			services.AddSingleton<ICompetitor, Capitalism>();
-			services.AddSingleton<ICompetitor, Communism>();
-			services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();
 
-			services.AddAutoMapper(typeof(WorldMapperProfiles));
+			services.InitializeCoreGameServices();
 
 			return services;
 		}
@@ -113,28 +74,37 @@ namespace WarGames.Simulator.NUnit
 		[Test]
 		public async Task Blow_Up_The_World()
 		{
-			var cap = await competitorBasedGame.WhatIsPlayerAsync(playerCap);
-			var com = await competitorBasedGame.WhatIsPlayerAsync(playerCom);
+			var gameManager = GetService<IGameManager>();
+			var playerSideManager = GetService<IPlayerSideManager>();
+			var capSide = await playerSideManager.WhatIsPlayerAsync(playerCap);
+			var comSide = await playerSideManager.WhatIsPlayerAsync(playerCom);
 
-			SeedArsenal(cap);
-			SeedArsenal(com);
-			SetTargets(cap);
-			SetTargets(com);
+			await SeedArsenal(capSide);
+			await SeedArsenal(comSide);
+			await SetTargets(capSide);
+			await SetTargets(comSide);
 
 			await gameManager.SetTargetAssignmentsAsync();
 			await gameManager.RainFireAsync();
 		}
 
-		private void SeedArsenal(ICompetitor competitor)
+		private async Task SeedArsenal(Side side)
 		{
-			foreach (var settlement in competitor.Settlements)
-				competitor.MissileDeliverySystems.Add(new Silo(0, 1, new SRM()) { Location = settlement.Location });
+			short payloadCount = 1;
+			var missileDeliverySystemResource = GetService<IMissileDeliverySystemResource>();
+			var settlementResource = GetService<ISettlementResource>();
+			var settlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession, side);
+			foreach (var settlement in settlements)
+				await missileDeliverySystemResource.AssignAsync(currentGame.GameSession, side, new Silo(payloadCount, new SRM()) { Coord = settlement.Coord });
 		}
 
-		private void SetTargets(ICompetitor competitor)
+		private async Task SetTargets(Side side)
 		{
-			foreach (var settlement in competitor.Settlements.Cast <Contracts.V2.World.Settlement>())
-				gameManager.AddTargetAsync(settlement, TargetPriority.Primary);
+			var gameManager = GetService<IGameManager>();
+			var settlementResource = GetService<ISettlementResource>();
+			var settlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession, side);
+			foreach (var settlement in settlements)
+				await gameManager.AddTargetAsync(side, settlement, TargetPriority.Primary);
 		}
 	}
 }

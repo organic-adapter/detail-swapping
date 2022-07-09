@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
     <PackageReference Include="Moq" Version="4.18.1" />
     <PackageReference Include="NUnit" Version="3.13.2" />
@@ -18,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\WarGames.Business\WarGames.Business.csproj" />
     <ProjectReference Include="..\WarGames.Contracts\WarGames.Contracts.csproj" />
+    <ProjectReference Include="..\WarGames.Startups\WarGames.Startups.csproj" />
   </ItemGroup>
 
   <ItemGroup>

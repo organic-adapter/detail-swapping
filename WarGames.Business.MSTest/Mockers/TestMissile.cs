@@ -1,5 +1,5 @@
 ﻿using Map.Engine;
-using WarGames.Contracts.Arsenal;
+using WarGames.Contracts.V2.Arsenal;
 
 namespace WarGames.Business.MSTest.Mockers
 {

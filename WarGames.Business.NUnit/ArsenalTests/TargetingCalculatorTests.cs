@@ -1,86 +1,87 @@
 ﻿using AutoMapper;
-using Moq;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
+using WarGames.Business.NUnit.Mockers;
 using WarGames.Business.Planet;
-using WarGames.Contracts.Arsenal;
-using WarGames.Contracts.Game;
-using WarGames.Contracts.V2.Games;
+using WarGames.Contracts.V2.Arsenal;
+using WarGames.Contracts.V2.Sides;
+using WarGames.Contracts.V2.World;
 using WarGames.Resources.Arsenal;
-using WarGames.Resources.Competitors;
+using WarGames.Resources.Planet;
+using WarGames.Startups;
 
 namespace WarGames.Business.NUnit.ArsenalTests
 {
 	[TestFixture]
 	public class TargetingCalculatorTests
 	{
-		private ICompetitorBasedGame competitorBasedGame;
-		private IGameManager gameManager;
-		private IPlayer playerCapitalism;
-		private IPlayer playerCommunism;
-		private ITargetingCalculator targetingCalculator;
+		private IServiceProvider serviceProvider;
 		private TestData testData;
+		private CurrentGame currentGame;
+		private Player playerCapitalism;
+		private Player playerCommunism;
 
 		#region Set Ups
 
 		[SetUp]
 		public async Task SetUp()
 		{
-			SetUpPlayers();
-			await SetUpGameManager();
-			SetUpMds();
-		}
-		private IMapper GenerateMapper()
-		{
-			var config = new MapperConfiguration(cfg => cfg.AddProfile<ContractConversionMapperProfiles>());
-			return config.CreateMapper();
-		}
-		private async Task SetUpGameManager()
-		{
-			var mapper = GenerateMapper();
 			testData = new TestData();
-			//We can use the InMemoryRepositories directly rather than Mock these.
-			var targetResource = new TargetResource(mapper);
-			targetingCalculator = new TargetingCalculator(targetResource);
-			gameManager = new GameManager
-					(
-						mapper
-						, new WorldFactory(testData.World)
-						, Mock.Of<IArsenalAssignmentEngine>()
-						, new CompetitorResource(testData.Competitors)
-						, new CountryAssignmentEngine()
-						, Mock.Of<IDamageCalculator>()
-						, Mock.Of<IEnumerable<IGameDefaults>>()
-						, targetResource
-						, targetingCalculator
-					);
-			competitorBasedGame = gameManager as ICompetitorBasedGame;
-			await gameManager.LoadWorldAsync();
+			serviceProvider = ServicesMocker
+								.DefaultMocker
+								.AddSingleton<IWorldBuildingEngine, TestWorldBuildingEngine>()
+								.Build();
 
-			await competitorBasedGame.LoadPlayerAsync(playerCommunism, testData.Communism);
-			await competitorBasedGame.LoadPlayerAsync(playerCapitalism, testData.Capitalism);
+			currentGame = GetService<CurrentGame>();
+			await SetUpPlayers();
+			await SetUpMds();
+		}
+		private T GetService<T>()
+		{
+			return serviceProvider.GetService<T>()
+				?? throw new ArgumentNullException();
+		}
+		private async Task SetUpMds()
+		{
+			var settlementResource = GetService<ISettlementResource>();
+			var missileDeliverySystemResource = GetService<IMissileDeliverySystemResource>();
+			var worldManager = GetService<IWorldManager>();
 
-			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
+			var settlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession);
+
+			foreach (var settlement in settlements)
+			{
+				if (settlement.Name.Contains(testData.Communism.DisplayName))
+					await settlementResource.AssignAsync(currentGame.GameSession, testData.Communism, settlement);
+				else
+					await settlementResource.AssignAsync(currentGame.GameSession, testData.Capitalism, settlement);
+			}
+			var communismSettlement = (await settlementResource.RetrieveManyAsync(currentGame.GameSession, testData.Communism))
+										.OrderBy(settlement => settlement.Coord.Longitude).First();
+			var capitalismSettlement = (await settlementResource.RetrieveManyAsync(currentGame.GameSession, testData.Capitalism))
+										.OrderBy(settlement => settlement.Coord.Longitude).First();
+
+			await missileDeliverySystemResource.AssignAsync(currentGame.GameSession, testData.Communism, testData.StandardMissileDeliverySystem(communismSettlement.Coord));
+			await missileDeliverySystemResource.AssignAsync(currentGame.GameSession, testData.Capitalism, testData.StandardMissileDeliverySystem(capitalismSettlement.Coord));
 		}
 
-		private void SetUpMds()
+		private async Task SetUpPlayers()
 		{
-			var communismSettlement = testData.Communism.Settlements.OrderBy(settlement => settlement.Location.Coord.Longitude).First();
-			var capitalismSettlement = testData.Capitalism.Settlements.OrderBy(settlement => settlement.Location.Coord.Longitude).First();
-			testData.Communism.Add(testData.StandardMissileDeliverySystem(communismSettlement.Location.Area, communismSettlement.Location));
-			testData.Capitalism.Add(testData.StandardMissileDeliverySystem(capitalismSettlement.Location.Area, capitalismSettlement.Location));
-		}
+			var playerSideManager = GetService<IPlayerSideManager>();
 
-		private void SetUpPlayers()
-		{
-			playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString());
-			playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString());
+			playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString(), PlayerType.Human);
+			playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString(), PlayerType.Human);
+			await playerSideManager.AddAsync(playerCommunism);
+			await playerSideManager.AddAsync(playerCapitalism);
+
+			await playerSideManager.ChooseAsync(playerCommunism, testData.Communism);
+			await playerSideManager.ChooseAsync(playerCapitalism, testData.Capitalism);
 		}
 
 		#endregion Set Ups
@@ -88,32 +89,34 @@ namespace WarGames.Business.NUnit.ArsenalTests
 		[Test]
 		public async Task Can_Find_Targets_In_Range()
 		{
-			var closestSettlement = testData.Capitalism.Settlements.OrderByDescending(settlement => settlement.Location.Coord.Longitude).First() as Contracts.V2.World.Settlement;
-			var farthestSettlement = testData.Capitalism.Settlements.OrderBy(settlement => settlement.Location.Coord.Longitude).First() as Contracts.V2.World.Settlement;
-			await gameManager.AddTargetAsync(closestSettlement, TargetPriority.Primary);
-			await gameManager.AddTargetAsync(farthestSettlement, TargetPriority.Primary);
+			var gameManager = GetService<IGameManager>();
+			var targetingCalculator = GetService<ITargetingCalculator>();
+			var settlementResource = GetService<ISettlementResource>();
+			var settlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession, playerCapitalism);
+
+			Settlement closestSettlement = settlements.OrderByDescending(settlement => settlement.Coord.Longitude).First();
+			Settlement farthestSettlement = settlements.OrderBy(settlement => settlement.Coord.Longitude).First();
+			await gameManager.AddTargetAsync(testData.Capitalism, closestSettlement, TargetPriority.Primary);
+			await gameManager.AddTargetAsync(testData.Capitalism, farthestSettlement, TargetPriority.Primary);
 
 			var targetsInRange = await targetingCalculator.CalculateTargetsInRangeAsync(testData.Communism, testData.Capitalism);
 
 			Assert.That(targetsInRange, Is.Not.Null);
 			Assert.That(targetsInRange.Count, Is.EqualTo(1));
-			Assert.That(targetsInRange.Any(tir => tir.Key.Key == closestSettlement), Is.True);
-			Assert.That(targetsInRange.Any(tir => tir.Key.Key == farthestSettlement), Is.False);
+			Assert.That(targetsInRange.Any(kvp => kvp.Key.Key.Equals(closestSettlement)), Is.True);
+			Assert.That(targetsInRange.Any(kvp => kvp.Key.Key.Equals(farthestSettlement)), Is.False);
 		}
 
 		[Test]
 		public async Task Can_Get_Settlements()
 		{
-			var comSettlements = await targetingCalculator.GetSettlementsAsync(testData.Communism);
-			var capSettlements = await targetingCalculator.GetSettlementsAsync(testData.Capitalism);
+			var targetingCalculator = GetService<ITargetingCalculator>();
+			var settlementResource = GetService<ISettlementResource>();
+			var comSettlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession, testData.Communism);
+			var capSettlements = await settlementResource.RetrieveManyAsync(currentGame.GameSession, testData.Capitalism);
 
 			Assert.That(comSettlements.Any(), Is.True);
 			Assert.That(capSettlements.Any(), Is.True);
-			Assert.That(comSettlements.Count, Is.EqualTo(testData.Communism.Countries.Sum(country => country.Settlements.Count)));
-			Assert.That(capSettlements.Count, Is.EqualTo(testData.Capitalism.Countries.Sum(country => country.Settlements.Count)));
-
-			Assert.That(testData.Capitalism.Countries.All(country => country.Settlements.All(settlement => capSettlements.Contains(settlement))), Is.True);
-			Assert.That(testData.Communism.Countries.All(country => country.Settlements.All(settlement => comSettlements.Contains(settlement))), Is.True);
 		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿namespace WarGames.Contracts.Game
+﻿namespace WarGames.Contracts.V2.Sides
 {
 	public enum PlayerType
 	{

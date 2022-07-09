@@ -1,10 +1,10 @@
-﻿using WarGames.Contracts.Competitors;
-using WarGames.Contracts.Game;
+﻿using WarGames.Contracts.V2;
+using WarGames.Contracts.V2.World;
 
 namespace WarGames.Business.Game
 {
 	public interface ICountryAssignmentEngine
 	{
-		public Task AssignCountriesAsync(World world, IEnumerable<ICompetitor> competitors, CountryAssignment assignmentType);
+		public Task AssignCountriesAsync(GameSession gameSession, CountryAssignment assignmentType);
 	}
 }

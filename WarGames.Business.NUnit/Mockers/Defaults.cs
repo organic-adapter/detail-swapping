@@ -17,7 +17,6 @@ namespace WarGames.Business.NUnit.Mockers
 	}
 	internal class MissileDeliverySystemDefaults
 	{
-		public readonly TerrainType MOVEMENT_CONSTRAINT = TerrainType.None;
 		public readonly float MOVEMENT_KPS = 1f;
 		public readonly short PAYLOAD_COUNT = 1;
 	}

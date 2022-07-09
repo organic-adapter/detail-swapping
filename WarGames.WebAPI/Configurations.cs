@@ -1,5 +1,6 @@
 ﻿using SimpleMap.Contracts;
 using WarGames.Contracts.Game;
+using WarGames.Contracts.V2.World;
 using WarGames.Resources;
 
 namespace WarGames.WebAPI
