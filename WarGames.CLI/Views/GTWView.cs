@@ -12,6 +12,7 @@ namespace WarGames.CLI.Views
 	{
 		private const int maxPicks = 9;
 		private readonly CurrentGame currentGame;
+		private readonly IEnumerable<Side> defaultSides;
 		private readonly IGameManager gameManager;
 		private readonly IPlayerSideManager playerSideManager;
 		private readonly IWorldManager worldManager;
@@ -21,6 +22,7 @@ namespace WarGames.CLI.Views
 		private List<Settlement> currentPicks;
 		private Player human;
 		private List<Settlement> potentialTargets;
+
 		private Dictionary<int, TargetPriority> prioritySelectionMap = new Dictionary<int, TargetPriority>()
 		{
 			{ 9, TargetPriority.Primary },
@@ -37,12 +39,14 @@ namespace WarGames.CLI.Views
 		public GTWView
 				(
 					CurrentGame currentGame
+					, IEnumerable<Side> defaultSides
 					, IGameManager gameManager
 					, IPlayerSideManager playerSideManager
 					, IWorldManager worldManager
 				) : base(new Dictionary<string, Action<string>>())
 		{
 			this.currentGame = currentGame;
+			this.defaultSides = defaultSides;
 			this.gameManager = gameManager;
 			this.playerSideManager = playerSideManager;
 			this.worldManager = worldManager;
@@ -57,10 +61,15 @@ namespace WarGames.CLI.Views
 		}
 
 		public override string Title => "GTW";
+		private Capitalism Capitalism => (Capitalism)defaultSides.First(side => side.GetType() == typeof(Capitalism));
+		private Communism Communism => (Communism)defaultSides.First(side => side.GetType() == typeof(Communism));
 		private int TotalPicks => maxPicks - currentPicks.Count;
 
 		protected override void Initialize()
 		{
+			currentGame.CreateNew();
+			playerSideManager.AddAsync(defaultSides.ToArray());
+
 			Console.WriteLine("How many players?");
 			Commands.Add("0", SetAutoPlay);
 			Commands.Add("1", SetSinglePlayer);
@@ -140,6 +149,7 @@ namespace WarGames.CLI.Views
 			gameManager.AssignArsenalAsync(ArsenalAssignment.Arbitrary).Wait();
 			gameManager.MakeAiDecisionsAsync().Wait();
 
+			currentGame.Start();
 			CalculateTopTenTargets();
 		}
 
@@ -147,7 +157,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				playerSideManager.ChooseAsync(human, new Capitalism()).Wait();
+				playerSideManager.ChooseAsync(human, Capitalism).Wait();
 				LoadGamePrerequisites();
 			}
 		}
@@ -156,7 +166,7 @@ namespace WarGames.CLI.Views
 		{
 			if (gameManager.CurrentPhase == GamePhase.PickPlayers)
 			{
-				playerSideManager.ChooseAsync(human, new Communism()).Wait();
+				playerSideManager.ChooseAsync(human, Communism).Wait();
 
 				LoadGamePrerequisites();
 			}
@@ -224,6 +234,7 @@ namespace WarGames.CLI.Views
 		private void SetSinglePlayer(string _)
 		{
 			human = new Player("Hooman", Guid.NewGuid().ToString(), PlayerType.Human);
+			playerSideManager.AddAsync(human).Wait();
 
 			Commands.Clear();
 			Console.WriteLine("What side do you wish to play? \r\n NATO \r\n USSR");

@@ -41,6 +41,7 @@ namespace WarGames.Business.Game.GameDefaults
 		public void Trigger()
 		{
 			var cpu0Side = playerSideManager.NextAvailableSideAsync().Result;
+			playerSideManager.AddAsync(cpu0Player);
 			playerSideManager.ChooseAsync(cpu0Player, cpu0Side);
 		}
 	}

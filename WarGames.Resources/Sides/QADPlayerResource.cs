@@ -25,6 +25,7 @@ namespace WarGames.Resources.Sides
 
 		public async Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game, PlayerType playerType)
 		{
+			EnforceExistence(game);
 			return await Task.Run
 				(
 					() =>

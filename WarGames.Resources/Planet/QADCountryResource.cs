@@ -73,6 +73,7 @@ namespace WarGames.Resources.Planet
 
 		public async Task<IEnumerable<Country>> RetrieveManyAsync(GameSession game)
 		{
+			EnforceExistence(game);
 			return await Task.Run(() => countries[game].Select(kvp => kvp.Value));
 		}
 
@@ -83,6 +84,7 @@ namespace WarGames.Resources.Planet
 
 		public async Task<IEnumerable<Country>> RetrieveManyAsync(GameSession game, Side side)
 		{
+			EnforceExistence(game);
 			return await Task.Run(() => sideMap[game][side]);
 		}
 

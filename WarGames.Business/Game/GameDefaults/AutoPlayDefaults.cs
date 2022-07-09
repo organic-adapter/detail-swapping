@@ -48,9 +48,11 @@ namespace WarGames.Business.Game.GameDefaults
 		public void Trigger()
 		{
 			var cpu0Side = playerSideManager.NextAvailableSideAsync().Result;
+			playerSideManager.AddAsync(cpu0Player);
 			playerSideManager.ChooseAsync(cpu0Player, cpu0Side);
 
 			var cpu1Side = playerSideManager.NextAvailableSideAsync().Result;
+			playerSideManager.AddAsync(cpu1Player);
 			playerSideManager.ChooseAsync(cpu1Player, cpu1Side);
 		}
 	}

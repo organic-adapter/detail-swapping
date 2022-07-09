@@ -15,13 +15,11 @@ namespace WarGames.Business.Managers
 					CurrentGame currentGame
 					, IPlayerResource playerResource
 					, ISideResource sideResource
-					, IEnumerable<Side> defaultSides
 				)
 		{
 			this.currentGame = currentGame;
 			this.playerResource = playerResource;
 			this.sideResource = sideResource;
-			AddAsync(defaultSides.ToArray()).Wait();
 		}
 
 		public async Task AddAsync(params Player[] players)

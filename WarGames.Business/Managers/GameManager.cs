@@ -101,9 +101,9 @@ namespace WarGames.Business.Managers
 			return await targetResource.RetrieveManyAsync(currentGame.GameSession, opponent);
 		}
 
-		public async Task<IEnumerable<Contracts.V2.World.Settlement>> GetPotentialTargetsAsync(Player source)
+		public async Task<IEnumerable<Settlement>> GetPotentialTargetsAsync(Player source)
 		{
-			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source as Contracts.V2.Sides.Player);
+			var opponent = await sideResource.RetrieveOpposingSideAsync(currentGame.GameSession, source);
 			return await settlementResource.RetrieveManyAsync(currentGame.GameSession, opponent);
 		}
 

@@ -44,6 +44,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			currentGame.GameSession = new GameSession("TEST", GameSession.SessionPhase.New);
 
 			var playerSideManager = GetService<IPlayerSideManager>();
+			await playerSideManager.AddAsync(testData.Communism, testData.Capitalism);
 		}
 
 		private T GetService<T>()

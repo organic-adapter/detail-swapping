@@ -53,7 +53,7 @@ namespace WarGames.Resources.Sides
 
 		public async Task<IEnumerable<Side>> RetrieveManyAsync(GameSession game)
 		{
-			return await Task.Run(() => playerMap[game].Select(kvp => kvp.Value));
+			return await Task.Run(() => sides[game].Select(kvp => kvp.Value));
 		}
 
 		public async Task<IEnumerable<T>> RetrieveManyAsync<T>(GameSession game)

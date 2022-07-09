@@ -24,7 +24,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		#region Set Ups
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			testData = new TestData();
 			serviceProvider = ServicesMocker
@@ -37,6 +37,8 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			currentGame = GetService<CurrentGame>();
 			currentGame.GameSession = new GameSession("TEST", GameSession.SessionPhase.New);
 
+			var playerSideManager = GetService<IPlayerSideManager>();
+			await playerSideManager.AddAsync(testData.Communism, testData.Capitalism);
 		}
 
 		private T GetService<T>()

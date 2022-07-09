@@ -42,7 +42,17 @@ namespace WarGames.Business.Planet
 
 		private async Task BuildNewAsync(GameSession gameSession)
 		{
+			var countries = await countryReadResource.GetAllAsync();
+			var settlements = await settlementReadResource.GetAllAsync();
 
+			await countryResource.SaveManyAsync(gameSession, countries);
+			await settlementResource.SaveManyAsync(gameSession, settlements);
+			foreach (var settlement in settlements)
+			{
+				var country = await countryReadResource.GetAsync(settlement.CountryId);
+				country.SettlementIds.Add(settlement.Id);
+				await settlementResource.AssignAsync(gameSession, country, settlement);
+			}
 		}
 
 		private async Task CannotBuildAnUnknownGame(GameSession gameSession)

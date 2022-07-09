@@ -19,6 +19,17 @@ namespace WarGames.Business.Game
 
 		public bool IsNew => gameSession.IsNew;
 		public bool NotLoaded => gameSession == GameSession.NotLoaded;
+
+		public void CreateNew()
+		{
+			gameSession = new GameSession() { Id = Guid.NewGuid().ToString(), Phase = GameSession.SessionPhase.New };
+		}
+
+		public void Start()
+		{
+			gameSession.Phase = GameSession.SessionPhase.Started;
+		}
+
 		public class GameSessionNotLoadedException : Exception
 		{
 		}

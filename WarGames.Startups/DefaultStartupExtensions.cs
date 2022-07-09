@@ -4,6 +4,7 @@ using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Game.GameDefaults;
 using WarGames.Business.Managers;
+using WarGames.Business.Planet;
 using WarGames.Business.Sides;
 using WarGames.Contracts.V2.Games;
 using WarGames.Contracts.V2.Sides;
@@ -24,6 +25,7 @@ namespace WarGames.Startups
 		{
 			services.AddSingleton<IArsenalAssignmentEngine, ArsenalAssignmentEngine>();
 			services.AddSingleton<ICountryAssignmentEngine, CountryAssignmentEngine>();
+			services.AddSingleton<IWorldBuildingEngine, ArbitraryWorldBuildingEngine>();
 
 			services.AddSingleton<IGameManager, GameManager>();
 			services.AddSingleton<IPlayerSideManager, PlayerSideManager>();
