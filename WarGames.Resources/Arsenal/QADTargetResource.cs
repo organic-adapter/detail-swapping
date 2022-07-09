@@ -6,11 +6,11 @@ using WarGames.Contracts.V2.World;
 
 namespace WarGames.Resources.Arsenal
 {
-	public class QuickAndDirtyTargetResource : ITargetResource
+	public class QADTargetResource : ITargetResource
 	{
 		private readonly ConcurrentDictionary<GameSession, ConcurrentDictionary<Side, HashSet<Target>>> targets;
 
-		public QuickAndDirtyTargetResource()
+		public QADTargetResource()
 		{
 			targets = new();
 		}

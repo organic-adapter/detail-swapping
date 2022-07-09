@@ -10,6 +10,8 @@ using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Business.NUnit.Mockers;
+using WarGames.Business.Planet;
+using WarGames.Contracts.V2;
 using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Games;
 using WarGames.Contracts.V2.Sides;
@@ -35,23 +37,25 @@ namespace WarGames.Business.NUnit.ArsenalTests
 			testData = new TestData();
 			serviceProvider = ServicesMocker
 								.DefaultMocker
+								.AddSingleton<IWorldBuildingEngine, TestWorldBuildingEngine>()
 								.Build();
 
 			currentGame = GetService<CurrentGame>();
+			currentGame.GameSession = new GameSession("TEST", GameSession.SessionPhase.New);
 
 			var gameManager = GetService<IGameManager>();
 			var playerSideManager = GetService<IPlayerSideManager>();
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString(), PlayerType.Human);
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString(), PlayerType.Human);
 
-			await gameManager.LoadWorldAsync();
 
-			await playerSideManager.AddAsync(playerCommunism);
-			await playerSideManager.AddAsync(playerCapitalism);
+			await playerSideManager.AddAsync(testData.Communism, testData.Capitalism);
+			await playerSideManager.AddAsync(playerCommunism, playerCapitalism);
 
 			await playerSideManager.ChooseAsync(playerCommunism, testData.Communism);
 			await playerSideManager.ChooseAsync(playerCapitalism, testData.Capitalism);
 
+			await gameManager.LoadWorldAsync();
 			await gameManager.AssignCountriesAsync(CountryAssignment.ByName);
 		}
 		private T GetService<T>()

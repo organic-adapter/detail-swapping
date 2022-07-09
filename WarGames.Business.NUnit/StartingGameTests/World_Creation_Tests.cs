@@ -6,6 +6,9 @@ using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Business.NUnit.Mockers;
+using WarGames.Business.Planet;
+using WarGames.Business.Sides;
+using WarGames.Contracts.V2;
 using WarGames.Contracts.V2.Sides;
 using WarGames.Contracts.V2.World;
 
@@ -26,9 +29,14 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			testData = new TestData();
 			serviceProvider = ServicesMocker
 								.DefaultMocker
+								.AddSingleton<IWorldBuildingEngine, TestWorldBuildingEngine>()
+								.AddSingleton<Side, Capitalism>(testData.Capitalism)
+								.AddSingleton<Side, Communism>(testData.Communism)
 								.Build();
 
 			currentGame = GetService<CurrentGame>();
+			currentGame.GameSession = new GameSession("TEST", GameSession.SessionPhase.New);
+
 		}
 
 		private T GetService<T>()
@@ -46,14 +54,14 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			var gameManager = GetService<IGameManager>();
 			var playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString(), PlayerType.Human);
 			var playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString(), PlayerType.Human);
-			await playerSideManager.AddAsync(playerCommunism);
-			await playerSideManager.AddAsync(playerCapitalism);
+			await playerSideManager.AddAsync(playerCommunism, playerCapitalism);
 
 			await playerSideManager.ChooseAsync(playerCommunism, testData.Communism);
 			await playerSideManager.ChooseAsync(playerCapitalism, testData.Capitalism);
 			var communism = await playerSideManager.WhatIsPlayerAsync(playerCommunism);
 			var capitalism = await playerSideManager.WhatIsPlayerAsync(playerCapitalism);
 
+			await gameManager.LoadWorldAsync();
 			await gameManager.AssignCountriesAsync(CountryAssignment.Random);
 
 			Assert.That(communism.Countries.Count, Is.GreaterThan(0));

@@ -4,7 +4,7 @@ using WarGames.Contracts.V2.Sides;
 
 namespace WarGames.Resources.Sides
 {
-	public class QuickAndDirtySideResource : ISideResource
+	public class QADSideResource : ISideResource
 	{
 		private readonly IMapper mapper;
 		private readonly Dictionary<GameSession, Dictionary<Player, Side>> playerMap;
@@ -13,7 +13,7 @@ namespace WarGames.Resources.Sides
 
 		private readonly Dictionary<GameSession, Dictionary<string, Side>> sides;
 
-		public QuickAndDirtySideResource(IMapper mapper)
+		public QADSideResource(IMapper mapper)
 		{
 			this.mapper = mapper;
 
@@ -26,7 +26,7 @@ namespace WarGames.Resources.Sides
 		{
 			await Task.Run(() =>
 			{
-				UnassignPlayer(game, side);
+				Unassign(game, player);
 				playerMap[game].Add(player, side);
 				playerReverseMap[game].Add(side, player);
 			});
@@ -66,9 +66,9 @@ namespace WarGames.Resources.Sides
 		{
 			return await Task.Run(() =>
 				{
-					if (playerMap[game].Any())
+					if (playerMap[game].Any(kvp => !player.Equals(kvp.Key)))
 						return playerMap[game].First(kvp => !player.Equals(kvp.Key)).Value;
-					
+
 					return Side.Empty;
 				});
 		}
@@ -77,11 +77,12 @@ namespace WarGames.Resources.Sides
 		{
 			await Task.Run(() =>
 			{
-				if (!sides.ContainsKey(game))
-					sides.Add(game, new());
+				EnforceExistence(game);
 
 				if (!sides[game].ContainsKey(side.Id))
 					sides[game].Add(side.Id, Side.Empty);
+
+				sides[game][side.Id] = side;
 			});
 		}
 
@@ -91,14 +92,24 @@ namespace WarGames.Resources.Sides
 				await SaveAsync(game, side);
 		}
 
-		private void UnassignPlayer(GameSession game, Side side)
+		private void EnforceExistence(GameSession gameSession)
 		{
-			if (!playerReverseMap[game].ContainsKey(side))
-				return;
+			if (!playerMap.ContainsKey(gameSession))
+				playerMap.Add(gameSession, new());
 
-			var player = playerReverseMap[game][side];
-			playerReverseMap[game].Remove(side);
+			if (!playerReverseMap.ContainsKey(gameSession))
+				playerReverseMap.Add(gameSession, new());
+
+			if (!sides.ContainsKey(gameSession))
+				sides.Add(gameSession, new());
+		}
+
+		private void Unassign(GameSession game, Player player)
+		{
 			playerMap[game].Remove(player);
+
+			var removeMe = playerReverseMap[game].FirstOrDefault(kvp => kvp.Value.Equals(player)).Key ?? Side.Empty;
+			playerReverseMap[game].Remove(removeMe);
 		}
 	}
 }

@@ -10,6 +10,9 @@ using WarGames.Business.Arsenal;
 using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Business.NUnit.Mockers;
+using WarGames.Business.Planet;
+using WarGames.Business.Sides;
+using WarGames.Contracts.V2;
 using WarGames.Contracts.V2.Games;
 using WarGames.Contracts.V2.Sides;
 using WarGames.Resources.Arsenal;
@@ -27,15 +30,22 @@ namespace WarGames.Business.NUnit.StartingGameTests
 		#region Set Ups
 
 		[SetUp]
-		public void SetUp()
+		public async Task SetUp()
 		{
 			testData = new TestData();
 			serviceProvider = ServicesMocker
 								.DefaultMocker
+								.AddSingleton<IWorldBuildingEngine, TestWorldBuildingEngine>()
+								.AddSingleton<Side, Capitalism>(testData.Capitalism)
+								.AddSingleton<Side, Communism>(testData.Communism)
 								.Build();
 
 			currentGame = GetService<CurrentGame>();
+			currentGame.GameSession = new GameSession("TEST", GameSession.SessionPhase.New);
+
+			var playerSideManager = GetService<IPlayerSideManager>();
 		}
+
 		private T GetService<T>()
 		{
 			return serviceProvider.GetService<T>()
@@ -69,7 +79,7 @@ namespace WarGames.Business.NUnit.StartingGameTests
 			var playerSideManager = GetService<IPlayerSideManager>();
 			var expectedSide = testData.Empty;
 
-			Assert.ThrowsAsync<Exception>(() => playerSideManager.GetSideAsync(expectedSide.Id));
+			Assert.ThrowsAsync<KeyNotFoundException>(() => playerSideManager.GetSideAsync(expectedSide.Id));
 		}
 
 		[Test]

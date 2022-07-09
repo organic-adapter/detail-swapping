@@ -54,7 +54,7 @@ namespace WarGames.Business.NUnit.Mockers
 				Name = $"{country.Name} {settlementName}",
 				Coord = new Coord(0, lon),
 			};
-
+			country.SettlementIds.Add(returnMe.Id);
 			returnMe.TargetValues.Add(MakeTargetValue<CivilianPopulation>(10000, 10000000));
 			return returnMe;
 		}
@@ -87,21 +87,21 @@ namespace WarGames.Business.NUnit.Mockers
 
 		private async Task MakeCountriesAsync()
 		{
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Capital" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Military Center" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Financial Center" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Small City" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Small Towns 1" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Small Towns 2" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "NATO Small Towns 3" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Capital" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Military Center" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Financial Center" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Small City" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Small Towns 1" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Small Towns 2" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "NATO Small Towns 3" });
 
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Capital" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Military Center" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Financial Center" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Small City" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Small Towns 1" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Small Towns 2" });
-			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Name = "USSR Small Towns 3" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Capital" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Military Center" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Financial Center" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Small City" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Small Towns 1" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Small Towns 2" });
+			await countryResource.SaveAsync(currentGame.GameSession, new Country() { Id = Guid.NewGuid().ToString(), Name = "USSR Small Towns 3" });
 
 			var countries = await countryResource.RetrieveManyAsync(currentGame.GameSession);
 			foreach (var country in countries)
@@ -113,10 +113,22 @@ namespace WarGames.Business.NUnit.Mockers
 
 		private async Task MakeSettlements(Country country, int direction)
 		{
-			await settlementResource.SaveAsync(currentGame.GameSession, MakeSettlement(country, "Primary Target", direction * 4));
-			await settlementResource.SaveAsync(currentGame.GameSession, MakeSettlement(country, "Secondary Target", direction * 8));
-			await settlementResource.SaveAsync(currentGame.GameSession, MakeSettlement(country, "Tertiary Target", direction * 16));
-			await settlementResource.SaveAsync(currentGame.GameSession, MakeSettlement(country, "Left Over Target", direction * 32));
+			var settlement1 = MakeSettlement(country, "Primary Target", direction * 4);
+			await settlementResource.SaveAsync(currentGame.GameSession, settlement1);
+			await settlementResource.AssignAsync(currentGame.GameSession, country, settlement1);
+
+			var settlement2 = MakeSettlement(country, "Secondary Target", direction * 8);
+			await settlementResource.SaveAsync(currentGame.GameSession, settlement2);
+			await settlementResource.AssignAsync(currentGame.GameSession, country, settlement2);
+
+
+			var settlement3 = MakeSettlement(country, "Tertiary Target", direction * 16);
+			await settlementResource.SaveAsync(currentGame.GameSession, settlement3);
+			await settlementResource.AssignAsync(currentGame.GameSession, country, settlement3);
+
+			var settlement4 = MakeSettlement(country, "Left Over Target", direction * 32);
+			await settlementResource.SaveAsync(currentGame.GameSession, settlement4);
+			await settlementResource.AssignAsync(currentGame.GameSession, country, settlement4);
 		}
 
 		public class AttemptedLoadFinishedGameException : Exception

@@ -3,11 +3,11 @@ using WarGames.Contracts.V2.Sides;
 
 namespace WarGames.Resources.Sides
 {
-	public class QuickAndDirtyPlayerResource : IPlayerResource
+	public class QADPlayerResource : IPlayerResource
 	{
 		private readonly Dictionary<GameSession, Dictionary<string, Player>> players;
 
-		public QuickAndDirtyPlayerResource()
+		public QADPlayerResource()
 		{
 			players = new();
 		}
@@ -19,6 +19,7 @@ namespace WarGames.Resources.Sides
 
 		public async Task<IEnumerable<Player>> RetrieveManyAsync(GameSession game)
 		{
+			EnforceExistence(game);
 			return await Task.Run(() => players[game].Select(kvp => kvp.Value));
 		}
 
@@ -37,8 +38,7 @@ namespace WarGames.Resources.Sides
 		{
 			await Task.Run(() =>
 			{
-				if (!players.ContainsKey(game))
-					players.Add(game, new());
+				EnforceExistence(game);
 
 				if (!players[game].ContainsKey(player.Id))
 					players[game].Add(player.Id, Player.Empty);
@@ -51,6 +51,12 @@ namespace WarGames.Resources.Sides
 		{
 			foreach (var player in players)
 				await SaveAsync(game, player);
+		}
+
+		private void EnforceExistence(GameSession gameSession)
+		{
+			if (!players.ContainsKey(gameSession))
+				players.Add(gameSession, new());
 		}
 	}
 }

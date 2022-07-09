@@ -4,7 +4,7 @@ using WarGames.Contracts.V2.World;
 
 namespace WarGames.Resources.Planet
 {
-	public class QuickAndDirtyCountryResource : ICountryResource
+	public class QADCountryResource : ICountryResource
 	{
 		/// <summary>
 		/// Can you read these? Didn't think so. This screams abstraction.
@@ -18,7 +18,7 @@ namespace WarGames.Resources.Planet
 		private readonly Dictionary<GameSession, Dictionary<Side, HashSet<Country>>> sideMap;
 		private readonly Dictionary<GameSession, Dictionary<Country, Side>> sideReverseMap;
 
-		public QuickAndDirtyCountryResource()
+		public QADCountryResource()
 		{
 			countries = new();
 			playerMap = new();
@@ -27,7 +27,7 @@ namespace WarGames.Resources.Planet
 			sideReverseMap = new();
 		}
 
-		public QuickAndDirtyCountryResource
+		public QADCountryResource
 			(
 				Bucket<Dictionary<GameSession, Dictionary<string, Country>>> countries,
 				Bucket<Dictionary<GameSession, Dictionary<Player, HashSet<Country>>>> playerMap,
@@ -46,7 +46,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				InitializeCollection(game, player);
+				EnforceExistence(game, player);
 				UnassignPlayer(game, country);
 
 				playerMap[game][player].Add(country);
@@ -58,7 +58,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				InitializeCollection(game, side);
+				EnforceExistence(game, side);
 				UnassignSide(game, country);
 
 				sideMap[game][side].Add(country);
@@ -90,8 +90,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				if (!countries.ContainsKey(game))
-					countries.Add(game, new());
+				EnforceExistence(game);
 
 				if (!countries[game].ContainsKey(country.Id))
 					countries[game].Add(country.Id, Country.Empty);
@@ -126,7 +125,25 @@ namespace WarGames.Resources.Planet
 			return returnMe;
 		}
 
-		private void InitializeCollection(GameSession game, Player player)
+		private void EnforceExistence(GameSession game)
+		{
+			if (!countries.ContainsKey(game))
+				countries.Add(game, new());
+
+			if (!playerMap.ContainsKey(game))
+				playerMap.Add(game, new());
+
+			if (!playerReverseMap.ContainsKey(game))
+				playerReverseMap.Add(game, new());
+
+			if (!sideMap.ContainsKey(game))
+				sideMap.Add(game, new());
+
+			if (!sideReverseMap.ContainsKey(game))
+				sideReverseMap.Add(game, new());
+		}
+
+		private void EnforceExistence(GameSession game, Player player)
 		{
 			if (playerMap[game].ContainsKey(player))
 				return;
@@ -134,7 +151,7 @@ namespace WarGames.Resources.Planet
 			playerMap[game].Add(player, new HashSet<Country>());
 		}
 
-		private void InitializeCollection(GameSession game, Side side)
+		private void EnforceExistence(GameSession game, Side side)
 		{
 			if (sideMap[game].ContainsKey(side))
 				return;

@@ -9,8 +9,8 @@ namespace WarGames.Business.NUnit
 {
 	internal class TestData
 	{
-		public Side Capitalism;
-		public Side Communism;
+		public Capitalism Capitalism;
+		public Communism Communism;
 		public Side Empty;
 
 		public TestData()

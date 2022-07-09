@@ -4,24 +4,23 @@ using WarGames.Contracts.V2.World;
 
 namespace WarGames.Resources.Planet
 {
-	public class QuickAndDirtySettlementResource : ISettlementResource
+
+	/// <summary>
+	/// Can you read these? Didn't think so. This screams abstraction.
+	///
+	/// But we are going to prove a quick point first.
+	/// </summary>
+	public class QADSettlementResource : ISettlementResource
 	{
 		private readonly Dictionary<GameSession, Dictionary<Country, HashSet<Settlement>>> countryMap;
 		private readonly Dictionary<GameSession, Dictionary<Settlement, Country>> countryReverseMap;
 		private readonly Dictionary<GameSession, Dictionary<Player, HashSet<Settlement>>> playerMap;
 		private readonly Dictionary<GameSession, Dictionary<Settlement, Player>> playerReverseMap;
-
-		/// <summary>
-		/// Can you read these? Didn't think so. This screams abstraction.
-		///
-		/// But we are going to prove a quick point first.
-		/// </summary>
 		private readonly Dictionary<GameSession, Dictionary<string, Settlement>> settlements;
-
 		private readonly Dictionary<GameSession, Dictionary<Side, HashSet<Settlement>>> sideMap;
 		private readonly Dictionary<GameSession, Dictionary<Settlement, Side>> sideReverseMap;
 
-		public QuickAndDirtySettlementResource()
+		public QADSettlementResource()
 		{
 			settlements = new();
 			countryMap = new();
@@ -32,7 +31,7 @@ namespace WarGames.Resources.Planet
 			sideReverseMap = new();
 		}
 
-		public QuickAndDirtySettlementResource
+		public QADSettlementResource
 			(
 				Bucket<Dictionary<GameSession, Dictionary<string, Settlement>>> settlements,
 				Bucket<Dictionary<GameSession, Dictionary<Country, HashSet<Settlement>>>> countryMap,
@@ -54,7 +53,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				InitializeCollection(game, country);
+				EnforceExistence(game, country);
 				UnassignCountry(game, settlement);
 
 				countryMap[game][country].Add(settlement);
@@ -66,7 +65,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				InitializeCollection(game, player);
+				EnforceExistence(game, player);
 				UnassignPlayer(game, settlement);
 
 				playerMap[game][player].Add(settlement);
@@ -78,7 +77,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				InitializeCollection(game, side);
+				EnforceExistence(game, side);
 				UnassignSide(game, settlement);
 
 				sideMap[game][side].Add(settlement);
@@ -115,8 +114,7 @@ namespace WarGames.Resources.Planet
 		{
 			await Task.Run(() =>
 			{
-				if (!settlements.ContainsKey(game))
-					settlements.Add(game, new());
+				EnforceExistence(game);
 
 				if (!settlements[game].ContainsKey(settlement.Id))
 					settlements[game].Add(settlement.Id, Settlement.Empty);
@@ -150,8 +148,30 @@ namespace WarGames.Resources.Planet
 			}
 			return returnMe;
 		}
+		private void EnforceExistence(GameSession game)
+		{
+			if (!countryMap.ContainsKey(game))
+				countryMap.Add(game, new());
 
-		private void InitializeCollection(GameSession game, Country country)
+			if (!countryReverseMap.ContainsKey(game))
+				countryReverseMap.Add(game, new());
+
+			if (!playerMap.ContainsKey(game))
+				playerMap.Add(game, new());
+
+			if (!playerReverseMap.ContainsKey(game))
+				playerReverseMap.Add(game, new());
+
+			if (!settlements.ContainsKey(game))
+				settlements.Add(game, new());
+
+			if (!sideMap.ContainsKey(game))
+				sideMap.Add(game, new());
+
+			if (!sideReverseMap.ContainsKey(game))
+				sideReverseMap.Add(game, new());
+		}
+		private void EnforceExistence(GameSession game, Country country)
 		{
 			if (countryMap[game].ContainsKey(country))
 				return;
@@ -159,7 +179,7 @@ namespace WarGames.Resources.Planet
 			countryMap[game].Add(country, new HashSet<Settlement>());
 		}
 
-		private void InitializeCollection(GameSession game, Player player)
+		private void EnforceExistence(GameSession game, Player player)
 		{
 			if (playerMap[game].ContainsKey(player))
 				return;
@@ -167,7 +187,7 @@ namespace WarGames.Resources.Planet
 			playerMap[game].Add(player, new HashSet<Settlement>());
 		}
 
-		private void InitializeCollection(GameSession game, Side side)
+		private void EnforceExistence(GameSession game, Side side)
 		{
 			if (sideMap[game].ContainsKey(side))
 				return;

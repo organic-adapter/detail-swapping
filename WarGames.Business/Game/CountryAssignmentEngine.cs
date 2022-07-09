@@ -10,15 +10,18 @@ namespace WarGames.Business.Game
 	{
 		private readonly Dictionary<CountryAssignment, Func<GameSession, Task>> assignmentDelegates;
 		private readonly ICountryResource countryResource;
+		private readonly ISettlementResource settlementResource;
 		private readonly ISideResource sideResource;
 
 		public CountryAssignmentEngine
 				(
 					ICountryResource countryResource
+					, ISettlementResource settlementResource
 					, ISideResource sideResource
 				)
 		{
 			this.countryResource = countryResource;
+			this.settlementResource = settlementResource;
 			this.sideResource = sideResource;
 
 			assignmentDelegates = new()
@@ -36,6 +39,12 @@ namespace WarGames.Business.Game
 		private async Task AssignCountry(GameSession gameSession, Side side, Country country)
 		{
 			await countryResource.AssignAsync(gameSession, side, country);
+			side.Countries.Add(country.Id);
+			foreach(var settlementId in country.SettlementIds)
+			{
+				var settlement = await settlementResource.RetrieveAsync(gameSession, settlementId);
+				await settlementResource.AssignAsync(gameSession, side, settlement);
+			}
 		}
 
 		private async Task CountryAssignmentByName(GameSession gameSession)

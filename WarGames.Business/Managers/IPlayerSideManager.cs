@@ -6,7 +6,11 @@ namespace WarGames.Business.Managers
 	{
 		public Task AddAsync(Player player);
 
+		Task AddAsync(params Player[] players);
+
 		public Task AddAsync(Side side);
+
+		Task AddAsync(params Side[] side);
 
 		public Task ChooseAsync(Player player, Side side);
 

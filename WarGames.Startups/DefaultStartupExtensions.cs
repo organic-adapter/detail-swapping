@@ -10,6 +10,7 @@ using WarGames.Contracts.V2.Sides;
 using WarGames.Contracts.V2.World;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Planet;
 using WarGames.Resources.Sides;
 
 namespace WarGames.Startups
@@ -26,6 +27,7 @@ namespace WarGames.Startups
 
 			services.AddSingleton<IGameManager, GameManager>();
 			services.AddSingleton<IPlayerSideManager, PlayerSideManager>();
+			services.AddSingleton<IWorldManager, WorldManager>();
 
 			services.AddSingleton<IDamageCalculator, DamageCalculator>();
 			services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
@@ -62,9 +64,12 @@ namespace WarGames.Startups
 
 		public static IServiceCollection InitializeDataServices(this IServiceCollection services)
 		{
-			services.AddSingleton<ITargetResource, QuickAndDirtyTargetResource>();
-			services.AddSingleton<ISideResource, QuickAndDirtySideResource>();
-			services.AddSingleton<IPlayerResource, QuickAndDirtyPlayerResource>();
+			services.AddSingleton<ITargetResource, QADTargetResource>();
+			services.AddSingleton<ISideResource, QADSideResource>();
+			services.AddSingleton<IPlayerResource, QADPlayerResource>();
+			services.AddSingleton<ICountryResource, QADCountryResource>();
+			services.AddSingleton<ISettlementResource, QADSettlementResource>();
+			services.AddSingleton<IMissileDeliverySystemResource, QADMissileDeliverySystemResource>();
 			services.AddSingleton<IReadResource<Country, string>, ReadonlyJsonFileResource<Country, string>>();
 			services.AddSingleton<IReadResource<Settlement, string>, ReadonlyJsonFileResource<Settlement, string>>();
 

@@ -5,6 +5,12 @@
 	{
 		public static readonly GameSession NotLoaded = new();
 
+		public GameSession(string id, SessionPhase phase)
+		{
+			Id = id;
+			Phase = phase;
+		}
+
 		public GameSession()
 		{
 			Id = string.Empty;

@@ -9,6 +9,7 @@ using WarGames.Business.Game;
 using WarGames.Business.Managers;
 using WarGames.Business.NUnit.Mockers;
 using WarGames.Business.Planet;
+using WarGames.Contracts.V2;
 using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Sides;
 using WarGames.Contracts.V2.World;
@@ -39,8 +40,17 @@ namespace WarGames.Business.NUnit.ArsenalTests
 								.Build();
 
 			currentGame = GetService<CurrentGame>();
+			currentGame.GameSession = new GameSession("TEST", GameSession.SessionPhase.New);
+
 			await SetUpPlayers();
+			await SetUpWorld();
 			await SetUpMds();
+		}
+		private async Task SetUpWorld()
+		{
+			var gameManager = GetService<IGameManager>();
+
+			await gameManager.LoadWorldAsync();
 		}
 		private T GetService<T>()
 		{
@@ -58,14 +68,20 @@ namespace WarGames.Business.NUnit.ArsenalTests
 			foreach (var settlement in settlements)
 			{
 				if (settlement.Name.Contains(testData.Communism.DisplayName))
+				{
+					await settlementResource.AssignAsync(currentGame.GameSession, playerCommunism, settlement);
 					await settlementResource.AssignAsync(currentGame.GameSession, testData.Communism, settlement);
+				}
 				else
+				{
+					await settlementResource.AssignAsync(currentGame.GameSession, playerCapitalism, settlement);
 					await settlementResource.AssignAsync(currentGame.GameSession, testData.Capitalism, settlement);
+				}
 			}
 			var communismSettlement = (await settlementResource.RetrieveManyAsync(currentGame.GameSession, testData.Communism))
-										.OrderBy(settlement => settlement.Coord.Longitude).First();
+										.OrderByDescending(settlement => settlement.Coord.Longitude).First();
 			var capitalismSettlement = (await settlementResource.RetrieveManyAsync(currentGame.GameSession, testData.Capitalism))
-										.OrderBy(settlement => settlement.Coord.Longitude).First();
+										.OrderByDescending(settlement => settlement.Coord.Longitude).First();
 
 			await missileDeliverySystemResource.AssignAsync(currentGame.GameSession, testData.Communism, testData.StandardMissileDeliverySystem(communismSettlement.Coord));
 			await missileDeliverySystemResource.AssignAsync(currentGame.GameSession, testData.Capitalism, testData.StandardMissileDeliverySystem(capitalismSettlement.Coord));
@@ -77,8 +93,8 @@ namespace WarGames.Business.NUnit.ArsenalTests
 
 			playerCommunism = new Player("Test Player Communism", Guid.NewGuid().ToString(), PlayerType.Human);
 			playerCapitalism = new Player("Test Player Capitalism", Guid.NewGuid().ToString(), PlayerType.Human);
-			await playerSideManager.AddAsync(playerCommunism);
-			await playerSideManager.AddAsync(playerCapitalism);
+			await playerSideManager.AddAsync(testData.Communism, testData.Capitalism);
+			await playerSideManager.AddAsync(playerCommunism, playerCapitalism);
 
 			await playerSideManager.ChooseAsync(playerCommunism, testData.Communism);
 			await playerSideManager.ChooseAsync(playerCapitalism, testData.Capitalism);

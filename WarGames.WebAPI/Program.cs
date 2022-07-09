@@ -25,7 +25,7 @@ builder.Services.AddSingleton<IReadResource<Settlement, string>, ReadonlyJsonFil
 builder.Services.AddSingleton<IArsenalAssignmentEngine, ArsenalAssignmentEngine>();
 builder.Services.AddSingleton<ICountryAssignmentEngine, CountryAssignmentEngine>();
 builder.Services.AddSingleton<IGameManager, GameManager>();
-builder.Services.AddSingleton<ITargetResource, QuickAndDirtyTargetResource>();
+builder.Services.AddSingleton<ITargetResource, QADTargetResource>();
 builder.Services.AddSingleton<IDamageCalculator, DamageCalculator>();
 builder.Services.AddSingleton<ITargetingCalculator, TargetingCalculator>();
 builder.Services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();

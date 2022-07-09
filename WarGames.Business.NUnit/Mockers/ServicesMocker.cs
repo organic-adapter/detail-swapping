@@ -20,7 +20,17 @@ namespace WarGames.Business.NUnit.Mockers
 			mocker.Services.AddSingleton<TInterface, TImplementation>();
 			return mocker;
 		}
+		public static ServicesMocker AddSingleton<TInterface, TImplementation>(this ServicesMocker mocker, TImplementation concrete)
+			where TInterface : class
+			where TImplementation : class, TInterface
+		{
+			var serviceDescriptor = mocker.Services.FirstOrDefault(descriptor => descriptor.ServiceType == typeof(TInterface));
+			if (serviceDescriptor != null)
+				mocker.Services.Remove(serviceDescriptor);
 
+			mocker.Services.AddSingleton<TInterface>(concrete);
+			return mocker;
+		}
 		public static ServicesMocker MockSingleton<TInterface>(this ServicesMocker mocker)
 					where TInterface : class
 		{

@@ -10,16 +10,35 @@ namespace WarGames.Business.Managers
 		public readonly IPlayerResource playerResource;
 		public readonly ISideResource sideResource;
 
-		public PlayerSideManager(CurrentGame currentGame, IPlayerResource playerResource, ISideResource sideResource)
+		public PlayerSideManager
+				(
+					CurrentGame currentGame
+					, IPlayerResource playerResource
+					, ISideResource sideResource
+					, IEnumerable<Side> defaultSides
+				)
 		{
 			this.currentGame = currentGame;
 			this.playerResource = playerResource;
 			this.sideResource = sideResource;
+			AddAsync(defaultSides.ToArray()).Wait();
+		}
+
+		public async Task AddAsync(params Player[] players)
+		{
+			foreach (var player in players)
+				await AddAsync(player);
 		}
 
 		public async Task AddAsync(Player player)
 		{
 			await playerResource.SaveAsync(currentGame.GameSession, player);
+		}
+
+		public async Task AddAsync(params Side[] sides)
+		{
+			foreach (var side in sides)
+				await AddAsync(side);
 		}
 
 		public async Task AddAsync(Side side)
