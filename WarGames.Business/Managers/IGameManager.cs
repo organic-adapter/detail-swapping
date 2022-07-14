@@ -9,7 +9,7 @@ namespace WarGames.Business.Managers
 	{
 		public GamePhase CurrentPhase { get; }
 
-		public Task AddTargetAsync(Contracts.V2.Sides.Side side, Settlement settlement, TargetPriority targetPriority);
+		public Task AddTargetAsync(Side side, Settlement settlement, TargetPriority targetPriority);
 
 		public Task AssignArsenalAsync(ArsenalAssignment assignmentType);
 
@@ -30,6 +30,8 @@ namespace WarGames.Business.Managers
 		public void ReadyForLaunch();
 
 		public void ReadyForTargetAssignments();
+
+		public Task SetGameSession(string gameSessionId);
 
 		public Task SetTargetAssignmentsAsync();
 

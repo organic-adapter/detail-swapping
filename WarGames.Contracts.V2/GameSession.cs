@@ -1,8 +1,17 @@
 ﻿namespace WarGames.Contracts.V2
 {
+	public static class GameSessionExtensions
+	{
+		public static bool IsNotFound(this GameSession gameSession)
+		{
+			return gameSession == GameSession.NotFound;
+		}
+	}
+
 	[Serializable]
 	public class GameSession : IUnique<string>
 	{
+		public static readonly GameSession NotFound = new();
 		public static readonly GameSession NotLoaded = new();
 
 		public GameSession(string id, SessionPhase phase)

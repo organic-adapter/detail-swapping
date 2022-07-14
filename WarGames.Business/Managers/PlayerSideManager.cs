@@ -32,7 +32,6 @@ namespace WarGames.Business.Managers
 		{
 			await playerResource.SaveAsync(currentGame.GameSession, player);
 		}
-
 		public async Task AddAsync(params Side[] sides)
 		{
 			foreach (var side in sides)

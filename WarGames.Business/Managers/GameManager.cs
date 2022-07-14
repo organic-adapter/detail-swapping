@@ -3,11 +3,13 @@ using WarGames.Business.Arsenal;
 using WarGames.Business.Exceptions;
 using WarGames.Business.Game;
 using WarGames.Business.Planet;
+using WarGames.Contracts.V2;
 using WarGames.Contracts.V2.Arsenal;
 using WarGames.Contracts.V2.Games;
 using WarGames.Contracts.V2.Sides;
 using WarGames.Contracts.V2.World;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Games;
 using WarGames.Resources.Planet;
 using WarGames.Resources.Sides;
 using static WarGames.Business.Game.CurrentGame;
@@ -24,6 +26,7 @@ namespace WarGames.Business.Managers
 		private readonly CurrentGame currentGame;
 		private readonly IDamageCalculator damageCalculator;
 		private readonly IEnumerable<IGameDefaults> gameDefaults;
+		private readonly IGameSessionResource gameSessionResource;
 		private readonly IMapper mapper;
 		private readonly IPlayerResource playerResource;
 		private readonly ISettlementResource settlementResource;
@@ -43,6 +46,7 @@ namespace WarGames.Business.Managers
 			ICountryResource countryResource,
 			IDamageCalculator damageCalculator,
 			IEnumerable<IGameDefaults> gameDefaults,
+			IGameSessionResource gameSessionResource,
 			IPlayerResource playerResource,
 			ISettlementResource settlementResource,
 			ISideResource sideResource,
@@ -59,6 +63,7 @@ namespace WarGames.Business.Managers
 			this.countryResource = countryResource;
 			this.damageCalculator = damageCalculator;
 			this.gameDefaults = gameDefaults;
+			this.gameSessionResource = gameSessionResource;
 			this.playerResource = playerResource;
 			this.settlementResource = settlementResource;
 			this.sideResource = sideResource;
@@ -175,6 +180,17 @@ namespace WarGames.Business.Managers
 			CurrentPhase = GamePhase.FinalizeAssignments;
 		}
 
+		public async Task SetGameSession(string gameSessionId)
+		{
+			gameSessionId
+				.When(string.IsNullOrEmpty)
+				.AbortWith<InvalidGameSessionIdException>();
+
+			currentGame.GameSession = await gameSessionResource.RetrieveAsync(gameSessionId);
+			if (currentGame.GameSession.IsNotFound())
+				await CreateNewAsync(gameSessionId);
+		}
+
 		public async Task SetTargetAssignmentsAsync()
 		{
 			var sides = await sideResource.RetrieveManyAsync(currentGame.GameSession);
@@ -186,10 +202,20 @@ namespace WarGames.Business.Managers
 			return await playerResource.RetrieveManyAsync(currentGame.GameSession);
 		}
 
+		private async Task CreateNewAsync(string gameSessionId)
+		{
+			currentGame.CreateNew(gameSessionId);
+			await gameSessionResource.SaveAsync(currentGame.GameSession);
+		}
+
 		private async Task<bool> ReachedMaxPlayers()
 		{
 			var activePlayers = await playerResource.RetrieveManyAsync(currentGame.GameSession);
 			return activePlayers.Count() == MAX_PLAYERS;
+		}
+
+		public class InvalidGameSessionIdException : Exception
+		{
 		}
 	}
 }

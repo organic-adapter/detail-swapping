@@ -11,6 +11,7 @@ using WarGames.Contracts.V2.Sides;
 using WarGames.Contracts.V2.World;
 using WarGames.Resources;
 using WarGames.Resources.Arsenal;
+using WarGames.Resources.Games;
 using WarGames.Resources.Planet;
 using WarGames.Resources.Sides;
 
@@ -48,18 +49,10 @@ namespace WarGames.Startups
 		public static IServiceCollection InitializeCoreGameServices(this IServiceCollection services)
 		{
 			services
+				.InitializeGameServices()
 				.InitializeConfigurations()
 				.InitializeDataServices()
 				.InitializeBusinessServices();
-
-			services.AddSingleton<CurrentGame>();
-
-			services.AddSingleton<Side, Capitalism>();
-			services.AddSingleton<Side, Communism>();
-
-			services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();
-			services.AddSingleton<IGameDefaults, TwoPlayerDefaults>();
-			services.AddSingleton<IGameDefaults, AutoPlayDefaults>();
 
 			return services;
 		}
@@ -71,9 +64,24 @@ namespace WarGames.Startups
 			services.AddSingleton<IPlayerResource, QADPlayerResource>();
 			services.AddSingleton<ICountryResource, QADCountryResource>();
 			services.AddSingleton<ISettlementResource, QADSettlementResource>();
+			services.AddSingleton<IGameSessionResource, QADGameSessionResource>();
 			services.AddSingleton<IMissileDeliverySystemResource, QADMissileDeliverySystemResource>();
 			services.AddSingleton<IReadResource<Country, string>, ReadonlyJsonFileResource<Country, string>>();
 			services.AddSingleton<IReadResource<Settlement, string>, ReadonlyJsonFileResource<Settlement, string>>();
+
+			return services;
+		}
+
+		public static IServiceCollection InitializeGameServices(this IServiceCollection services)
+		{
+			services.AddSingleton<CurrentGame>();
+
+			services.AddSingleton<Side, Capitalism>();
+			services.AddSingleton<Side, Communism>();
+
+			services.AddSingleton<IGameDefaults, SinglePlayerDefaults>();
+			services.AddSingleton<IGameDefaults, TwoPlayerDefaults>();
+			services.AddSingleton<IGameDefaults, AutoPlayDefaults>();
 
 			return services;
 		}

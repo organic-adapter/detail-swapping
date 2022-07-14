@@ -24,7 +24,10 @@ namespace WarGames.Business.Game
 		{
 			gameSession = new GameSession() { Id = Guid.NewGuid().ToString(), Phase = GameSession.SessionPhase.New };
 		}
-
+		public void CreateNew(string gameSessionId)
+		{
+			gameSession = new GameSession() { Id = gameSessionId, Phase = GameSession.SessionPhase.New };
+		}
 		public void Start()
 		{
 			gameSession.Phase = GameSession.SessionPhase.Started;

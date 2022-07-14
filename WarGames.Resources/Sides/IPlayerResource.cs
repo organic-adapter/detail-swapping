@@ -13,6 +13,6 @@ namespace WarGames.Resources.Sides
 
 		public Task SaveAsync(GameSession game, Player player);
 
-		public Task SaveManyAsync(GameSession game, IEnumerable<Player> player);
+		public Task SaveManyAsync(GameSession game, IEnumerable<Player> players);
 	}
 }

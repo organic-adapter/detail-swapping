@@ -6,6 +6,7 @@ namespace WarGames.Contracts.V2.Sides
 	public class Player : IUnique<string>
 	{
 		public static readonly Player Empty = new();
+		public static readonly Player NotFound = new();
 
 		public Player(string id, string name, PlayerType playerType)
 		{
