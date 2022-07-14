@@ -15,18 +15,22 @@ namespace WarGames.WebAPI.Controllers
 	 * to verify authentication and authorization using the same
 	 * JWT token.
 	 */
+
 	[Route("api/[controller]")]
 	[ApiController]
 	[Authorize]
 	public class LogonController : ControllerBase
 	{
-		/// <summary>
-		/// We would use an identity provider to verify the behavior.
-		/// </summary>
+		private readonly IOptionsMonitor<AzureB2CConfig> providerDetails;
 		private readonly IOptionsMonitor<ThisIsNotSecureExampleOnly> users;
 
-		public LogonController(IOptionsMonitor<ThisIsNotSecureExampleOnly> users)
+		public LogonController
+				(
+					IOptionsMonitor<ThisIsNotSecureExampleOnly> users,
+					IOptionsMonitor<AzureB2CConfig> providerDetails
+				)
 		{
+			this.providerDetails = providerDetails;
 			this.users = users;
 		}
 
@@ -52,6 +56,13 @@ namespace WarGames.WebAPI.Controllers
 				return Ok(await BuildToken(userInfo));
 			else
 				return Unauthorized();
+		}
+
+		[AllowAnonymous]
+		[HttpGet("providerDetails")]
+		public IActionResult ProviderDetails()
+		{
+			return Ok(providerDetails.CurrentValue);
 		}
 
 		private async Task<string> BuildToken(UserInfo userInfo)

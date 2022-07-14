@@ -12,11 +12,14 @@ using WarGames.Startups;
 using WarGames.Startups.AuthenticationSetups;
 using WarGames.WebAPI.Models;
 
+const string allowOrigins = "allowOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.Configure<ThisIsNotSecureExampleOnly>(builder.Configuration.GetSection("MockSecurity"));
 
 builder.Services
+	.Configure<AzureB2CConfig>(builder.Configuration.GetSection("AzureAdB2C"))
 	.Configure<JsonFileConfiguration<GameSession, string>>(builder.Configuration.GetSection("GameSessionConfiguration"))
 	.InitializeGameServices()
 	.InitializeBusinessServices()
@@ -34,6 +37,21 @@ builder.Services
 
 builder.Services.AddAutoMapper(typeof(PlanetMapperProfiles));
 
+builder.Services.AddCors
+	(
+	options => 
+		{
+			options.AddPolicy
+				(
+					allowOrigins
+					, policy =>
+					{
+						policy.WithMethods("DELETE", "GET", "POST", "PUT");
+						policy.WithOrigins("http://localhost:8080");
+					}
+				);
+		}
+	);
 builder.Services.AddControllers();
 
 /*
@@ -59,6 +77,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors(allowOrigins);
 
 app.UseAuthentication();
 app.UseAuthorization();
