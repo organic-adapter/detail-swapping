@@ -9,6 +9,7 @@ using WarGames.Resources.Games;
 using WarGames.Resources.Planet;
 using WarGames.Resources.Sides;
 using WarGames.Startups;
+using WarGames.Startups.AuthenticationSetups;
 using WarGames.WebAPI.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,19 +41,9 @@ builder.Services.AddControllers();
  *
  * Don't go adding passwords to source control.
  */
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
-{
-	options.RequireHttpsMetadata = false;
-	options.SaveToken = true;
-	options.TokenValidationParameters = new TokenValidationParameters()
-	{
-		ValidateIssuer = true,
-		ValidateAudience = true,
-		ValidAudience = builder.Configuration["MockSecurity:Jwt:Audience"],
-		ValidIssuer = builder.Configuration["MockSecurity:Jwt:Issuer"],
-		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["MockSecurity:Jwt:Key"]))
-	};
-});
+builder
+	.Services
+	.AddJwtBearer(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
