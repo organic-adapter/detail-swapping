@@ -43,7 +43,7 @@ builder.Services.AddControllers();
  */
 builder
 	.Services
-	.AddJwtBearer(builder.Configuration);
+	.AddAzureB2C(builder.Configuration);
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

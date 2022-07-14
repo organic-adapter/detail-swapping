@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using WarGames.Business.Managers;
 using WarGames.Contracts.V2.Sides;
 using WarGames.WebAPI.Models;
@@ -7,6 +8,7 @@ using WarGames.WebAPI.Models;
 namespace WarGames.WebAPI.Controllers
 {
 	[Authorize]
+	[RequiredScope("tasks.game")]
 	[Route("api/[controller]")]
 	[ApiController]
 	public class PlayerController : ControllerBase
